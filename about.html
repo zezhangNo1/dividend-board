@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>口径说明与免责声明 · 高股息看板</title>
+<meta name="description" content="高股息看板的数据口径说明：每股分红、股息率、股息率参考价、区间位置的计算方法，以及免责声明。">
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --line:#e6e8ec; --line2:#f0f1f4;
+    --t1:#16181d; --t2:#5b6270; --t3:#9aa1ad;
+    --gold:#b45309; --goldbg:#fdf3e3;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--t1);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:14px;line-height:1.8;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 20px 50px}
+  h1{font-size:20px;font-weight:600;margin-bottom:6px}
+  .back{display:inline-block;margin-bottom:18px;color:var(--t2);font-size:13px;
+    text-decoration:none;border-bottom:1px dashed #c9ced7;padding-bottom:1px}
+  .back:hover{color:var(--t1)}
+  h2{font-size:15px;font-weight:600;margin:26px 0 10px;padding-left:10px;
+    border-left:3px solid var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card p{color:var(--t2);margin-bottom:10px}
+  .card p:last-child{margin-bottom:0}
+  .card b{color:var(--t1);font-weight:600}
+  .formula{background:#fafbfc;border:1px solid var(--line2);border-radius:8px;
+    padding:8px 12px;margin:8px 0;font-variant-numeric:tabular-nums;
+    font-family:system-ui,sans-serif;color:var(--t1)}
+  .warn{background:var(--goldbg);border:1px solid #f3dfc0;border-radius:12px;
+    padding:14px 16px;color:#7c4a0a;font-size:13px;margin-top:26px}
+  .warn b{color:#5c3708}
+  footer{margin-top:30px;text-align:center;color:var(--t3);font-size:12px;line-height:1.9}
+  footer a{color:var(--t2);text-decoration:none;border-bottom:1px dashed #c9ced7}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>口径说明与免责声明</h1>
+  <a class="back" href="index.html">← 返回看板</a>
+
+  <h2>这是什么</h2>
+  <div class="card">
+    <p>一个 A 股高股息标的的<b>数据看板</b>：汇总 118 只红利类股票的股息率、每股分红、不同股息率水平对应的价格、近一年位置和估值。所有数字都可以在公开渠道交叉验证，本站只做汇总与换算。</p>
+  </div>
+
+  <h2>每股分红（DPS）怎么取</h2>
+  <div class="card">
+    <p>取<b>最近一个「年度分红已经实施完毕」的财年</b>，把该财年的中期分红和年度分红<b>加在一起</b>，不是只看年度那一笔。</p>
+    <p>例如某银行 FY2025 中期每 10 股派 1.0 元、年度每 10 股派 3.2 元，则 DPS = 0.10 + 0.32 = <b>0.42 元</b>。</p>
+    <p>只统计「已实施」的分红（预案、待实施的都不算），所以数据天然滞后实际公告一个实施周期。</p>
+  </div>
+
+  <h2>股息率怎么算</h2>
+  <div class="card">
+    <div class="formula">股息率 ＝ 该财年每股分红 ÷ 最新现价 × 100%</div>
+    <p>现价每次打开页面时从公开行情接口实时获取。价格波动会直接改变股息率——股价跌、股息率升，这是同一件事的两面。</p>
+  </div>
+
+  <h2>四档「参考价」是什么意思</h2>
+  <div class="card">
+    <p>给定一个目标股息率，用每股分红反推对应的价格：</p>
+    <div class="formula">参考价 ＝ 每股分红 ÷ 目标股息率</div>
+    <p>例如 DPS 0.42 元，5% 股息率对应 0.42 ÷ 5% = <b>8.40 元</b>。</p>
+    <p>「还要跌 20%」＝ 现价比这条线高两成；绿色「已低」＝ 现价已经低于这条线。这只是<b>算术换算</b>，不代表任何买卖主张。</p>
+  </div>
+
+  <h2>其他指标</h2>
+  <div class="card">
+    <p><b>近一年位置</b> ＝ (现价 − 近一年最低) ÷ (近一年最高 − 近一年最低)，0% 是一年最低点、100% 是一年最高点。</p>
+    <p><b>PE / PB</b>：市盈率 / 市净率，来自行情接口的静态口径。</p>
+    <p><b>强周期股提醒</b>：周期股的分红金额随盈利大幅波动，用最近一个财年的 DPS 推算的股息率在盈利拐点处可能严重失真，务必结合多财年数据看。</p>
+  </div>
+
+  <h2>数据来源与更新</h2>
+  <div class="card">
+    <p>行情（现价、涨跌、PE/PB、52 周高低）：腾讯公开行情接口，页面打开时自动获取，盘中约每分钟刷新一次。</p>
+    <p>分红明细：东方财富公开数据接口，按季度离线更新后生成数据文件（页面底部「分红数据」日期即最近一次更新时间）。</p>
+  </div>
+
+  <div class="warn">
+    <b>免责声明：</b>本站所有数据来自公开接口，可能存在延迟、缺失或错误，仅供参考，<b>不构成任何投资建议或买卖依据</b>。不同财年的分红水平差异很大，历史股息率不代表未来。投资有风险，决策需独立判断，据此操作风险自负。
+  </div>
+
+  <footer>
+    <a href="index.html">高股息看板</a> · © 2026<br>
+    数据来自公开行情接口，仅供参考，不构成任何投资建议
+  </footer>
+</div>
+</body>
+</html>

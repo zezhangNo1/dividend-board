@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>高股息看板 · A股红利数据</title>
+<meta name="description" content="118 只 A 股高股息标的的股息率、每股分红、四档股息率参考价与估值数据看板。数据来自公开行情接口，仅供参考，不构成投资建议。">
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --line:#e6e8ec; --line2:#f0f1f4;
+    --t1:#16181d; --t2:#5b6270; --t3:#9aa1ad;
+    --up:#c8102e; --down:#0f8a4d;
+    --gold:#b45309; --goldbg:#fdf3e3; --hit:#0f8a4d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--t1);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1600px;margin:0 auto;padding:20px 22px 40px}
+
+  header{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  h1{font-size:19px;font-weight:600;letter-spacing:.3px}
+  .sub{color:var(--t2);font-size:12px;padding-bottom:2px}
+  .sub b{color:var(--t1);font-weight:500}
+  .spacer{flex:1}
+  .status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2);
+    background:var(--card);border:1px solid var(--line);border-radius:20px;padding:5px 12px}
+  .dot{width:6px;height:6px;border-radius:50%;background:#c9ced7;flex:none}
+  .dot.ok{background:var(--down)} .dot.err{background:var(--up)}
+  input#q{background:var(--card);border:1px solid var(--line);border-radius:8px;
+    padding:7px 12px;font-size:13px;width:180px;color:var(--t1);outline:none;font-family:inherit}
+  input#q:focus{border-color:#b9bfca}
+  button.act{background:var(--card);border:1px solid var(--line);border-radius:8px;
+    padding:7px 13px;font-size:13px;color:var(--t2);cursor:pointer;font-family:inherit}
+  button.act:hover{border-color:#c9ced7;color:var(--t1)}
+  a.act{display:inline-block;background:var(--card);border:1px solid var(--line);border-radius:8px;
+    padding:7px 13px;font-size:13px;color:var(--t2);cursor:pointer;font-family:inherit;text-decoration:none}
+  a.act:hover{border-color:#c9ced7;color:var(--t1)}
+
+  nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  nav button{background:var(--card);border:1px solid var(--line);border-radius:8px;
+    padding:6px 13px;font-size:13px;color:var(--t2);cursor:pointer;font-family:inherit;
+    transition:.12s;white-space:nowrap}
+  nav button:hover{border-color:#c9ced7;color:var(--t1)}
+  nav button.on{background:var(--t1);border-color:var(--t1);color:#fff;font-weight:500}
+  nav button i{font-style:normal;opacity:.55;margin-left:5px;font-size:12px}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .scroller{overflow:auto;max-height:calc(100vh - 215px)}
+  table{border-collapse:separate;border-spacing:0;width:100%;font-variant-numeric:tabular-nums}
+  thead th{position:sticky;top:0;z-index:3;background:#fafbfc;
+    border-bottom:1px solid var(--line);padding:9px 10px;font-size:12px;font-weight:500;
+    color:var(--t2);text-align:right;white-space:nowrap;cursor:pointer;user-select:none}
+  thead th:hover{color:var(--t1)}
+  thead th.l{text-align:left}
+  thead th .ar{opacity:.3;margin-left:3px;font-size:10px}
+  thead th.sorted{color:var(--t1);font-weight:600}
+  thead th.sorted .ar{opacity:1}
+
+  tbody td{padding:8px 10px;border-bottom:1px solid var(--line2);text-align:right;
+    white-space:nowrap;font-size:13px}
+  tbody tr{cursor:pointer}
+  tbody tr:hover td{background:#fafbfc}
+  tbody tr.open td{background:#fafbfc}
+  td.l{text-align:left}
+
+  .nm{font-weight:500}
+  .cd{color:var(--t3);font-size:11px;margin-left:5px;font-weight:400}
+  .ind{color:var(--t3);font-size:11px}
+  .px{font-weight:500}
+  .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--t2)}
+  .dy{font-weight:600;font-size:14px;border-radius:5px;padding:1px 6px;display:inline-block}
+  .dy.high{background:var(--goldbg);color:var(--gold)}
+  .dy.mid{background:#eef4fb;color:#1e5fa8}
+  .dy.low{background:#f5f6f8;color:var(--t2)}
+  .sm{color:var(--t2);font-size:12px}
+  .sm b{color:var(--t1);font-weight:500}
+  .tgt{line-height:1.28}
+  .tgt b{font-weight:500;display:block}
+  .tgt span{font-size:11px;color:var(--t3)}
+  .tgt span.hit{color:var(--hit);font-weight:500}
+  .pos{display:flex;align-items:center;gap:7px;justify-content:flex-end}
+  .bar{width:50px;height:5px;border-radius:3px;background:#eceef1;position:relative;flex:none}
+  .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:#cfd4db}
+  .bar i.low{background:var(--down)} .bar i.high{background:var(--up)}
+  .pos em{font-style:normal;color:var(--t2);font-size:12px;width:32px;text-align:right}
+
+  .empty{padding:40px;text-align:center;color:var(--t3)}
+  .note{color:var(--t3);font-size:12px;margin-top:12px;line-height:1.9}
+  .note b{color:var(--t2);font-weight:500}
+
+  tr.det td{background:#fbfcfd;padding:0;border-bottom:1px solid var(--line)}
+  .detbox{padding:12px 14px 14px;display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start}
+  .detbox h4{font-size:12px;color:var(--t2);font-weight:500;margin-bottom:6px}
+  .detbox ul{list-style:none;font-size:12px;color:var(--t2);min-width:260px}
+  .detbox li{display:flex;justify-content:space-between;gap:16px;padding:2px 0;
+    border-bottom:1px dashed var(--line2)}
+  .detbox li span:last-child{color:var(--t1);font-variant-numeric:tabular-nums}
+  .kv{font-size:12px;color:var(--t2);min-width:215px}
+  .kv div{display:flex;justify-content:space-between;gap:16px;padding:2px 0}
+  .kv div span:last-child{color:var(--t1);font-variant-numeric:tabular-nums}
+
+  /* ---------------- 移动端卡片视图 ---------------- */
+  #cards{display:none;gap:10px;flex-direction:column}
+  .stk{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .stk .r1{display:flex;align-items:baseline;gap:8px}
+  .stk .r1 .nm{font-size:15px}
+  .stk .r1 .cd{margin-left:0}
+  .stk .r1 .sec{margin-left:auto;color:var(--t2);font-size:11px;background:#f5f6f8;
+    border-radius:10px;padding:1px 8px;flex:none}
+  .stk .r2{display:flex;align-items:center;gap:10px;margin-top:8px}
+  .stk .price{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+  .stk .chg{font-size:13px;font-variant-numeric:tabular-nums}
+  .stk .r2 .dy{margin-left:auto;font-size:15px}
+  .stk .r3{display:flex;align-items:center;gap:8px;margin-top:8px;color:var(--t2);font-size:12px}
+  .stk .r3 .bar{flex:1;width:auto}
+  .stk .tiers{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+  .stk .tier{background:#fafbfc;border:1px solid var(--line2);border-radius:8px;padding:6px 9px}
+  .stk .tier .tr1{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+  .stk .tier .rt{color:var(--t2);font-size:11px;flex:none}
+  .stk .tier .pr{font-weight:600;font-variant-numeric:tabular-nums;font-size:13px}
+  .stk .tier .gp{display:block;font-size:11px;text-align:right;color:var(--t3);margin-top:2px}
+  .stk .tier .gp.hit{color:var(--hit);font-weight:500}
+  .stk .more{margin-top:9px;text-align:center;color:var(--t3);font-size:11px}
+  .stk .detail{display:none;margin-top:9px;border-top:1px dashed var(--line);padding-top:8px}
+  .stk.open .detail{display:block}
+  .stk .detail .kv div span:first-child{color:var(--t2)}
+  .stk .detail ul{list-style:none;margin:4px 0 8px}
+  .stk .detail li{display:flex;justify-content:space-between;font-size:12px;color:var(--t2);
+    padding:2px 0;border-bottom:1px dashed var(--line2)}
+
+  footer{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);
+    color:var(--t3);font-size:12px;line-height:1.9;text-align:center}
+  footer a{color:var(--t2);text-decoration:none;border-bottom:1px dashed #c9ced7}
+  footer a:hover{color:var(--t1)}
+
+  @media (max-width:760px){
+    .wrap{padding:14px 12px 30px}
+    header{align-items:stretch;gap:8px}
+    h1{font-size:17px}
+    .sub{padding-bottom:0;width:100%;order:3}
+    input#q{flex:1;width:auto}
+    .status{display:none}
+    .panel{display:none}
+    #cards{display:flex}
+    .scroller{max-height:none}
+    .note{display:none}
+    footer{margin-top:18px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>高股息看板</h1>
+    <div class="sub">分红数据 <b id="gen">--</b> · <b id="cnt">0</b> 只 · 行情 <b id="qts">--</b></div>
+    <div class="spacer"></div>
+    <input id="q" placeholder="搜名称 / 代码" autocomplete="off">
+    <button class="act" id="refresh">刷一次行情</button>
+    <a class="act" href="about.html">口径说明</a>
+    <div class="status"><span class="dot" id="dot"></span><span id="stat">等待行情</span></div>
+  </header>
+
+  <nav id="tabs"></nav>
+
+  <div class="panel">
+    <div class="scroller">
+      <table>
+        <thead>
+          <tr>
+            <th class="l" data-k="name">名称 <span class="ar">↕</span></th>
+            <th data-k="price">现价 <span class="ar">↕</span></th>
+            <th data-k="chg">涨跌 <span class="ar">↕</span></th>
+            <th data-k="dy">股息率 <span class="ar">↕</span></th>
+            <th data-k="dps">每股分红 <span class="ar">↕</span></th>
+            <th data-k="t55">5.5% 价 <span class="ar">↕</span></th>
+            <th data-k="t50">5.0% 价 <span class="ar">↕</span></th>
+            <th data-k="t45">4.5% 价 <span class="ar">↕</span></th>
+            <th data-k="t40">4.0% 价 <span class="ar">↕</span></th>
+            <th data-k="pct">近一年位置 <span class="ar">↕</span></th>
+            <th data-k="pe">PE / PB <span class="ar">↕</span></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="cards"></div>
+
+  <div class="note">
+    <b>每股分红</b>取最近一个「年度分红已经派完」的财年，把中期和年度两笔加在一起，不是单看年度那一笔。
+    <b>股息率</b>＝每股分红 ÷ 现价。<b>目标价</b>＝每股分红 ÷ 该档股息率。<br>
+    <b>「还要跌 / 已低」的分母是现价</b>：显示「还要跌 20%」= 现价比这条线高两成，得跌下来才到；绿色「已低」= 现价已经跌破这条线。
+    分红数据按季更新，行情每次打开页面自动取。各档价格只是股息率换算的<b>数学参考</b>，不是买卖建议。
+  </div>
+
+  <footer>
+    <a href="about.html">数据口径与免责声明</a> · 数据来自公开行情接口，仅供参考，不构成任何投资建议<br>
+    © 2026 高股息看板
+  </footer>
+</div>
+
+<script src="site_data.js"></script>
+<script>
+'use strict';
+const TARGETS = [
+  {k:'t55', rate:5.5},
+  {k:'t50', rate:5.0},
+  {k:'t45', rate:4.5},
+  {k:'t40', rate:4.0}
+];
+
+let DATA = null, QUOTES = {};
+let sector = '全部', keyword = '', sort = {k:'dy', dir:-1};
+const mobileMq = window.matchMedia('(max-width:760px)');
+
+const $ = s => document.querySelector(s);
+const num = v => (v === null || v === undefined || v === '-' || isNaN(v)) ? null : Number(v);
+const fmt = (v, d=2) => (v === null || v === undefined) ? '—' : Number(v).toFixed(d);
+
+function targetPrice(r, rate){
+  return (r.dps && r.dps > 0) ? r.dps / (rate / 100) : null;
+}
+function dyOf(r){
+  const p = num(r.price);
+  return (r.dps && p) ? r.dps / p * 100 : null;
+}
+function tierClass(dy){
+  if (dy === null) return 'low';
+  if (dy >= 5.0) return 'high';
+  if (dy >= 4.0) return 'mid';
+  return 'low';
+}
+
+function rowsView(){
+  if (!DATA) return [];
+  return DATA.rows.filter(r => {
+    if (sector !== '全部' && r.sector !== sector) return false;
+    if (keyword){
+      const k = keyword.toLowerCase();
+      if (!(r.name.toLowerCase().includes(k) || r.code.includes(k))) return false;
+    }
+    return true;
+  }).map(r => {
+    const q = QUOTES[r.code] || {};
+    const o = Object.assign({}, r, {
+      price:  num(q.price) ?? num(r.price),
+      chg:    num(q.chg)   ?? num(r.chg),
+      pe:     num(q.pe)    ?? num(r.pe),
+      pb:     num(q.pb)    ?? num(r.pb)
+    });
+    o.dy = dyOf(o);
+    TARGETS.forEach(t => o[t.k] = targetPrice(o, t.rate));
+    return o;
+  });
+}
+
+function sortedRows(){
+  const rows = rowsView(), k = sort.k, dir = sort.dir;
+  rows.sort((a, b) => {
+    if (k === 'name') return a.name.localeCompare(b.name, 'zh') * dir;
+    let x = a[k], y = b[k];
+    x = (x === null || x === undefined) ? -Infinity : Number(x);
+    y = (y === null || y === undefined) ? -Infinity : Number(y);
+    if (x === y) return (b.dy || 0) - (a.dy || 0);
+    return (x - y) * dir;
+  });
+  return rows;
+}
+
+function render(){
+  const rows = sortedRows();
+  $('#cnt').textContent = rows.length;
+  if (mobileMq.matches) renderMobile(rows);
+  else renderDesktop(rows);
+}
+
+function renderDesktop(rows){
+  const tb = $('#tbody');
+  if (!rows.length){
+    tb.innerHTML = '<tr><td colspan="11" class="empty">没有匹配的标的</td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(r => {
+    const dy = r.dy;
+    const cls = r.chg > 0 ? 'up' : (r.chg < 0 ? 'down' : 'flat');
+    const sign = r.chg > 0 ? '+' : '';
+    const pc = r.pct;
+    const pcCls = pc === null ? '' : (pc <= 30 ? 'low' : (pc >= 70 ? 'high' : ''));
+    const tgts = TARGETS.map(t => {
+      const p = r[t.k];
+      if (p === null) return '<td class="tgt">—</td>';
+      const g = (r.price - p) / r.price * 100;
+      const hit = g <= 0;
+      const lab = hit ? `已低 ${Math.abs(g).toFixed(1)}%` : `还要跌 ${g.toFixed(1)}%`;
+      return `<td class="tgt"><b>${fmt(p)}</b><span class="${hit ? 'hit' : ''}">${lab}</span></td>`;
+    }).join('');
+    return `<tr data-code="${r.code}">
+      <td class="l"><span class="nm">${r.name}</span><span class="cd">${r.code}</span><br><span class="ind">${r.sector}</span></td>
+      <td class="px">${fmt(r.price)}</td>
+      <td class="${cls}">${r.chg === null ? '—' : sign + fmt(r.chg) + '%'}</td>
+      <td><span class="dy ${tierClass(dy)}">${dy === null ? '—' : fmt(dy) + '%'}</span></td>
+      <td class="sm"><b>${fmt(r.dps, 3)}</b><br>${r.fy ? 'FY' + r.fy : '—'}</td>
+      ${tgts}
+      <td><div class="pos"><div class="bar"><i class="${pcCls}" style="width:${pc === null ? 0 : Math.max(2, Math.min(100, pc))}%"></i></div><em>${pc === null ? '—' : pc.toFixed(0) + '%'}</em></div></td>
+      <td class="sm"><b>${fmt(r.pe, 1)}</b> / ${fmt(r.pb, 2)}</td>
+    </tr>`;
+  }).join('');
+
+  tb.querySelectorAll('tr[data-code]').forEach(tr => {
+    tr.addEventListener('click', () => toggleDetail(tr));
+  });
+}
+
+function renderMobile(rows){
+  const box = $('#cards');
+  if (!rows.length){
+    box.innerHTML = '<div class="empty">没有匹配的标的</div>';
+    return;
+  }
+  box.innerHTML = rows.map(r => {
+    const dy = r.dy;
+    const cls = r.chg > 0 ? 'up' : (r.chg < 0 ? 'down' : 'flat');
+    const sign = r.chg > 0 ? '+' : '';
+    const pc = r.pct;
+    const pcCls = pc === null ? '' : (pc <= 30 ? 'low' : (pc >= 70 ? 'high' : ''));
+    const tiers = TARGETS.map(t => {
+      const p = r[t.k];
+      if (p === null) return '';
+      const g = (r.price - p) / r.price * 100;
+      const hit = g <= 0;
+      const lab = hit ? `已低 ${Math.abs(g).toFixed(1)}%` : `还要跌 ${g.toFixed(1)}%`;
+      return `<div class="tier"><div class="tr1"><span class="rt">股息率 ${t.rate.toFixed(1)}%</span><span class="pr">${fmt(p)}</span></div><span class="gp ${hit ? 'hit' : ''}">${lab}</span></div>`;
+    }).join('');
+    const divs = (r.divs || []).map(d =>
+      `<li><span>${d.mmdd === '12-31' ? '年度分红' : '中期分红'} · 除息 ${d.exd}</span><span>${d.per.toFixed(4)} 元</span></li>`
+    ).join('');
+    return `<div class="stk" data-code="${r.code}">
+      <div class="r1"><span class="nm">${r.name}</span><span class="cd">${r.code}</span><span class="sec">${r.sector}</span></div>
+      <div class="r2">
+        <span class="price">${fmt(r.price)}</span>
+        <span class="chg ${cls}">${r.chg === null ? '—' : sign + fmt(r.chg) + '%'}</span>
+        <span class="dy ${tierClass(dy)}">${dy === null ? '—' : fmt(dy) + '%'}</span>
+      </div>
+      <div class="r3"><span>每股分红 ${fmt(r.dps, 3)}（FY${r.fy || '—'}）</span>
+        <div class="bar"><i class="${pcCls}" style="width:${pc === null ? 0 : Math.max(2, Math.min(100, pc))}%"></i></div>
+        <em>${pc === null ? '—' : pc.toFixed(0) + '%'}</em></div>
+      <div class="tiers">${tiers}</div>
+      <div class="detail">
+        <ul>${divs || '<li><span>没有已实施的派息记录</span><span>—</span></li>'}</ul>
+        <div class="kv">
+          <div><span>近一年区间</span><span>${r.lo ? r.lo.toFixed(2) + ' ~ ' + r.hi.toFixed(2) : '—'}</span></div>
+          <div><span>PE / PB</span><span>${fmt(r.pe, 1)} / ${fmt(r.pb, 2)}</span></div>
+          <div><span>总市值</span><span>${r.mktcap ? r.mktcap.toFixed(0) + ' 亿' : '—'}</span></div>
+        </div>
+      </div>
+      <div class="more">展开分红明细 ▾</div>
+    </div>`;
+  }).join('');
+
+  box.querySelectorAll('.stk').forEach(el => {
+    el.addEventListener('click', () => {
+      el.classList.toggle('open');
+      const m = el.querySelector('.more');
+      m.textContent = el.classList.contains('open') ? '收起 ▴' : '展开分红明细 ▾';
+    });
+  });
+}
+
+function toggleDetail(tr){
+  const next = tr.nextElementSibling;
+  if (next && next.classList.contains('det')){
+    next.remove(); tr.classList.remove('open'); return;
+  }
+  document.querySelectorAll('tr.det').forEach(e => e.remove());
+  document.querySelectorAll('tr.open').forEach(e => e.classList.remove('open'));
+  tr.classList.add('open');
+
+  const r = DATA.rows.find(x => x.code === tr.dataset.code);
+  const q = QUOTES[r.code] || {};
+  const price = num(q.price) ?? r.price;
+  const pb = num(q.pb) ?? r.pb;
+  const pe = num(q.pe) ?? r.pe;
+  const lo = num(q.lo) ?? r.lo, hi = num(q.hi) ?? r.hi;
+  const dy = (r.dps && price) ? r.dps / price * 100 : null;
+  const pct = (lo && hi && hi > lo) ? (price - lo) / (hi - lo) * 100 : null;
+
+  const divs = (r.divs || []).map(d =>
+    `<li><span>${d.mmdd === '12-31' ? '年度分红' : '中期分红'} · 除息 ${d.exd}</span><span>${d.per.toFixed(4)} 元</span></li>`
+  ).join('') || '<li><span>没有已实施的派息记录</span><span>—</span></li>';
+
+  const box = document.createElement('tr');
+  box.className = 'det';
+  box.innerHTML = `<td colspan="11"><div class="detbox">
+    <div><h4>分红明细（FY${r.fy || '—'}，每股）</h4><ul>${divs}</ul></div>
+    <div class="kv">
+      <h4>关键指标</h4>
+      <div><span>当前股息率</span><span>${dy === null ? '—' : dy.toFixed(2) + '%'}</span></div>
+      <div><span>近一年区间</span><span>${lo ? lo.toFixed(2) + ' ~ ' + hi.toFixed(2) : '—'}</span></div>
+      <div><span>区间位置</span><span>${pct === null ? '—' : pct.toFixed(1) + '%'}</span></div>
+      <div><span>PE / PB</span><span>${fmt(pe, 1)} / ${fmt(pb, 2)}</span></div>
+      <div><span>总市值</span><span>${r.mktcap ? r.mktcap.toFixed(0) + ' 亿' : '—'}</span></div>
+    </div>
+    <div class="kv">
+      <h4>各股息率对应价格</h4>
+      ${TARGETS.map(t => {
+        const p = r.dps ? r.dps / (t.rate / 100) : null;
+        return `<div><span>${t.rate.toFixed(1)}%</span><span>${p === null ? '—' : p.toFixed(2) + ' 元'}</span></div>`;
+      }).join('')}
+    </div>
+  </div></td>`;
+  tr.after(box);
+}
+
+function renderTabs(){
+  const all = DATA.rows.length;
+  const list = ['全部'].concat(DATA.sectors);
+  $('#tabs').innerHTML = list.map(s => {
+    const n = s === '全部' ? all : DATA.rows.filter(r => r.sector === s).length;
+    return `<button data-s="${s}" class="${s === sector ? 'on' : ''}">${s}<i>${n}</i></button>`;
+  }).join('');
+  $('#tabs').querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => { sector = b.dataset.s; renderTabs(); render(); });
+  });
+}
+
+function bindSort(){
+  document.querySelectorAll('thead th[data-k]').forEach(th => {
+    th.addEventListener('click', () => {
+      const k = th.dataset.k;
+      sort = (sort.k === k) ? {k, dir: -sort.dir} : {k, dir: k === 'name' ? 1 : -1};
+      document.querySelectorAll('thead th').forEach(e => {
+        e.classList.remove('sorted');
+        e.querySelector('.ar').textContent = '↕';
+      });
+      th.classList.add('sorted');
+      th.querySelector('.ar').textContent = sort.dir > 0 ? '↑' : '↓';
+      render();
+    });
+  });
+  const d = document.querySelector('thead th[data-k="dy"]');
+  d.classList.add('sorted'); d.querySelector('.ar').textContent = '↓';
+}
+
+// 腾讯行情接口返回的本身就是 JS 变量赋值（v_sh601398="..."），
+// 所以用 script 注入就能跨域读到，不需要任何服务端代理。
+function loadQuotes(codes){
+  return new Promise(resolve => {
+    const chunks = [];
+    for (let i = 0; i < codes.length; i += 50) chunks.push(codes.slice(i, i + 50));
+    if (!chunks.length) return resolve({});
+    const out = {};
+    let remain = chunks.length;
+    const done = () => { if (--remain <= 0) resolve(out); };
+    chunks.forEach(ch => {
+      const keys = ch.map(c => (c[0] === '6' ? 'sh' : 'sz') + c);
+      const s = document.createElement('script');
+      s.charset = 'GBK';
+      s.src = 'https://qt.gtimg.cn/q=' + keys.join(',');
+      s.onload = () => {
+        ch.forEach((c, i) => {
+          const raw = window['v_' + keys[i]];
+          if (!raw) return;
+          const p = String(raw).split('~');
+          if (p.length < 49) return;
+          out[c] = {
+            price: +p[3] || null,
+            chg: +p[32],
+            pe: +p[39] || null,
+            pb: +p[46] || null,
+            hi: +p[47] || null,
+            lo: +p[48] || null
+          };
+        });
+        done();
+        s.remove();
+      };
+      s.onerror = () => { done(); s.remove(); };
+      document.head.appendChild(s);
+    });
+    setTimeout(() => { if (remain > 0) { remain = 1; resolve(out); } }, 6000);
+  });
+}
+
+async function tick(){
+  $('#dot').className = 'dot';
+  $('#stat').textContent = '取行情…';
+  const codes = DATA.rows.map(r => r.code);
+  const t0 = Date.now();
+  const q = await loadQuotes(codes);
+  const n = Object.keys(q).length;
+  if (n){
+    QUOTES = q;
+    $('#dot').className = 'dot ok';
+    $('#stat').textContent = `行情已更新（${n} 只，${((Date.now() - t0) / 1000).toFixed(1)}s）`;
+    $('#qts').textContent = new Date().toLocaleTimeString('zh-CN', {hour12: false});
+    render();
+  } else {
+    $('#dot').className = 'dot err';
+    $('#stat').textContent = '行情没取到，显示的是数据文件里的价';
+  }
+}
+
+function boot(){
+  DATA = window.SITE_DATA;
+  if (!DATA){
+    document.body.innerHTML = '<div class="empty">读不到 site_data.js，请先跑一次 <b>tools/fetch_data.py</b>。</div>';
+    return;
+  }
+  $('#gen').textContent = DATA.generated;
+  renderTabs(); bindSort(); render();
+  $('#refresh').addEventListener('click', tick);
+  mobileMq.addEventListener('change', render);
+  tick();
+  setInterval(tick, 60000);
+}
+
+$('#q').addEventListener('input', e => { keyword = e.target.value.trim(); render(); });
+boot();
+</script>
+</body>
+</html>
