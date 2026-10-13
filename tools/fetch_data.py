@@ -30,7 +30,7 @@ import os
 import re
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
+from datetime import datetime, timedelta
 
 WEB_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(WEB_ROOT)
@@ -84,11 +84,16 @@ MANUAL = {
     '600941': '通信',
     '601318': '非银金融', '601336': '非银金融',
     '601668': '建筑基建',
+    # 多次派息标的（近12个月派息4次扫描，2026-10 国庆Day3 口径）
+    '300770': '传媒',     '002555': '传媒',     '002027': '传媒',
+    '603165': '环保',     '002223': '医药',     '301023': '电力设备',
+    '002532': '有色化工', '600742': '汽车',     '000905': '交运基建',
+    '300741': '消费其他',
 }
 
 SECTOR_ORDER = ['银行', '家电', '白酒', '食品饮料', '能源电力', '医药', '交运基建',
                 '有色化工', '非银金融', '建筑基建', '消费其他', '汽车', '电子',
-                '电力设备', '通信', '其他']
+                '电力设备', '通信', '传媒', '环保', '其他']
 
 SKIP_PREFIX = ('51', '15', '56', '58', '16', '18', '50', '52')
 
@@ -165,8 +170,10 @@ def fetch_quotes(codes):
             price = f('price')
             if not price:
                 continue
+            # 除息/除权日腾讯会给名字加 XD/XR/DR 前缀，去掉保持名称干净
+            nm = re.sub(r'^(XD|XR|DR)(?=[\u4e00-\u9fa5A-Za-z])', '', p[IDX['name']].replace(' ', ''))
             out[p[IDX['code']]] = {
-                'name': p[IDX['name']].replace(' ', ''),
+                'name': nm,
                 'price': price,
                 'chg': f('chg'),
                 'pe': f('pe') or None,
@@ -229,6 +236,27 @@ def calc_dps(rows):
     return round(sum(x['per'] for x in items), 6), pick, items, bvps
 
 
+def calc_times12(rows):
+    """近 12 个月派息次数：已实施、除息日落在最近 365 天、按除息日去重。"""
+    lo = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
+    exds = set()
+    for r in rows:
+        if '实施' not in (r.get('ASSIGN_PROGRESS') or ''):
+            continue
+        exd = (r.get('EX_DIVIDEND_DATE') or '')[:10]
+        amt = r.get('PRETAX_BONUS_RMB')
+        if not exd or amt in (None, ''):
+            continue
+        try:
+            if float(amt) <= 0:
+                continue
+        except Exception:
+            continue
+        if exd >= lo:
+            exds.add(exd)
+    return len(exds)
+
+
 # ---------------------------------------------------------------- 主流程
 def main():
     universe = load_universe()
@@ -251,6 +279,7 @@ def main():
     for c in valid:
         q = quotes[c]
         dps, fy, items, bvps = calc_dps(divs.get(c) or [])
+        times12 = calc_times12(divs.get(c) or [])
         price = q['price']
         dy = round(dps / price * 100, 2) if (dps and price) else None
         pb = q['pb'] or (round(price / bvps, 2) if (bvps and bvps > 0) else None)
@@ -264,7 +293,7 @@ def main():
             'code': c, 'name': q['name'], 'sector': sector_of(c, universe, board_map),
             'price': price, 'chg': q['chg'], 'pe': q['pe'], 'pb': pb,
             'mktcap': q['mktcap'], 'dps': dps, 'fy': fy, 'dy': dy,
-            'divs': items, 'lo': lo, 'hi': hi, 'pct': pct,
+            'divs': items, 'lo': lo, 'hi': hi, 'pct': pct, 'times12': times12,
         })
 
     rows.sort(key=lambda r: (SECTOR_ORDER.index(r['sector'])

@@ -277,7 +277,8 @@
   <div class="note">
     <b>每股分红</b>取最近一个「年度分红已经派完」的财年，把中期和年度两笔加在一起，不是单看年度那一笔。
     <b>股息率</b>＝每股分红 ÷ 现价。<b>参考价</b>＝每股分红 ÷ 该档股息率。<br>
-    <b>「还要跌 / 已低」的分母是现价</b>：显示「还要跌 20%」= 现价比这条线高两成，得跌下来才到；绿色「已低」= 现价已经跌破这条线。
+    <b>年派息</b>按<b>近 12 个月已实施的除息记录</b>统计（一个除息日算一次），和每股分红的财年口径是两回事。
+    <b>「还要跌 / 已低」的分母是现价</b>：显示「还要跌 20%」= 现价比这条线高两成；绿色「已低」= 现价已经跌破这条线。
     分红数据按季更新，行情每次打开页面自动取。各档价格只是股息率换算的<b>数学参考</b>，不是买卖建议。
   </div>
 
@@ -337,7 +338,7 @@ function rowsView(){
       pb:     num(q.pb)    ?? num(r.pb)
     });
     o.dy = dyOf(o);
-    o.times = (o.divs || []).length;
+    o.times = (r.times12 === null || r.times12 === undefined) ? (o.divs || []).length : r.times12;
     TARGETS.forEach(t => o[t.k] = targetPrice(o, t.rate));
     return o;
   });
@@ -407,7 +408,7 @@ function renderDesktop(rows){
       <td class="${cls}">${r.chg === null ? '—' : sign + fmt(r.chg) + '%'}</td>
       <td><span class="dy ${tierClass(dy)}">${dy === null ? '—' : fmt(dy) + '%'}</span></td>
       <td class="sm"><b>${fmt(r.dps, 3)}</b><br>${r.fy ? 'FY' + r.fy : '—'}</td>
-      <td class="sm"><b>${r.times ? r.times + ' 次' : '—'}</b><br><span style="font-size:11px;color:var(--t3)">FY${r.fy || '—'}</span></td>
+      <td class="sm"><b>${r.times ? r.times + ' 次' : '—'}</b><br><span style="font-size:11px;color:var(--t3)">近12月</span></td>
       ${tgts}
       <td><div class="pos"><div class="bar"><i class="${pcCls}" style="width:${pc === null ? 0 : Math.max(2, Math.min(100, pc))}%"></i></div><em>${pc === null ? '—' : pc.toFixed(0) + '%'}</em></div></td>
       <td class="sm"><b>${fmt(r.pe, 1)}</b> / ${fmt(r.pb, 2)}</td>
@@ -449,7 +450,7 @@ function renderMobile(rows){
         <span class="chg ${cls}">${r.chg === null ? '—' : sign + fmt(r.chg) + '%'}</span>
         <span class="dy ${tierClass(dy)}">${dy === null ? '—' : fmt(dy) + '%'}</span>
       </div>
-      <div class="r3"><span>每股分红 ${fmt(r.dps, 3)}（FY${r.fy || '—'} · 派 ${r.times || 0} 次）</span>
+      <div class="r3"><span>每股分红 ${fmt(r.dps, 3)}（FY${r.fy || '—'} · 近1年派 ${r.times || 0} 次）</span>
         <div class="bar"><i class="${pcCls}" style="width:${pc === null ? 0 : Math.max(2, Math.min(100, pc))}%"></i></div>
         <em>${pc === null ? '—' : pc.toFixed(0) + '%'}</em></div>
       <div class="tiers">${tiers}</div>
