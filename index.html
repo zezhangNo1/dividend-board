@@ -258,6 +258,7 @@
             <th data-k="chg">涨跌 <span class="ar">↕</span></th>
             <th data-k="dy">股息率 <span class="ar">↕</span></th>
             <th data-k="dps">每股分红 <span class="ar">↕</span></th>
+            <th data-k="times">年派息 <span class="ar">↕</span></th>
             <th data-k="t55">5.5% 价 <span class="ar">↕</span></th>
             <th data-k="t50">5.0% 价 <span class="ar">↕</span></th>
             <th data-k="t45">4.5% 价 <span class="ar">↕</span></th>
@@ -336,6 +337,7 @@ function rowsView(){
       pb:     num(q.pb)    ?? num(r.pb)
     });
     o.dy = dyOf(o);
+    o.times = (o.divs || []).length;
     TARGETS.forEach(t => o[t.k] = targetPrice(o, t.rate));
     return o;
   });
@@ -382,7 +384,7 @@ function render(){
 function renderDesktop(rows){
   const tb = $('#tbody');
   if (!rows.length){
-    tb.innerHTML = '<tr><td colspan="11" class="empty">没有匹配的标的</td></tr>';
+    tb.innerHTML = '<tr><td colspan="12" class="empty">没有匹配的标的</td></tr>';
     return;
   }
   tb.innerHTML = rows.map(r => {
@@ -405,6 +407,7 @@ function renderDesktop(rows){
       <td class="${cls}">${r.chg === null ? '—' : sign + fmt(r.chg) + '%'}</td>
       <td><span class="dy ${tierClass(dy)}">${dy === null ? '—' : fmt(dy) + '%'}</span></td>
       <td class="sm"><b>${fmt(r.dps, 3)}</b><br>${r.fy ? 'FY' + r.fy : '—'}</td>
+      <td class="sm"><b>${r.times ? r.times + ' 次' : '—'}</b><br><span style="font-size:11px;color:var(--t3)">FY${r.fy || '—'}</span></td>
       ${tgts}
       <td><div class="pos"><div class="bar"><i class="${pcCls}" style="width:${pc === null ? 0 : Math.max(2, Math.min(100, pc))}%"></i></div><em>${pc === null ? '—' : pc.toFixed(0) + '%'}</em></div></td>
       <td class="sm"><b>${fmt(r.pe, 1)}</b> / ${fmt(r.pb, 2)}</td>
@@ -446,7 +449,7 @@ function renderMobile(rows){
         <span class="chg ${cls}">${r.chg === null ? '—' : sign + fmt(r.chg) + '%'}</span>
         <span class="dy ${tierClass(dy)}">${dy === null ? '—' : fmt(dy) + '%'}</span>
       </div>
-      <div class="r3"><span>每股分红 ${fmt(r.dps, 3)}（FY${r.fy || '—'}）</span>
+      <div class="r3"><span>每股分红 ${fmt(r.dps, 3)}（FY${r.fy || '—'} · 派 ${r.times || 0} 次）</span>
         <div class="bar"><i class="${pcCls}" style="width:${pc === null ? 0 : Math.max(2, Math.min(100, pc))}%"></i></div>
         <em>${pc === null ? '—' : pc.toFixed(0) + '%'}</em></div>
       <div class="tiers">${tiers}</div>
@@ -495,7 +498,7 @@ function toggleDetail(tr){
 
   const box = document.createElement('tr');
   box.className = 'det';
-  box.innerHTML = `<td colspan="11"><div class="detbox">
+  box.innerHTML = `<td colspan="12"><div class="detbox">
     <div><h4>分红明细（FY${r.fy || '—'}，每股）</h4><ul>${divs}</ul></div>
     <div class="kv">
       <h4>关键指标</h4>
