@@ -48,7 +48,8 @@ def make_token(user: User) -> str:
 
 
 def current_user(request: Request, db: Session = Depends(get_db)) -> User:
-    token = request.cookies.get("token", "")
+    authz = request.headers.get("authorization", "")
+    token = authz[7:] if authz.startswith("Bearer ") else request.cookies.get("token", "")
     if not token:
         raise HTTPException(401, "未登录")
     try:
