@@ -103,7 +103,12 @@ def send_code(req: CodeReq, request: Request, db: Session = Depends(get_db)):
         raise HTTPException(503, str(e))
     db.add(row)
     db.commit()
-    return {"ok": True, "message": "验证码已发送，10 分钟内有效"}
+    resp = {"ok": True, "message": "验证码已发送，10 分钟内有效"}
+    # SMTP 未配置的过渡期：把验证码随响应返回，便于试用；
+    # 配置 SMTP_HOST 后此字段自动消失，不影响正式环境。
+    if ch == "email" and not os.environ.get("SMTP_HOST"):
+        resp["dev_code"] = code
+    return resp
 
 
 @router.post("/login")

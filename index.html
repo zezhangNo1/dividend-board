@@ -207,6 +207,46 @@
   footer a{color:var(--t2);text-decoration:none;border-bottom:1px dashed var(--t3)}
   footer a:hover{color:var(--brand)}
 
+  /* ---------------- 登录弹窗 & 自选星标 ---------------- */
+  .star{background:none;border:none;cursor:pointer;font-size:15px;line-height:1;
+    color:var(--t3);padding:0 4px 0 0;vertical-align:-1px}
+  .star:hover{color:var(--gold)}
+  .star.on{color:var(--gold)}
+  #loginBtn{background:linear-gradient(135deg,var(--brand),#0d9488);border:none;color:#fff;
+    border-radius:10px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;
+    font-family:inherit;box-shadow:0 3px 10px rgba(14,159,110,.3)}
+  html[data-theme=dark] #loginBtn{background:linear-gradient(135deg,#059669,#0f766e);color:#e8ecf2}
+  .modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
+    background:rgba(10,14,20,.45);backdrop-filter:blur(3px);padding:20px}
+  .modal.show{display:flex}
+  .dlg{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    width:100%;max-width:340px;padding:22px 22px 18px;box-shadow:var(--shadow-lg)}
+  .dlg h3{font-size:16px;font-weight:700;margin-bottom:4px}
+  .dlg .sub2{font-size:12px;color:var(--t3);margin-bottom:14px}
+  .dlg input{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;
+    padding:9px 12px;font-size:13px;color:var(--t1);outline:none;font-family:inherit;margin-bottom:10px}
+  .dlg input:focus{border-color:var(--brand)}
+  .dlg .row{display:flex;gap:8px}
+  .dlg .row input{margin-bottom:10px}
+  .dlg button.go{background:linear-gradient(135deg,var(--brand),#0d9488);border:none;color:#fff;
+    border-radius:10px;padding:9px 0;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%}
+  .dlg button.go:disabled{opacity:.55;cursor:default}
+  .dlg .send{white-space:nowrap;background:var(--card2);border:1px solid var(--line);border-radius:10px;
+    padding:9px 12px;font-size:12px;color:var(--brand-ink);cursor:pointer;font-family:inherit;flex:none}
+  .dlg .send:disabled{color:var(--t3);cursor:default}
+  .dlg .tip{font-size:12px;color:var(--brand-ink);background:var(--brand-soft);
+    border-radius:8px;padding:6px 10px;margin-top:10px;display:none}
+  .dlg .tip.show{display:block}
+  .dlg .err{font-size:12px;color:var(--up);margin-top:8px;display:none}
+  .dlg .err.show{display:block}
+  .dlg .close{position:absolute;margin:0;float:right;background:none;border:none;color:var(--t3);
+    font-size:16px;cursor:pointer}
+  .whoami{display:flex;align-items:center;gap:8px}
+  .whoami em{font-style:normal;color:var(--t2);font-size:12px;max-width:140px;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .whoami button{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:7px 12px;font-size:12px;color:var(--t2);cursor:pointer;font-family:inherit}
+
   @media (max-width:760px){
     .wrap{padding:0 12px 30px}
     .topbar{padding:10px 0 10px;gap:8px}
@@ -241,6 +281,8 @@
     <button class="act" id="refresh">刷新行情</button>
     <a class="act" href="about.html">口径说明</a>
     <button class="iconbtn" id="themeBtn" title="切换明暗主题">🌙</button>
+    <div class="whoami" id="whoami" style="display:none"></div>
+    <button id="loginBtn">登录</button>
     <div class="status"><span class="dot" id="dot"></span><span id="stat">等待行情</span></div>
   </header>
 
@@ -288,6 +330,21 @@
   </footer>
 </div>
 
+<div class="modal" id="loginModal">
+  <div class="dlg">
+    <h3>登录 / 注册</h3>
+    <div class="sub2">验证码登录，未注册将自动创建账号。免费账号可自选 5 只。</div>
+    <div class="row">
+      <input id="lgTarget" placeholder="邮箱地址" autocomplete="off">
+      <button class="send" id="lgSend">获取验证码</button>
+    </div>
+    <input id="lgCode" placeholder="6 位验证码" maxlength="6" inputmode="numeric" autocomplete="off">
+    <button class="go" id="lgGo">登 录</button>
+    <div class="tip" id="lgTip"></div>
+    <div class="err" id="lgErr"></div>
+  </div>
+</div>
+
 <script src="site_data.js"></script>
 <script>
 'use strict';
@@ -301,6 +358,116 @@ const TARGETS = [
 let DATA = null, QUOTES = {};
 let sector = '全部', keyword = '', sort = {k:'dy', dir:-1};
 const mobileMq = window.matchMedia('(max-width:760px)');
+
+// ---------------- 登录态与自选 ----------------
+const auth = {
+  token: localStorage.getItem('gx-token') || '',
+  user: JSON.parse(localStorage.getItem('gx-user') || 'null'),
+  watch: new Set(),
+  get logged(){ return !!this.token; }
+};
+async function api(path, opts = {}){
+  const r = await fetch(path, Object.assign({}, opts, {
+    headers: Object.assign({'Content-Type': 'application/json'},
+      auth.token ? {'Authorization': 'Bearer ' + auth.token} : {}, opts.headers || {})
+  }));
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(d.detail || ('HTTP ' + r.status)), {status: r.status});
+  return d;
+}
+async function loadWatch(){
+  if (!auth.logged) return;
+  try{
+    const d = await api('/api/watchlist');
+    auth.watch = new Set(d.items.map(i => i.code));
+  }catch(e){
+    if (e.status === 401){ logout(false); }
+  }
+}
+function logout(refresh = true){
+  auth.token = ''; auth.user = null; auth.watch = new Set();
+  localStorage.removeItem('gx-token'); localStorage.removeItem('gx-user');
+  if (sector === '自选') sector = '全部';
+  if (refresh){ renderTabs(); render(); syncAuthUI(); }
+}
+function syncAuthUI(){
+  const btn = $('#loginBtn'), who = $('#whoami');
+  if (auth.logged){
+    btn.style.display = 'none';
+    who.style.display = 'flex';
+    who.innerHTML = `<em>${(auth.user && (auth.user.email || auth.user.phone)) || '已登录'}</em>
+      <button id="logoutBtn">退出</button>`;
+    who.querySelector('#logoutBtn').addEventListener('click', () => { logout(); });
+  } else {
+    btn.style.display = ''; who.style.display = 'none';
+    btn.textContent = '登录';
+  }
+}
+// 登录弹窗
+function openLogin(){ $('#loginModal').classList.add('show'); $('#lgErr').classList.remove('show'); }
+function closeLogin(){ $('#loginModal').classList.remove('show'); $('#lgTip').classList.remove('show'); }
+let sendTimer = null;
+async function doSendCode(){
+  const target = $('#lgTarget').value.trim();
+  const btn = $('#lgSend'), err = $('#lgErr'), tip = $('#lgTip');
+  err.classList.remove('show'); tip.classList.remove('show');
+  if (!target){ err.textContent = '请先填写邮箱'; err.classList.add('show'); return; }
+  btn.disabled = true;
+  try{
+    const d = await api('/api/auth/code', {method: 'POST', body: JSON.stringify({channel: 'email', target})});
+    tip.textContent = d.message || '验证码已发送';
+    if (d.dev_code) tip.textContent += `（测试码：${d.dev_code}）`;
+    tip.classList.add('show');
+    let s = 60;
+    btn.textContent = s + 's';
+    sendTimer = setInterval(() => {
+      s--; btn.textContent = s + 's';
+      if (s <= 0){ clearInterval(sendTimer); btn.disabled = false; btn.textContent = '获取验证码'; }
+    }, 1000);
+  }catch(e){
+    btn.disabled = false;
+    err.textContent = e.message; err.classList.add('show');
+  }
+}
+async function doLogin(){
+  const target = $('#lgTarget').value.trim(), code = $('#lgCode').value.trim();
+  const err = $('#lgErr');
+  err.classList.remove('show');
+  if (!target || !code){ err.textContent = '请填写邮箱和验证码'; err.classList.add('show'); return; }
+  try{
+    const d = await api('/api/auth/login', {method: 'POST', body: JSON.stringify({channel: 'email', target, code})});
+    auth.token = d.token; auth.user = d.user;
+    localStorage.setItem('gx-token', d.token);
+    localStorage.setItem('gx-user', JSON.stringify(d.user));
+    closeLogin();
+    await loadWatch();
+    syncAuthUI(); renderTabs(); render();
+  }catch(e){
+    err.textContent = e.message; err.classList.add('show');
+  }
+}
+async function toggleStar(code){
+  if (!auth.logged){ openLogin(); return; }
+  try{
+    if (auth.watch.has(code)){
+      const items = (await api('/api/watchlist')).items;
+      const it = items.find(i => i.code === code);
+      if (it) await api('/api/watchlist/' + it.id, {method: 'DELETE'});
+      auth.watch.delete(code);
+    } else {
+      await api('/api/watchlist', {method: 'POST', body: JSON.stringify({code})});
+      auth.watch.add(code);
+    }
+    if (sector === '自选') renderTabs();
+    render();
+  }catch(e){
+    alert(e.message);
+  }
+}
+function starHtml(code){
+  const on = auth.watch.has(code);
+  return `<button class="star ${on ? 'on' : ''}" data-star="${code}" title="加入自选">${on ? '★' : '☆'}</button>`;
+}
 
 const $ = s => document.querySelector(s);
 const num = v => (v === null || v === undefined || v === '-' || isNaN(v)) ? null : Number(v);
@@ -323,7 +490,12 @@ function tierClass(dy){
 function rowsView(){
   if (!DATA) return [];
   return DATA.rows.filter(r => {
-    if (sector !== '全部' && r.sector !== sector) return false;
+    if (sector === '自选'){
+      if (!auth.logged) return false;
+      if (!auth.watch.has(r.code)) return false;
+    } else if (sector !== '全部' && r.sector !== sector){
+      return false;
+    }
     if (keyword){
       const k = keyword.toLowerCase();
       if (!(r.name.toLowerCase().includes(k) || r.code.includes(k))) return false;
@@ -403,7 +575,7 @@ function renderDesktop(rows){
       return `<td class="tgt"><b>${fmt(p)}</b><span class="${hit ? 'hit' : ''}">${lab}</span></td>`;
     }).join('');
     return `<tr data-code="${r.code}">
-      <td class="l"><span class="nm">${r.name}</span><span class="cd">${r.code}</span><br><span class="ind">${r.sector}</span></td>
+      <td class="l">${starHtml(r.code)}<span class="nm">${r.name}</span><span class="cd">${r.code}</span><br><span class="ind">${r.sector}</span></td>
       <td class="px">${fmt(r.price)}</td>
       <td class="${cls}">${r.chg === null ? '—' : sign + fmt(r.chg) + '%'}</td>
       <td><span class="dy ${tierClass(dy)}">${dy === null ? '—' : fmt(dy) + '%'}</span></td>
@@ -417,6 +589,9 @@ function renderDesktop(rows){
 
   tb.querySelectorAll('tr[data-code]').forEach(tr => {
     tr.addEventListener('click', () => toggleDetail(tr));
+  });
+  tb.querySelectorAll('button[data-star]').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); toggleStar(b.dataset.star); });
   });
 }
 
@@ -444,7 +619,7 @@ function renderMobile(rows){
       `<li><span>${d.mmdd === '12-31' ? '年度分红' : '中期分红'} · 除息 ${d.exd}</span><span>${d.per.toFixed(4)} 元</span></li>`
     ).join('');
     return `<div class="stk" data-code="${r.code}">
-      <div class="r1"><span class="nm">${r.name}</span><span class="cd">${r.code}</span><span class="sec">${r.sector}</span></div>
+      <div class="r1">${starHtml(r.code)}<span class="nm">${r.name}</span><span class="cd">${r.code}</span><span class="sec">${r.sector}</span></div>
       <div class="r2">
         <span class="price">${fmt(r.price)}</span>
         <span class="chg ${cls}">${r.chg === null ? '—' : sign + fmt(r.chg) + '%'}</span>
@@ -472,6 +647,8 @@ function renderMobile(rows){
       const m = el.querySelector('.more');
       m.textContent = el.classList.contains('open') ? '收起 ▴' : '展开分红明细 ▾';
     });
+    const st = el.querySelector('button[data-star]');
+    if (st) st.addEventListener('click', e => { e.stopPropagation(); toggleStar(st.dataset.star); });
   });
 }
 
@@ -522,13 +699,20 @@ function toggleDetail(tr){
 
 function renderTabs(){
   const all = DATA.rows.length;
-  const list = ['全部'].concat(DATA.sectors);
+  const list = ['全部'].concat(auth.logged ? ['自选'] : []).concat(DATA.sectors);
   $('#tabs').innerHTML = list.map(s => {
-    const n = s === '全部' ? all : DATA.rows.filter(r => r.sector === s).length;
-    return `<button data-s="${s}" class="${s === sector ? 'on' : ''}">${s}<i>${n}</i></button>`;
+    let n;
+    if (s === '全部') n = all;
+    else if (s === '自选') n = auth.watch.size;
+    else n = DATA.rows.filter(r => r.sector === s).length;
+    const label = s === '自选' ? '★ 自选' : s;
+    return `<button data-s="${s}" class="${s === sector ? 'on' : ''}">${label}<i>${n}</i></button>`;
   }).join('');
   $('#tabs').querySelectorAll('button').forEach(b => {
-    b.addEventListener('click', () => { sector = b.dataset.s; renderTabs(); render(); });
+    b.addEventListener('click', () => {
+      if (b.dataset.s === '自选' && !auth.logged){ openLogin(); return; }
+      sector = b.dataset.s; renderTabs(); render();
+    });
   });
 }
 
@@ -623,6 +807,14 @@ function boot(){
   $('#gen').textContent = DATA.generated;
   syncThemeBtn();
   renderTabs(); bindSort(); render();
+  // 登录与自选
+  $('#loginBtn').addEventListener('click', openLogin);
+  $('#loginModal').addEventListener('click', e => { if (e.target.id === 'loginModal') closeLogin(); });
+  $('#lgSend').addEventListener('click', doSendCode);
+  $('#lgGo').addEventListener('click', doLogin);
+  $('#lgCode').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  syncAuthUI();
+  loadWatch().then(() => { syncAuthUI(); renderTabs(); render(); });
   $('#refresh').addEventListener('click', tick);
   $('#themeBtn').addEventListener('click', () => {
     const cur = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
