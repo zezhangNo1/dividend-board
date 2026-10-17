@@ -536,8 +536,13 @@ function openStock(code){
 async function refreshStock(code){
   const r = (window.SITE_DATA.rows || []).find(x => x.code === code);
   if (!r || !window.renderStockCard) return;
-  const q = await loadQuotes([code]);
-  renderStockCard($('#stockHost'), r, q[code] || null, window.SITE_DATA.generated);
+  const host = $('#stockHost');
+  // 先用数据快照立即渲染，行情到达后再补实时数字（接口挂起也不空白）
+  renderStockCard(host, r, null, window.SITE_DATA.generated);
+  try {
+    const q = await loadQuotes([code]);
+    if (q[code]) renderStockCard(host, r, q[code], window.SITE_DATA.generated);
+  } catch(e){}
 }
 function closeStock(){
   $('#stockModal').classList.remove('show');
@@ -924,6 +929,19 @@ $('#q').addEventListener('input', e => { keyword = e.target.value.trim(); render
 // 调试/深链：?autodet=600015 自动打开个股弹窗
 const _auto = new URLSearchParams(location.search).get('autodet');
 if (_auto) openStock(_auto);
+// ?probe=1 时 9 秒后打印运行时诊断
+if (new URLSearchParams(location.search).get('probe')){
+  setTimeout(() => {
+    const d = document.createElement('div');
+    d.style.cssText = 'position:fixed;top:0;left:0;z-index:999;background:#fff;color:#000;font-size:12px;padding:8px';
+    const host = document.getElementById('stockHost');
+    d.textContent = 'probe: renderStockCard=' + (typeof window.renderStockCard) +
+      ' SITE_DATA=' + (!!window.SITE_DATA) +
+      ' modalShown=' + document.getElementById('stockModal').classList.contains('show') +
+      ' hostLen=' + (host ? host.innerHTML.length : -1);
+    document.body.appendChild(d);
+  }, 9000);
+}
 boot();
 </script>
 </body>
