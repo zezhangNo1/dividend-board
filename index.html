@@ -271,6 +271,8 @@
     cursor:pointer;font-family:inherit;padding:0 11px}
   #stockModal .frame .bar button.x:hover{border-color:var(--up);color:var(--up)}
   #stockModal iframe{flex:1;width:100%;border:none;min-height:0}
+  #stockModal .shost{flex:1;min-height:0;overflow-y:auto;background:#1a0c0d;padding:12px}
+  #stockModal .shost .scard{max-width:640px;margin:0 auto}
   .det{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;
     color:var(--brand-ink);background:var(--brand-soft);border:1px solid var(--brand);
     border-radius:8px;padding:2.5px 10px;margin-left:7px;text-decoration:none;
@@ -390,11 +392,12 @@
       <a class="open" id="stockOpen" href="#" target="_blank">新窗口</a>
       <button class="x" id="stockClose" title="关闭">关闭</button>
     </div>
-    <iframe id="stockFrame" src="about:blank" title="个股档案"></iframe>
+    <div class="shost" id="stockHost"></div>
   </div>
 </div>
 
 <script src="site_data.js"></script>
+<script src="stock_card.js"></script>
 <script>
 'use strict';
 const TARGETS = [
@@ -522,16 +525,23 @@ function detailBtn(code){
 }
 function openStock(code){
   const m = $('#stockModal');
-  $('#stockFrame').src = 'stock.html?code=' + encodeURIComponent(code) + '&embed=1';
-  const r = (DATA.rows || []).find(x => x.code === code);
+  const r = (window.SITE_DATA.rows || []).find(x => x.code === code);
   $('#stockTitle').innerHTML = (r ? r.name + ' ' + r.code : '个股档案') +
     '<small>股息档案 · ' + (window.SITE_DATA.generated || '') + '</small>';
   $('#stockOpen').href = 'stock.html?code=' + encodeURIComponent(code);
+  $('#stockHost').innerHTML = '<div style="color:#8a7a7a;text-align:center;padding:60px 0">加载中…</div>';
   m.classList.add('show');
+  refreshStock(code);
+}
+async function refreshStock(code){
+  const r = (window.SITE_DATA.rows || []).find(x => x.code === code);
+  if (!r || !window.renderStockCard) return;
+  const q = await loadQuotes([code]);
+  renderStockCard($('#stockHost'), r, q[code] || null, window.SITE_DATA.generated);
 }
 function closeStock(){
   $('#stockModal').classList.remove('show');
-  $('#stockFrame').src = 'about:blank';
+  $('#stockHost').innerHTML = '';
 }
 
 const $ = s => document.querySelector(s);
@@ -884,8 +894,11 @@ function boot(){
   $('#stockModal').addEventListener('click', e => { if (e.target.id === 'stockModal') closeStock(); });
   $('#stockClose').addEventListener('click', closeStock);
   $('#stockRefresh').addEventListener('click', () => {
-    const f = $('#stockFrame');
-    if (f.src !== 'about:blank') f.contentWindow.location.reload();
+    const m = $('#stockModal');
+    if (m.classList.contains('show')){
+      const code = new URLSearchParams($('#stockOpen').href.split('?')[1] || '').get('code');
+      if (code) refreshStock(code);
+    }
   });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape'){ closeStock(); closeLogin(); }
