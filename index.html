@@ -246,9 +246,14 @@
     text-overflow:ellipsis;white-space:nowrap}
   .whoami button{background:var(--card);border:1px solid var(--line);border-radius:10px;
     padding:7px 12px;font-size:12px;color:var(--t2);cursor:pointer;font-family:inherit}
-  .det{display:inline-block;font-size:10.5px;color:var(--brand-ink);background:var(--brand-soft);
-    border-radius:7px;padding:1px 7px;margin-left:6px;text-decoration:none;font-weight:600;vertical-align:1px}
+  .det{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;
+    color:var(--brand-ink);background:var(--brand-soft);border:1px solid var(--brand);
+    border-radius:8px;padding:2.5px 10px;margin-left:7px;text-decoration:none;
+    vertical-align:1px;cursor:pointer;transition:.12s;white-space:nowrap}
+  .det b{font-weight:700}
   .det:hover{background:var(--brand);color:#fff}
+  .det:hover .ar2{transform:translateX(1px)}
+  .det .ar2{font-size:10px;transition:.12s}
   .stk .more{display:flex;align-items:center;justify-content:center;gap:14px}
   .stk .more .det{margin:0}
 
@@ -475,7 +480,7 @@ function starHtml(code){
   return `<button class="star ${on ? 'on' : ''}" data-star="${code}" title="加入自选">${on ? '★' : '☆'}</button>`;
 }
 function detailBtn(code){
-  return `<a class="det" href="stock.html?code=${code}" target="_blank" title="查看个股档案">详情</a>`;
+  return `<a class="det" href="stock.html?code=${code}" target="_blank" title="查看个股档案">详情<span class="ar2">▸</span></a>`;
 }
 
 const $ = s => document.querySelector(s);
