@@ -103,6 +103,10 @@
     border-bottom:1px dashed rgba(253,246,236,.25)}
   .back:hover{color:var(--cream)}
   .err{padding:60px 20px;text-align:center;color:var(--cream2)}
+  /* 弹窗嵌入模式：去掉自身导航 */
+  body.embed .topnav{display:none}
+  body.embed{padding-top:14px}
+  body.embed .back{display:none}
 
   @media (max-width:560px){
     .hero .nm{font-size:24px}
@@ -124,6 +128,9 @@
 <script src="site_data.js"></script>
 <script>
 'use strict';
+if (new URLSearchParams(location.search).get('embed') === '1'){
+  document.body.classList.add('embed');
+}
 document.getElementById('closeBtn').addEventListener('click', () => {
   window.close();
   setTimeout(() => { if (!document.hidden) history.length > 1 ? history.back() : location.href = 'index.html'; }, 120);

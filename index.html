@@ -246,6 +246,21 @@
     text-overflow:ellipsis;white-space:nowrap}
   .whoami button{background:var(--card);border:1px solid var(--line);border-radius:10px;
     padding:7px 12px;font-size:12px;color:var(--t2);cursor:pointer;font-family:inherit}
+  /* 个股详情弹窗 */
+  #stockModal{align-items:stretch;justify-content:center;padding:14px}
+  #stockModal .frame{position:relative;width:100%;max-width:680px;background:var(--card);
+    border-radius:18px;overflow:hidden;box-shadow:var(--shadow-lg);display:flex;flex-direction:column}
+  #stockModal .frame .bar{display:flex;align-items:center;gap:10px;padding:9px 12px;
+    background:var(--card2);border-bottom:1px solid var(--line);flex:none}
+  #stockModal .frame .bar b{font-size:13px;font-weight:600}
+  #stockModal .frame .bar .sp{flex:1}
+  #stockModal .frame .bar a.open{font-size:12px;color:var(--t2);text-decoration:none;
+    border-bottom:1px dashed var(--t3);margin-right:4px}
+  #stockModal .frame .bar button.x{width:30px;height:30px;border-radius:9px;
+    border:1px solid var(--line);background:var(--card);color:var(--t2);font-size:14px;
+    cursor:pointer;line-height:1}
+  #stockModal .frame .bar button.x:hover{border-color:var(--up);color:var(--up)}
+  #stockModal iframe{flex:1;width:100%;border:none;min-height:0}
   .det{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;
     color:var(--brand-ink);background:var(--brand-soft);border:1px solid var(--brand);
     border-radius:8px;padding:2.5px 10px;margin-left:7px;text-decoration:none;
@@ -353,6 +368,18 @@
     <button class="go" id="lgGo">登 录</button>
     <div class="tip" id="lgTip"></div>
     <div class="err" id="lgErr"></div>
+  </div>
+</div>
+
+<div class="modal" id="stockModal">
+  <div class="frame">
+    <div class="bar">
+      <b id="stockTitle">个股档案</b>
+      <div class="sp"></div>
+      <a class="open" id="stockOpen" href="#" target="_blank">新窗口打开</a>
+      <button class="x" id="stockClose" title="关闭">✕</button>
+    </div>
+    <iframe id="stockFrame" src="about:blank" title="个股档案"></iframe>
   </div>
 </div>
 
@@ -480,7 +507,19 @@ function starHtml(code){
   return `<button class="star ${on ? 'on' : ''}" data-star="${code}" title="加入自选">${on ? '★' : '☆'}</button>`;
 }
 function detailBtn(code){
-  return `<a class="det" href="stock.html?code=${code}" target="_blank" title="查看个股档案">详情<span class="ar2">▸</span></a>`;
+  return `<a class="det" href="stock.html?code=${code}" data-code="${code}" title="查看个股档案">详情<span class="ar2">▸</span></a>`;
+}
+function openStock(code){
+  const m = $('#stockModal');
+  $('#stockFrame').src = 'stock.html?code=' + encodeURIComponent(code) + '&embed=1';
+  const r = (DATA.rows || []).find(x => x.code === code);
+  $('#stockTitle').textContent = r ? `${r.name}（${r.code}）个股档案` : '个股档案';
+  $('#stockOpen').href = 'stock.html?code=' + encodeURIComponent(code);
+  m.classList.add('show');
+}
+function closeStock(){
+  $('#stockModal').classList.remove('show');
+  $('#stockFrame').src = 'about:blank';
 }
 
 const $ = s => document.querySelector(s);
@@ -607,6 +646,9 @@ function renderDesktop(rows){
   tb.querySelectorAll('button[data-star]').forEach(b => {
     b.addEventListener('click', e => { e.stopPropagation(); toggleStar(b.dataset.star); });
   });
+  tb.querySelectorAll('a.det').forEach(a => {
+    a.addEventListener('click', e => { e.preventDefault(); openStock(a.dataset.code); });
+  });
 }
 
 function renderMobile(rows){
@@ -664,6 +706,8 @@ function renderMobile(rows){
     });
     const st = el.querySelector('button[data-star]');
     if (st) st.addEventListener('click', e => { e.stopPropagation(); toggleStar(st.dataset.star); });
+    const dt = el.querySelector('a.det');
+    if (dt) dt.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); openStock(dt.dataset.code); });
   });
 }
 
@@ -825,6 +869,11 @@ function boot(){
   // 登录与自选
   $('#loginBtn').addEventListener('click', openLogin);
   $('#loginModal').addEventListener('click', e => { if (e.target.id === 'loginModal') closeLogin(); });
+  $('#stockModal').addEventListener('click', e => { if (e.target.id === 'stockModal') closeStock(); });
+  $('#stockClose').addEventListener('click', closeStock);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape'){ closeStock(); closeLogin(); }
+  });
   $('#lgSend').addEventListener('click', doSendCode);
   $('#lgGo').addEventListener('click', doLogin);
   $('#lgCode').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
