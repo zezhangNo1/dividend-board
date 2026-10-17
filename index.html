@@ -246,6 +246,11 @@
     text-overflow:ellipsis;white-space:nowrap}
   .whoami button{background:var(--card);border:1px solid var(--line);border-radius:10px;
     padding:7px 12px;font-size:12px;color:var(--t2);cursor:pointer;font-family:inherit}
+  .det{display:inline-block;font-size:10.5px;color:var(--brand-ink);background:var(--brand-soft);
+    border-radius:7px;padding:1px 7px;margin-left:6px;text-decoration:none;font-weight:600;vertical-align:1px}
+  .det:hover{background:var(--brand);color:#fff}
+  .stk .more{display:flex;align-items:center;justify-content:center;gap:14px}
+  .stk .more .det{margin:0}
 
   @media (max-width:760px){
     .wrap{padding:0 12px 30px}
@@ -469,6 +474,9 @@ function starHtml(code){
   const on = auth.watch.has(code);
   return `<button class="star ${on ? 'on' : ''}" data-star="${code}" title="加入自选">${on ? '★' : '☆'}</button>`;
 }
+function detailBtn(code){
+  return `<a class="det" href="stock.html?code=${code}" target="_blank" title="查看个股档案">详情</a>`;
+}
 
 const $ = s => document.querySelector(s);
 const num = v => (v === null || v === undefined || v === '-' || isNaN(v)) ? null : Number(v);
@@ -576,7 +584,7 @@ function renderDesktop(rows){
       return `<td class="tgt"><b>${fmt(p)}</b><span class="${hit ? 'hit' : ''}">${lab}</span></td>`;
     }).join('');
     return `<tr data-code="${r.code}">
-      <td class="l">${starHtml(r.code)}<span class="nm">${r.name}</span><span class="cd">${r.code}</span><br><span class="ind">${r.sector}</span></td>
+      <td class="l">${starHtml(r.code)}<span class="nm">${r.name}</span>${detailBtn(r.code)}<span class="cd">${r.code}</span><br><span class="ind">${r.sector}</span></td>
       <td class="px">${fmt(r.price)}</td>
       <td class="${cls}">${r.chg === null ? '—' : sign + fmt(r.chg) + '%'}</td>
       <td><span class="dy ${tierClass(dy)}">${dy === null ? '—' : fmt(dy) + '%'}</span></td>
@@ -638,14 +646,15 @@ function renderMobile(rows){
           <div><span>总市值</span><span>${r.mktcap ? r.mktcap.toFixed(0) + ' 亿' : '—'}</span></div>
         </div>
       </div>
-      <div class="more">展开分红明细 ▾</div>
+      <div class="more"><span class="tog">展开分红明细 ▾</span>${detailBtn(r.code)}</div>
     </div>`;
   }).join('');
 
   box.querySelectorAll('.stk').forEach(el => {
-    el.addEventListener('click', () => {
+    el.addEventListener('click', e => {
+      if (e.target.closest('.det')) return;
       el.classList.toggle('open');
-      const m = el.querySelector('.more');
+      const m = el.querySelector('.tog');
       m.textContent = el.classList.contains('open') ? '收起 ▴' : '展开分红明细 ▾';
     });
     const st = el.querySelector('button[data-star]');

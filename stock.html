@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>个股档案 · 高股息看板</title>
+<meta name="description" content="个股高股息档案：股息率、每股分红、股息率参考价、近一年位置、分红明细，按最新数据实时计算。仅供参考，不构成投资建议。">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --red-deep:#6e0f12; --red:#8f161b; --red-hi:#a51e24;
+    --gold:#e8b04b; --gold-soft:rgba(232,176,75,.18);
+    --cream:#fdf6ec; --cream2:rgba(253,246,236,.72); --cream3:rgba(253,246,236,.45);
+    --panel:rgba(255,255,255,.07); --panel-line:rgba(255,255,255,.14);
+    --up:#ff8f96; --down:#7fd8a5;
+  }
+  body{background:#1a0c0d;color:var(--cream);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:18px 14px 30px}
+  .card{width:100%;max-width:660px;border-radius:20px;overflow:hidden;
+    background:linear-gradient(165deg,var(--red-hi) 0%,var(--red) 45%,var(--red-deep) 100%);
+    box-shadow:0 18px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08)}
+
+  .hd{display:flex;align-items:center;gap:10px;padding:16px 20px 12px;
+    border-bottom:1px solid var(--panel-line)}
+  .mark{width:36px;height:36px;border-radius:11px;flex:none;
+    background:linear-gradient(135deg,var(--gold),#c9922f);color:#4a2408;
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+  .hd .t1{font-size:15px;font-weight:700;letter-spacing:1px}
+  .hd .t2{font-size:11px;color:var(--cream3);margin-top:1px}
+  .hd .date{margin-left:auto;text-align:right;font-size:11px;color:var(--cream3)}
+  .hd .date b{display:block;color:var(--cream2);font-weight:600;font-size:12px}
+
+  .hero{display:flex;align-items:center;gap:18px;padding:20px 22px 18px;flex-wrap:wrap}
+  .hero .nm{font-size:30px;font-weight:800;letter-spacing:1px;line-height:1.2}
+  .hero .meta{font-size:12px;color:var(--cream3);margin-top:4px}
+  .hero .meta i{font-style:normal;border:1px solid var(--panel-line);border-radius:9px;
+    padding:1px 8px;margin-right:6px;color:var(--cream2)}
+  .dybox{margin-left:auto;text-align:right}
+  .dybox .k{font-size:11px;color:var(--cream3)}
+  .dybox .v{font-size:40px;font-weight:800;color:var(--gold);line-height:1.05;
+    font-variant-numeric:tabular-nums;text-shadow:0 2px 14px rgba(232,176,75,.35)}
+  .dybox .tier{display:inline-block;margin-top:5px;font-size:11px;font-weight:600;
+    border-radius:9px;padding:2px 10px}
+  .tier.t-high{background:var(--gold);color:#4a2408}
+  .tier.t-mid{background:rgba(255,255,255,.16);color:var(--cream)}
+  .tier.t-low{background:rgba(255,255,255,.09);color:var(--cream2)}
+
+  .pxrow{display:flex;gap:10px;padding:0 22px 16px;flex-wrap:wrap}
+  .px{flex:1;min-width:140px;background:var(--panel);border:1px solid var(--panel-line);
+    border-radius:13px;padding:10px 14px}
+  .px .k{font-size:11px;color:var(--cream3)}
+  .px .v{font-size:19px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+  .px .v small{font-size:11px;font-weight:400;color:var(--cream3);margin-left:2px}
+  .px .v.up{color:var(--up)} .px .v.down{color:var(--down)}
+
+  .sec{padding:4px 22px 6px}
+  .sec h4{font-size:12px;color:var(--gold);letter-spacing:2px;margin:12px 0 8px;font-weight:700}
+  .tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+  .tp{background:var(--panel);border:1px solid var(--panel-line);border-radius:11px;
+    padding:8px 10px;text-align:center}
+  .tp .r{font-size:12px;font-weight:700;color:var(--gold)}
+  .tp .p{font-size:15px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}
+  .tp .g{font-size:10.5px;margin-top:3px;color:var(--cream3);border-radius:7px;padding:1px 6px;display:inline-block}
+  .tp .g.hit{background:var(--gold-soft);color:var(--gold);font-weight:700}
+  .tp.now{outline:2px solid var(--gold);outline-offset:-2px}
+
+  .poswrap{display:flex;align-items:center;gap:10px;background:var(--panel);
+    border:1px solid var(--panel-line);border-radius:12px;padding:10px 14px}
+  .poswrap .k{font-size:11px;color:var(--cream3);flex:none}
+  .bar{flex:1;height:7px;border-radius:4px;background:rgba(0,0,0,.28);position:relative}
+  .bar i{position:absolute;top:0;bottom:0;left:0;border-radius:4px;
+    background:linear-gradient(90deg,#7fd8a5,#e8b04b,#ff8f96)}
+  .poswrap .v{font-size:13px;font-weight:700;flex:none;font-variant-numeric:tabular-nums}
+
+  table{width:100%;border-collapse:collapse}
+  td{padding:6px 4px;font-size:12px;border-bottom:1px dashed rgba(255,255,255,.09)}
+  tr:last-child td{border-bottom:none}
+  td:last-child{text-align:right;font-variant-numeric:tabular-nums;color:var(--cream)}
+  td:first-child{color:var(--cream2)}
+  td .tag{font-size:10px;border:1px solid var(--panel-line);border-radius:7px;
+    padding:0 6px;margin-right:6px;color:var(--cream3)}
+
+  .calc{background:var(--panel);border:1px solid var(--panel-line);border-radius:13px;
+    padding:12px 15px;font-size:12px;color:var(--cream2);line-height:1.8}
+  .calc b{color:var(--gold);font-weight:700;font-size:14px}
+  .calc .note{font-size:10.5px;color:var(--cream3)}
+
+  .ft{padding:14px 22px 18px;font-size:10.5px;color:var(--cream3);line-height:1.7;
+    border-top:1px solid var(--panel-line);margin-top:12px}
+  .back{margin-top:14px;color:rgba(253,246,236,.55);font-size:12px;text-decoration:none;
+    border-bottom:1px dashed rgba(253,246,236,.25)}
+  .back:hover{color:var(--cream)}
+  .err{padding:60px 20px;text-align:center;color:var(--cream2)}
+
+  @media (max-width:560px){
+    .hero .nm{font-size:24px}
+    .dybox .v{font-size:32px}
+    .tiers{grid-template-columns:repeat(2,1fr)}
+    .pxrow .px{min-width:calc(50% - 5px)}
+  }
+</style>
+</head>
+<body>
+<div class="card" id="card"></div>
+<a class="back" href="index.html">← 返回看板</a>
+
+<script src="site_data.js"></script>
+<script>
+'use strict';
+const TARGETS = [
+  {rate:5.5, label:'5.5%'},
+  {rate:5.0, label:'5.0%'},
+  {rate:4.5, label:'4.5%'},
+  {rate:4.0, label:'4.0%'},
+];
+const $ = s => document.querySelector(s);
+const fmt = (v, d=2) => (v === null || v === undefined) ? '—' : Number(v).toFixed(d);
+const enc = encodeURIComponent;
+
+const code = new URLSearchParams(location.search).get('code') || '';
+const r0 = (window.SITE_DATA.rows || []).find(r => r.code === code);
+
+function loadQuote(codes){
+  return new Promise(resolve => {
+    const keys = codes.map(c => (c[0] === '6' ? 'sh' : 'sz') + c);
+    const s = document.createElement('script');
+    s.charset = 'GBK';
+    s.src = 'https://qt.gtimg.cn/q=' + keys.join(',');
+    const out = {};
+    s.onload = () => {
+      keys.forEach((k, i) => {
+        const raw = window['v_' + k];
+        if (!raw) return;
+        const p = String(raw).split('~');
+        if (p.length < 49) return;
+        out[codes[i]] = {price:+p[3]||null, chg:+p[32], pe:+p[39]||null,
+          pb:+p[46]||null, hi:+p[47]||null, lo:+p[48]||null};
+      });
+      resolve(out); s.remove();
+    };
+    s.onerror = () => { resolve(out); s.remove(); };
+    document.head.appendChild(s);
+    setTimeout(() => resolve(out), 6000);
+  });
+}
+
+function tierOf(dy){
+  if (dy === null) return ['t-low', '数据待补'];
+  if (dy >= 5.5) return ['t-high', '深度价值区'];
+  if (dy >= 5.0) return ['t-mid', '进入关注区'];
+  return ['t-low', '观察区'];
+}
+
+function render(q){
+  const q1 = (q && q[code]) || {};
+  const price = q1.price ?? r0.price;
+  const chg = q1.chg ?? r0.chg;
+  const pe = q1.pe ?? r0.pe, pb = q1.pb ?? r0.pb;
+  const lo = q1.lo ?? r0.lo, hi = q1.hi ?? r0.hi;
+  const dps = r0.dps;
+  const dy = (dps && price) ? dps / price * 100 : null;
+  const pct = (lo && hi && hi > lo && price) ? (price - lo) / (hi - lo) * 100 : null;
+  const [tcls, tlab] = tierOf(dy);
+  const chgCls = chg > 0 ? 'up' : (chg < 0 ? 'down' : '');
+  const sign = chg > 0 ? '+' : '';
+  const gen = window.SITE_DATA.generated || '';
+  const times12 = r0.times12;
+
+  const tps = TARGETS.map(t => {
+    const p = dps ? dps / (t.rate / 100) : null;
+    if (p === null) return '<div class="tp"><div class="r">' + t.label + '</div><div class="p">—</div></div>';
+    const g = price ? (price - p) / price * 100 : null;
+    const hit = g !== null && g <= 0;
+    const gl = g === null ? '' : (hit ? '已低 ' + Math.abs(g).toFixed(1) + '%' : '还要跌 ' + g.toFixed(1) + '%');
+    return `<div class="tp ${dy !== null && Math.abs(dy - t.rate) < 0.25 ? 'now' : ''}">
+      <div class="r">${t.label}</div><div class="p">${fmt(p)}</div>
+      <span class="g ${hit ? 'hit' : ''}">${gl}</span></div>`;
+  }).join('');
+
+  const divs = (r0.divs || []).map(d =>
+    `<tr><td><span class="tag">${d.mmdd === '12-31' ? '年度' : '中期'}</span>除息 ${d.exd}</td>
+     <td>${d.per.toFixed(4)} 元/股</td></tr>`
+  ).join('') || '<tr><td>暂无已实施的派息记录</td><td>—</td></tr>';
+
+  // 10 万元测算（按最新财年 DPS，历史口径）
+  const sh = price ? Math.floor(100000 / price / 100) * 100 : null; // 按手取整
+  const inc = (sh && dps) ? sh * dps : null;
+
+  $('#card').innerHTML = `
+    <div class="hd">
+      <div class="mark">息</div>
+      <div><div class="t1">个股股息档案</div><div class="t2">按最新数据实时计算 · 高股息看板</div></div>
+      <div class="date">数据更新<b>${gen}</b></div>
+    </div>
+    <div class="hero">
+      <div>
+        <div class="nm">${r0.name}</div>
+        <div class="meta"><i>${r0.code}</i><i>${r0.sector}</i>市值 ${r0.mktcap ? r0.mktcap.toFixed(0) + ' 亿' : '—'}</div>
+      </div>
+      <div class="dybox">
+        <div class="k">股息率（现价 × FY${r0.fy || '—'} 分红）</div>
+        <div class="v">${dy === null ? '—' : dy.toFixed(2) + '%'}</div>
+        <span class="tier ${tcls}">${tlab}</span>
+      </div>
+    </div>
+    <div class="pxrow">
+      <div class="px"><div class="k">现价</div>
+        <div class="v">${fmt(price)}<small>${chg === null || chg === undefined ? '' : sign + fmt(chg) + '%'}</small></div></div>
+      <div class="px"><div class="k">每股分红</div>
+        <div class="v">${fmt(dps, 3)}<small>FY${r0.fy || '—'}</small></div></div>
+      <div class="px"><div class="k">PE / PB</div>
+        <div class="v">${fmt(pe, 1)}<small>/ ${fmt(pb, 2)}</small></div></div>
+      <div class="px"><div class="k">近 12 月派息</div>
+        <div class="v">${times12 || 0}<small>次</small></div></div>
+    </div>
+    <div class="sec">
+      <h4>股息率参考价</h4>
+      <div class="tiers">${tps}</div>
+      <div class="calc" style="margin-top:9px">
+        参考价 ＝ 每股分红 ÷ 目标股息率。金框为当前股息率所在档；
+        绿色「已低」＝ 现价已低于该档参考价。
+      </div>
+    </div>
+    <div class="sec">
+      <h4>近一年位置</h4>
+      <div class="poswrap">
+        <span class="k">${lo ? lo.toFixed(2) : '—'}</span>
+        <div class="bar"><i style="width:${pct === null ? 0 : Math.max(1.5, Math.min(100, pct))}%"></i></div>
+        <span class="k">${hi ? hi.toFixed(2) : '—'}</span>
+        <span class="v">${pct === null ? '—' : pct.toFixed(0) + '%'}</span>
+      </div>
+    </div>
+    <div class="sec">
+      <h4>分红明细（FY${r0.fy || '—'}，已实施）</h4>
+      <table>${divs}</table>
+    </div>
+    <div class="sec">
+      <h4>10 万元收息测算</h4>
+      <div class="calc">
+        按现价 ${fmt(price)} 元可买入约 <b>${sh ? sh.toLocaleString() : '—'}</b> 股，
+        以 FY${r0.fy || '—'} 每股分红 ${fmt(dps, 3)} 元计，一年预期到账 <b>${inc ? '¥ ' + inc.toFixed(0) : '—'}</b>
+        （${inc ? (inc / 100000 * 100).toFixed(2) + '% 本金' : '—'}）。
+        <div class="note">按最近已完成财年的分红静态推算，分红政策可能变化，不代表未来收益。</div>
+      </div>
+    </div>
+    <div class="ft">
+      数据来自公开行情与分红接口，页面打开时实时抓取现价、每日更新分红快照（${gen}）。
+      所有价格档位仅为股息率换算的数学参考，<b>不构成任何投资建议</b>；历史分红不代表未来，投资决策需独立判断。
+      <br><a href="cards.html" style="color:inherit">查看历史研究卡片</a>
+    </div>`;
+}
+
+if (!r0){
+  $('#card').innerHTML = '<div class="err">未找到该标的（code=' + enc(code) + '），<a class="back" style="margin:0 0 0 4px" href="index.html">返回看板</a></div>';
+} else {
+  document.title = r0.name + ' 股息档案 · 高股息看板';
+  render(null);
+  loadQuote([code]).then(q => { if (Object.keys(q).length) render(q); });
+}
+</script>
+</body>
+</html>
