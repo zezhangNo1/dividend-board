@@ -17,7 +17,17 @@
   body{background:#1a0c0d;color:var(--cream);
     font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
     font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;
-    min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:18px 14px 30px}
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:56px 14px 30px}
+  .topnav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;
+    padding:10px 16px;background:rgba(26,12,13,.88);backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(255,255,255,.08)}
+  .topnav a.back2{display:inline-flex;align-items:center;gap:5px;color:rgba(253,246,236,.75);
+    font-size:12.5px;text-decoration:none;border-bottom:none}
+  .topnav a.back2:hover{color:var(--cream)}
+  .topnav .sp{flex:1}
+  .topnav button.x{width:30px;height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.06);color:var(--cream);font-size:14px;cursor:pointer;line-height:1}
+  .topnav button.x:hover{background:rgba(255,255,255,.15)}
   .card{width:100%;max-width:660px;border-radius:20px;overflow:hidden;
     background:linear-gradient(165deg,var(--red-hi) 0%,var(--red) 45%,var(--red-deep) 100%);
     box-shadow:0 18px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08)}
@@ -103,12 +113,21 @@
 </style>
 </head>
 <body>
+<div class="topnav">
+  <a class="back2" href="index.html">← 返回看板</a>
+  <div class="sp"></div>
+  <button class="x" id="closeBtn" title="关闭">✕</button>
+</div>
 <div class="card" id="card"></div>
 <a class="back" href="index.html">← 返回看板</a>
 
 <script src="site_data.js"></script>
 <script>
 'use strict';
+document.getElementById('closeBtn').addEventListener('click', () => {
+  window.close();
+  setTimeout(() => { if (!document.hidden) history.length > 1 ? history.back() : location.href = 'index.html'; }, 120);
+});
 const TARGETS = [
   {rate:5.5, label:'5.5%'},
   {rate:5.0, label:'5.0%'},
