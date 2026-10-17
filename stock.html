@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>个股档案 · 高股息看板</title>
 <meta name="description" content="个股高股息档案：股息率、每股分红、股息率参考价、近一年位置、分红明细，按最新数据实时计算。仅供参考，不构成投资建议。">
+<script>
+if (new URLSearchParams(location.search).get('embed') === '1'){
+  document.documentElement.classList.add('embed');
+}
+</script>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -26,9 +31,11 @@
   .topnav a.back2:hover{color:var(--cream)}
   .topnav .sp{flex:1}
   .topnav button.x{width:30px;height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.18);
-    background:rgba(255,255,255,.06);color:var(--cream);font-size:14px;cursor:pointer;line-height:1}
+    background:rgba(255,255,255,.06);color:var(--cream);font-size:14px;cursor:pointer;line-height:1;
+    display:inline-flex;align-items:center;justify-content:center}
   .topnav button.x:hover{background:rgba(255,255,255,.15)}
-  .topnav button.rf{height:30px;border-radius:9px;border:1px solid rgba(232,176,75,.45);
+  .topnav button.rf{display:inline-flex;align-items:center;gap:5px;height:30px;border-radius:9px;
+    border:1px solid rgba(232,176,75,.45);background:rgba(232,176,75,.12);color:var(--gold);
     background:rgba(232,176,75,.12);color:var(--gold);font-size:12px;cursor:pointer;
     padding:0 12px;margin-right:8px;font-family:inherit}
   .topnav button.rf:hover{background:rgba(232,176,75,.25)}
@@ -108,9 +115,9 @@
   .back:hover{color:var(--cream)}
   .err{padding:60px 20px;text-align:center;color:var(--cream2)}
   /* 弹窗嵌入模式：去掉自身导航 */
-  body.embed .topnav{display:none}
-  body.embed{padding-top:14px}
-  body.embed .back{display:none}
+  html.embed .topnav{display:none}
+  html.embed body{padding-top:14px}
+  html.embed .back{display:none}
 
   @media (max-width:560px){
     .hero .nm{font-size:24px}
@@ -122,10 +129,10 @@
 </head>
 <body>
 <div class="topnav">
-  <a class="back2" href="index.html">← 返回看板</a>
+  <a class="back2" href="index.html"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4L7 12l8 8"/></svg>返回看板</a>
   <div class="sp"></div>
-  <button class="rf" id="rf2" title="重新取行情并重算">↻ 刷新行情</button>
-  <button class="x" id="closeBtn" title="关闭">✕</button>
+  <button class="rf" id="rf2" title="重新取行情并重算"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 6.3"/><path d="M20 4v7h-7"/></svg>刷新行情</button>
+  <button class="x" id="closeBtn" title="关闭"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
 </div>
 <div class="card" id="card"></div>
 <a class="back" href="index.html">← 返回看板</a>
@@ -133,9 +140,6 @@
 <script src="site_data.js"></script>
 <script>
 'use strict';
-if (new URLSearchParams(location.search).get('embed') === '1'){
-  document.body.classList.add('embed');
-}
 document.getElementById('rf2').addEventListener('click', () => { location.reload(); });
 document.getElementById('closeBtn').addEventListener('click', () => {
   window.close();
