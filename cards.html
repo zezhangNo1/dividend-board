@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>研究卡片库 · 高股息看板</title>
+<meta name="description" content="高股息研究卡片库：按公司浏览历史研究卡片（分红档案、财务质量、信号催化），内容仅供学习参考，不构成投资建议。">
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('gx-theme');
+    if(!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f6f7f9; --card:#ffffff; --card2:#fafbfc;
+    --line:#e7e9ee; --line2:#f0f1f4;
+    --t1:#171a20; --t2:#5a6070; --t3:#98a0ae;
+    --brand:#0e9f6e; --brand-ink:#0b7f58; --brand-soft:rgba(14,159,110,.10);
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+  }
+  html[data-theme=dark]{
+    color-scheme: dark;
+    --bg:#0b0e13; --card:#141922; --card2:#171d28;
+    --line:#232a36; --line2:#1c222c;
+    --t1:#e8ecf2; --t2:#9aa4b2; --t3:#5f6a7a;
+    --brand:#34d399; --brand-ink:#6ee7b7; --brand-soft:rgba(52,211,153,.12);
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--t1);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 20px 44px}
+
+  .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:11px;
+    padding:14px 0 12px;margin-bottom:16px;
+    background:var(--bg);border-bottom:1px solid var(--line)}
+  .logo{width:34px;height:34px;border-radius:10px;flex:none;
+    background:linear-gradient(135deg,#10b981,#0d8a6c);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:17px;font-weight:700}
+  h1{font-size:17px;font-weight:700;letter-spacing:.4px}
+  .sub{color:var(--t3);font-size:11.5px;margin-top:1px}
+  .spacer{flex:1}
+  input#q{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:8px 13px;font-size:13px;width:180px;color:var(--t1);outline:none;font-family:inherit;box-shadow:var(--shadow)}
+  input#q:focus{border-color:var(--brand)}
+  a.act,button.iconbtn{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:8px 14px;font-size:13px;color:var(--t2);cursor:pointer;font-family:inherit;
+    text-decoration:none;box-shadow:var(--shadow)}
+  a.act:hover,button.iconbtn:hover{border-color:var(--brand);color:var(--t1)}
+  button.iconbtn{width:36px;height:36px;font-size:15px;flex:none;padding:0}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:13px;
+    padding:12px 15px;box-shadow:var(--shadow)}
+  .stat .k{font-size:11.5px;color:var(--t2)}
+  .stat .v{font-size:21px;font-weight:700;margin-top:2px}
+  .stat .v i{font-style:normal;font-size:11.5px;font-weight:400;color:var(--t3);margin-left:3px}
+
+  .group{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
+  .ghead{display:flex;align-items:center;gap:10px;padding:11px 15px;cursor:pointer;user-select:none}
+  .ghead:hover{background:var(--card2)}
+  .ghead .nm{font-size:14.5px;font-weight:700}
+  .ghead .cnt{color:var(--brand-ink);background:var(--brand-soft);border-radius:9px;
+    font-size:11.5px;padding:1px 8px;font-weight:600}
+  .ghead .latest{color:var(--t3);font-size:11.5px;margin-left:auto}
+  .ghead .arw{color:var(--t3);font-size:11px;transition:.15s}
+  .group.open .arw{transform:rotate(90deg)}
+  .thumbs{display:flex;gap:6px;padding:0 15px 12px;overflow-x:auto}
+  .thumbs img{height:72px;border-radius:7px;border:1px solid var(--line2);cursor:pointer;flex:none}
+  .grid{display:none;padding:2px 15px 14px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+  .group.open .grid{display:grid}
+  .group.open .thumbs{display:none}
+  .cell{background:var(--card2);border:1px solid var(--line2);border-radius:11px;overflow:hidden;cursor:pointer}
+  .cell img{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;background:var(--line2)}
+  .cell .cap{padding:7px 10px;font-size:11.5px;color:var(--t2);
+    display:flex;justify-content:space-between;gap:8px}
+  .cell .cap b{color:var(--t1);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cell .cap span{color:var(--t3);flex:none}
+
+  .lb{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
+    background:rgba(8,11,16,.82);padding:24px;flex-direction:column;gap:12px}
+  .lb.show{display:flex}
+  .lb img{max-width:100%;max-height:calc(100vh - 90px);border-radius:10px}
+  .lb .cap{color:#cbd3dd;font-size:12.5px}
+  .lb button{background:none;border:1px solid rgba(255,255,255,.25);color:#e8ecf2;border-radius:9px;
+    padding:7px 18px;font-size:13px;cursor:pointer;font-family:inherit}
+
+  .empty{padding:44px;text-align:center;color:var(--t3)}
+  footer{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);
+    color:var(--t3);font-size:12px;line-height:1.9;text-align:center}
+  footer a{color:var(--t2);text-decoration:none;border-bottom:1px dashed var(--t3)}
+
+  @media (max-width:760px){
+    .wrap{padding:0 12px 30px}
+    input#q{width:120px}
+    .stats{grid-template-columns:repeat(3,1fr);gap:7px}
+    .stat{padding:9px 10px}
+    .stat .v{font-size:16px}
+    .grid{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo">息</div>
+    <div>
+      <h1>研究卡片库</h1>
+      <div class="sub" id="sub">--</div>
+    </div>
+    <div class="spacer"></div>
+    <input id="q" placeholder="搜公司 / 话题" autocomplete="off">
+    <a class="act" href="index.html">返回看板</a>
+    <button class="iconbtn" id="themeBtn" title="切换明暗主题">🌙</button>
+  </div>
+
+  <section class="stats" id="stats"></section>
+  <div id="list"></div>
+
+  <footer>
+    <a href="index.html">高股息看板</a> · <a href="about.html">数据口径与免责声明</a><br>
+    历史研究卡片存档，仅供学习参考，不构成任何投资建议
+  </footer>
+</div>
+
+<div class="lb" id="lb">
+  <img id="lbImg" src="" alt="">
+  <div class="cap" id="lbCap"></div>
+  <button onclick="document.getElementById('lb').classList.remove('show')">关闭</button>
+</div>
+
+<script src="cards_data.js"></script>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const D = window.CARDS_DATA;
+const enc = encodeURIComponent;
+let keyword = '';
+let shown = 40; // 首屏组数，滚动逐步加载
+
+function view(){
+  return D.groups.filter(g => !keyword || g.name.toLowerCase().includes(keyword.toLowerCase()));
+}
+
+function render(){
+  const gs = view();
+  $('#stats').innerHTML = `
+    <div class="stat"><div class="k">卡片总数</div><div class="v">${D.total}<i>张</i></div></div>
+    <div class="stat"><div class="k">公司 / 话题</div><div class="v">${gs.length}<i>个</i></div></div>
+    <div class="stat"><div class="k">最近更新</div><div class="v" style="font-size:15px;padding-top:4px">${D.generated.slice(0, 10)}</div></div>`;
+  $('#sub').textContent = `${D.total} 张 · ${D.groups.length} 个分组 · ${D.generated}`;
+  if (!gs.length){ $('#list').innerHTML = '<div class="empty">没有匹配的卡片</div>'; return; }
+  $('#list').innerHTML = gs.slice(0, shown).map((g, i) => {
+    const latest = g.cards[0].d;
+    const thumbs = g.cards.slice(0, 4).map(c =>
+      `<img loading="lazy" src="/cards/${enc(c.f)}" data-f="${c.f}" data-n="${g.name}">`).join('');
+    const cells = g.cards.map(c =>
+      `<div class="cell" data-f="${c.f}" data-n="${g.name}">
+         <img loading="lazy" src="/cards/${enc(c.f)}" alt="${g.name}">
+         <div class="cap"><b title="${c.f}">${c.f.replace(/\.png$/, '')}</b><span>${c.d.slice(5)}</span></div>
+       </div>`).join('');
+    return `<div class="group" data-i="${i}">
+      <div class="ghead">
+        <span class="arw">▶</span>
+        <span class="nm">${g.name}</span>
+        <span class="cnt">${g.count} 张</span>
+        <span class="latest">最新 ${latest}</span>
+      </div>
+      <div class="thumbs">${thumbs}</div>
+      <div class="grid">${cells}</div>
+    </div>`;
+  }).join('') + (shown < gs.length
+    ? `<div class="empty" style="cursor:pointer" id="more">已显示 ${shown} / ${gs.length} 个分组 · 点击加载更多</div>` : '');
+  const more = $('#more');
+  if (more) more.addEventListener('click', () => { shown += 60; render(); window.scrollTo({top: document.body.scrollHeight}); });
+
+  document.querySelectorAll('.ghead').forEach(h => {
+    h.addEventListener('click', () => h.parentElement.classList.toggle('open'));
+  });
+  document.querySelectorAll('.cell, .thumbs img').forEach(el => {
+    el.addEventListener('click', () => {
+      $('#lbImg').src = '/cards/' + enc(el.dataset.f);
+      $('#lbCap').textContent = `${el.dataset.n} · ${el.dataset.f}`;
+      $('#lb').classList.add('show');
+    });
+  });
+}
+
+$('#q').addEventListener('input', e => { keyword = e.target.value.trim(); shown = 40; render(); });
+$('#lb').addEventListener('click', e => { if (e.target.id === 'lb') $('#lb').classList.remove('show'); });
+$('#themeBtn').addEventListener('click', () => {
+  const cur = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = cur;
+  try{ localStorage.setItem('gx-theme', cur); }catch(e){}
+  $('#themeBtn').textContent = cur === 'dark' ? '☀️' : '🌙';
+});
+$('#themeBtn').textContent = document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙';
+
+// URL ?g= 自动展开定位
+render();
+const want = new URLSearchParams(location.search).get('g');
+if (want){
+  keyword = ''; render();
+  document.querySelectorAll('.group').forEach((el, i) => {
+    if (view()[i] && view()[i].name === want){
+      el.classList.add('open');
+      el.scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
+  });
+}
+</script>
+</body>
+</html>
