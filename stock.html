@@ -28,6 +28,10 @@
   .topnav button.x{width:30px;height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.18);
     background:rgba(255,255,255,.06);color:var(--cream);font-size:14px;cursor:pointer;line-height:1}
   .topnav button.x:hover{background:rgba(255,255,255,.15)}
+  .topnav button.rf{height:30px;border-radius:9px;border:1px solid rgba(232,176,75,.45);
+    background:rgba(232,176,75,.12);color:var(--gold);font-size:12px;cursor:pointer;
+    padding:0 12px;margin-right:8px;font-family:inherit}
+  .topnav button.rf:hover{background:rgba(232,176,75,.25)}
   .card{width:100%;max-width:660px;border-radius:20px;overflow:hidden;
     background:linear-gradient(165deg,var(--red-hi) 0%,var(--red) 45%,var(--red-deep) 100%);
     box-shadow:0 18px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08)}
@@ -120,6 +124,7 @@
 <div class="topnav">
   <a class="back2" href="index.html">← 返回看板</a>
   <div class="sp"></div>
+  <button class="rf" id="rf2" title="重新取行情并重算">↻ 刷新行情</button>
   <button class="x" id="closeBtn" title="关闭">✕</button>
 </div>
 <div class="card" id="card"></div>
@@ -131,6 +136,7 @@
 if (new URLSearchParams(location.search).get('embed') === '1'){
   document.body.classList.add('embed');
 }
+document.getElementById('rf2').addEventListener('click', () => { location.reload(); });
 document.getElementById('closeBtn').addEventListener('click', () => {
   window.close();
   setTimeout(() => { if (!document.hidden) history.length > 1 ? history.back() : location.href = 'index.html'; }, 120);
@@ -193,6 +199,7 @@ function render(q){
   const sign = chg > 0 ? '+' : '';
   const gen = window.SITE_DATA.generated || '';
   const times12 = r0.times12;
+  const qtime = q && q[code] ? ' · 行情 ' + new Date().toLocaleTimeString('zh-CN', {hour12: false}) : '';
 
   const tps = TARGETS.map(t => {
     const p = dps ? dps / (t.rate / 100) : null;
@@ -218,7 +225,7 @@ function render(q){
     <div class="hd">
       <div class="mark">息</div>
       <div><div class="t1">个股股息档案</div><div class="t2">按最新数据实时计算 · 高股息看板</div></div>
-      <div class="date">数据更新<b>${gen}</b></div>
+      <div class="date">数据更新<b>${gen}</b>${qtime}</div>
     </div>
     <div class="hero">
       <div>
