@@ -521,7 +521,7 @@ function starHtml(code){
   return `<button class="star ${on ? 'on' : ''}" data-star="${code}" title="加入自选">${on ? '★' : '☆'}</button>`;
 }
 function detailBtn(code){
-  return `<a class="det" href="stock.html?code=${code}" data-code="${code}" title="查看个股档案">详情<span class="ar2">▸</span></a>`;
+  return `<a class="det" href="stock.html?code=${code}" target="_blank" title="在新窗口打开个股档案">详情<span class="ar2">▸</span></a>`;
 }
 function openStock(code){
   const m = $('#stockModal');
@@ -673,9 +673,6 @@ function renderDesktop(rows){
   tb.querySelectorAll('button[data-star]').forEach(b => {
     b.addEventListener('click', e => { e.stopPropagation(); toggleStar(b.dataset.star); });
   });
-  tb.querySelectorAll('a.det').forEach(a => {
-    a.addEventListener('click', e => { e.preventDefault(); openStock(a.dataset.code); });
-  });
 }
 
 function renderMobile(rows){
@@ -733,8 +730,6 @@ function renderMobile(rows){
     });
     const st = el.querySelector('button[data-star]');
     if (st) st.addEventListener('click', e => { e.stopPropagation(); toggleStar(st.dataset.star); });
-    const dt = el.querySelector('a.det');
-    if (dt) dt.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); openStock(dt.dataset.code); });
   });
 }
 
@@ -928,7 +923,7 @@ function boot(){
 $('#q').addEventListener('input', e => { keyword = e.target.value.trim(); render(); });
 // 调试/深链：?autodet=600015 自动打开个股弹窗
 const _auto = new URLSearchParams(location.search).get('autodet');
-if (_auto) openStock(_auto);
+if (_auto) location.href = 'stock.html?code=' + encodeURIComponent(_auto);
 // ?probe=1 时 9 秒后打印运行时诊断
 if (new URLSearchParams(location.search).get('probe')){
   setTimeout(() => {
