@@ -268,9 +268,9 @@
     color:var(--t2);text-decoration:none;
     border-bottom:1px dashed var(--t3);margin-right:2px;flex:none}
   #stockModal .frame .bar a.open:hover{color:var(--t1)}
-  #stockModal .frame .bar button.x{width:30px;height:30px;border-radius:9px;flex:none;
-    border:1px solid var(--line);background:var(--card);color:var(--t2);font-size:14px;
-    cursor:pointer;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+  #stockModal .frame .bar button.x{height:30px;border-radius:9px;flex:none;
+    border:1px solid var(--line);background:var(--card);color:var(--t2);font-size:12px;
+    cursor:pointer;font-family:inherit;padding:0 11px}
   #stockModal .frame .bar button.x:hover{border-color:var(--up);color:var(--up)}
   #stockModal iframe{flex:1;width:100%;border:none;min-height:0}
   .det{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;
@@ -386,11 +386,11 @@
 <div class="modal" id="stockModal">
   <div class="frame">
     <div class="bar">
-      <button class="bk" id="stockBack"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4L7 12l8 8"/></svg>返回看板</button>
+      <button class="bk" id="stockBack">返回看板</button>
       <div class="t" id="stockTitle">个股档案</div>
-      <button class="rf" id="stockRefresh" title="重取行情并重算"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 6.3"/><path d="M20 4v7h-7"/></svg>刷新行情</button>
-      <a class="open" id="stockOpen" href="#" target="_blank">新窗口<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
-      <button class="x" id="stockClose" title="关闭"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+      <button class="rf" id="stockRefresh" title="重取行情并重算">刷新行情</button>
+      <a class="open" id="stockOpen" href="#" target="_blank">新窗口</a>
+      <button class="x" id="stockClose" title="关闭">关闭</button>
     </div>
     <iframe id="stockFrame" src="about:blank" title="个股档案"></iframe>
   </div>
@@ -910,6 +910,9 @@ function boot(){
 }
 
 $('#q').addEventListener('input', e => { keyword = e.target.value.trim(); render(); });
+// 调试/深链：?autodet=600015 自动打开个股弹窗
+const _auto = new URLSearchParams(location.search).get('autodet');
+if (_auto) openStock(_auto);
 boot();
 </script>
 </body>

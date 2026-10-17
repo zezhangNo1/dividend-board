@@ -30,9 +30,9 @@ if (new URLSearchParams(location.search).get('embed') === '1'){
     font-size:12.5px;text-decoration:none;border-bottom:none}
   .topnav a.back2:hover{color:var(--cream)}
   .topnav .sp{flex:1}
-  .topnav button.x{width:30px;height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.18);
-    background:rgba(255,255,255,.06);color:var(--cream);font-size:14px;cursor:pointer;line-height:1;
-    display:inline-flex;align-items:center;justify-content:center}
+  .topnav button.x{height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.06);color:var(--cream);font-size:12px;cursor:pointer;
+    font-family:inherit;padding:0 11px}
   .topnav button.x:hover{background:rgba(255,255,255,.15)}
   .topnav button.rf{display:inline-flex;align-items:center;gap:5px;height:30px;border-radius:9px;
     border:1px solid rgba(232,176,75,.45);background:rgba(232,176,75,.12);color:var(--gold);
@@ -129,10 +129,10 @@ if (new URLSearchParams(location.search).get('embed') === '1'){
 </head>
 <body>
 <div class="topnav">
-  <a class="back2" href="index.html"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4L7 12l8 8"/></svg>返回看板</a>
+  <a class="back2" href="index.html">返回看板</a>
   <div class="sp"></div>
-  <button class="rf" id="rf2" title="重新取行情并重算"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 6.3"/><path d="M20 4v7h-7"/></svg>刷新行情</button>
-  <button class="x" id="closeBtn" title="关闭"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+  <button class="rf" id="rf2" title="重新取行情并重算">刷新行情</button>
+  <button class="x" id="closeBtn" title="关闭">关闭</button>
 </div>
 <div class="card" id="card"></div>
 <a class="back" href="index.html">← 返回看板</a>
