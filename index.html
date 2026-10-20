@@ -241,6 +241,12 @@
   .dlg .err.show{display:block}
   .dlg .close{position:absolute;margin:0;float:right;background:none;border:none;color:var(--t3);
     font-size:16px;cursor:pointer}
+  .tabs2{display:flex;gap:6px;margin-bottom:12px}
+  .tabs2 .t2{flex:1;background:var(--card2);border:1px solid var(--line2);border-radius:9px;
+    padding:7px 0;font-size:12.5px;color:var(--t2);cursor:pointer;font-family:inherit}
+  .tabs2 .t2.on{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-ink);font-weight:600}
+  .forgot{display:block;text-align:center;font-size:12px;color:var(--t3);margin-top:10px;cursor:pointer}
+  .forgot:hover{color:var(--brand-ink)}
   .whoami{display:flex;align-items:center;gap:8px}
   .whoami em{font-style:normal;color:var(--t2);font-size:12px;max-width:140px;overflow:hidden;
     text-overflow:ellipsis;white-space:nowrap}
@@ -374,13 +380,35 @@
 <div class="modal" id="loginModal">
   <div class="dlg">
     <h3>登录 / 注册</h3>
-    <div class="sub2">验证码登录，未注册将自动创建账号。免费账号可自选 5 只。</div>
-    <div class="row">
-      <input id="lgTarget" placeholder="邮箱地址" autocomplete="off">
-      <button class="send" id="lgSend">获取验证码</button>
+    <div class="sub2">验证码登录未注册自动创建账号；密码登录需先在账户设置中设置密码。</div>
+    <div class="tabs2">
+      <button class="t2 on" data-tab="code">验证码登录</button>
+      <button class="t2" data-tab="pw">密码登录</button>
     </div>
-    <input id="lgCode" placeholder="6 位验证码" maxlength="6" inputmode="numeric" autocomplete="off">
-    <button class="go" id="lgGo">登 录</button>
+    <div id="tab-code">
+      <div class="row">
+        <input id="lgTarget" placeholder="邮箱地址" autocomplete="off">
+        <button class="send" id="lgSend">获取验证码</button>
+      </div>
+      <input id="lgCode" placeholder="6 位验证码" maxlength="6" inputmode="numeric" autocomplete="off">
+      <button class="go" id="lgGo">登 录</button>
+    </div>
+    <div id="tab-pw" style="display:none">
+      <input id="pwTarget" placeholder="邮箱地址" autocomplete="off">
+      <input id="pwPass" type="password" placeholder="密码" autocomplete="current-password">
+      <button class="go" id="pwGo">登 录</button>
+      <a class="forgot" id="forgotLink">忘记密码？</a>
+    </div>
+    <div id="tab-forgot" style="display:none">
+      <input id="fgTarget" placeholder="注册邮箱" autocomplete="off">
+      <div class="row">
+        <input id="fgCode" placeholder="6 位验证码" maxlength="6" inputmode="numeric" autocomplete="off">
+        <button class="send" id="fgSend">获取验证码</button>
+      </div>
+      <input id="fgPass" type="password" placeholder="新密码（8-64 位）" autocomplete="new-password">
+      <button class="go" id="fgGo">重置密码</button>
+      <a class="forgot" id="backLogin">返回登录</a>
+    </div>
     <div class="tip" id="lgTip"></div>
     <div class="err" id="lgErr"></div>
   </div>
@@ -450,7 +478,7 @@ function syncAuthUI(){
   if (auth.logged){
     btn.style.display = 'none';
     who.style.display = 'flex';
-    who.innerHTML = `<em>${(auth.user && (auth.user.email || auth.user.phone)) || '已登录'}</em>
+    who.innerHTML = `<em style="cursor:pointer" title="账户设置" onclick="location.href='account.html'">${(auth.user && (auth.user.email || auth.user.phone)) || '已登录'}</em>
       <button id="logoutBtn">退出</button>`;
     who.querySelector('#logoutBtn').addEventListener('click', () => { logout(); });
   } else {
@@ -497,6 +525,68 @@ async function doLogin(){
     closeLogin();
     await loadWatch();
     syncAuthUI(); renderTabs(); render();
+  }catch(e){
+    err.textContent = e.message; err.classList.add('show');
+  }
+}
+// 登录弹窗页签切换
+function loginTab(tab){
+  document.querySelectorAll('.tabs2 .t2').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  $('#tab-code').style.display = tab === 'code' ? '' : 'none';
+  $('#tab-pw').style.display = tab === 'pw' ? '' : 'none';
+  $('#tab-forgot').style.display = 'none';
+  $('#lgErr').classList.remove('show'); $('#lgTip').classList.remove('show');
+}
+async function doPwLogin(){
+  const target = $('#pwTarget').value.trim(), password = $('#pwPass').value;
+  const err = $('#lgErr');
+  err.classList.remove('show');
+  if (!target || !password){ err.textContent = '请填写邮箱和密码'; err.classList.add('show'); return; }
+  try{
+    const d = await api('/api/auth/password-login', {method: 'POST', body: JSON.stringify({email: target, password})});
+    auth.token = d.token; auth.user = d.user;
+    localStorage.setItem('gx-token', d.token);
+    localStorage.setItem('gx-user', JSON.stringify(d.user));
+    closeLogin();
+    await loadWatch();
+    syncAuthUI(); renderTabs(); render();
+  }catch(e){
+    err.textContent = e.message; err.classList.add('show');
+  }
+}
+let fgTimer = null;
+async function fgSend(){
+  const target = $('#fgTarget').value.trim();
+  const btn = $('#fgSend'), err = $('#lgErr'), tip = $('#lgTip');
+  err.classList.remove('show'); tip.classList.remove('show');
+  if (!target){ err.textContent = '请先填写注册邮箱'; err.classList.add('show'); return; }
+  btn.disabled = true;
+  try{
+    const d = await api('/api/auth/code', {method: 'POST', body: JSON.stringify({channel: 'email', target})});
+    tip.textContent = d.message || '验证码已发送';
+    if (d.dev_code) tip.textContent += `（测试码：${d.dev_code}）`;
+    tip.classList.add('show');
+    let s = 60;
+    btn.textContent = s + 's';
+    fgTimer = setInterval(() => {
+      s--; btn.textContent = s + 's';
+      if (s <= 0){ clearInterval(fgTimer); btn.disabled = false; btn.textContent = '获取验证码'; }
+    }, 1000);
+  }catch(e){
+    btn.disabled = false;
+    err.textContent = e.message; err.classList.add('show');
+  }
+}
+async function doReset(){
+  const email = $('#fgTarget').value.trim(), code = $('#fgCode').value.trim(), new_password = $('#fgPass').value;
+  const err = $('#lgErr'), tip = $('#lgTip');
+  err.classList.remove('show');
+  if (!email || !code || !new_password){ err.textContent = '请完整填写邮箱、验证码和新密码'; err.classList.add('show'); return; }
+  try{
+    const d = await api('/api/auth/reset-password', {method: 'POST', body: JSON.stringify({email, code, new_password})});
+    tip.textContent = (d.message || '密码已重置') + '，即将跳回登录';
+    tip.classList.add('show');
+    setTimeout(() => { loginTab('pw'); $('#pwTarget').value = email; tip.classList.remove('show'); }, 1500);
   }catch(e){
     err.textContent = e.message; err.classList.add('show');
   }
@@ -909,6 +999,19 @@ function boot(){
   $('#lgSend').addEventListener('click', doSendCode);
   $('#lgGo').addEventListener('click', doLogin);
   $('#lgCode').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  document.querySelectorAll('.tabs2 .t2').forEach(b => {
+    b.addEventListener('click', () => loginTab(b.dataset.tab));
+  });
+  $('#pwGo').addEventListener('click', doPwLogin);
+  $('#pwPass').addEventListener('keydown', e => { if (e.key === 'Enter') doPwLogin(); });
+  $('#forgotLink').addEventListener('click', () => {
+    $('#tab-code').style.display = 'none'; $('#tab-pw').style.display = 'none';
+    $('#tab-forgot').style.display = '';
+    $('#fgTarget').value = $('#pwTarget').value || '';
+  });
+  $('#backLogin').addEventListener('click', () => loginTab('pw'));
+  $('#fgSend').addEventListener('click', fgSend);
+  $('#fgGo').addEventListener('click', doReset);
   syncAuthUI();
   loadWatch().then(() => { syncAuthUI(); renderTabs(); render(); });
   $('#refresh').addEventListener('click', tick);
@@ -927,6 +1030,7 @@ $('#q').addEventListener('input', e => { keyword = e.target.value.trim(); render
 // 调试/深链：?autodet=600015 自动打开个股弹窗
 const _auto = new URLSearchParams(location.search).get('autodet');
 if (_auto) location.href = 'stock.html?code=' + encodeURIComponent(_auto);
+if (new URLSearchParams(location.search).get('login') === '1') openLogin();
 // ?probe=1 时 9 秒后打印运行时诊断
 if (new URLSearchParams(location.search).get('probe')){
   setTimeout(() => {

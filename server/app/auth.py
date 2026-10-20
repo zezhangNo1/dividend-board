@@ -42,6 +42,7 @@ def _uid(user: User) -> int:
 def make_token(user: User) -> str:
     payload = {
         "uid": user.id,
+        "tv": user.token_ver or 0,
         "exp": datetime.now(timezone.utc) + timedelta(days=JWT_TTL_DAYS),
     }
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
@@ -59,6 +60,8 @@ def current_user(request: Request, db: Session = Depends(get_db)) -> User:
     user = db.get(User, payload.get("uid"))
     if not user or user.status != "active":
         raise HTTPException(401, "账号不可用")
+    if (user.token_ver or 0) != payload.get("tv", 0):
+        raise HTTPException(401, "登录状态已失效，请重新登录")
     return user
 
 
