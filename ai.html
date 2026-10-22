@@ -49,7 +49,7 @@
     font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased;
     background-image:radial-gradient(600px 300px at 15% -50px, var(--bg-glow), transparent);
     background-repeat:no-repeat}
-  .wrap{max-width:860px;margin:0 auto;padding:0 22px 60px}
+  .wrap{max-width:860px;margin:0 auto;padding:0 clamp(14px,3vw,28px) 60px}
 
   .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;
     flex-wrap:wrap;padding:14px 0 12px;margin-bottom:18px;
@@ -83,23 +83,52 @@
   .dates button:hover:not(.on){border-color:var(--brand);color:var(--t1)}
 
   .article{background:var(--card);border:1px solid var(--line);border-radius:14px;
-    box-shadow:var(--shadow);padding:26px 28px}
-  .article .meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    box-shadow:var(--shadow);padding:clamp(18px,3.5vw,34px) clamp(16px,4vw,40px)}
+  .article .meta{display:flex;gap:8px 10px;row-gap:6px;align-items:center;flex-wrap:wrap;
     color:var(--t3);font-size:11.5px;margin-bottom:14px;padding-bottom:14px;
     border-bottom:1px solid var(--line2)}
   .article .meta .pill{background:var(--brand-soft);color:var(--brand-ink);
     border-radius:6px;padding:1px 8px;font-size:11px;font-weight:600}
   .article .meta .pill.fb{background:var(--goldbg);color:var(--gold)}
-  .article h3{font-size:15.5px;margin:20px 0 8px;color:var(--t1)}
+  .article h3{font-size:15.5px;margin:22px 0 10px;color:var(--t1)}
   .article h3:first-of-type{margin-top:2px}
-  .article p{color:var(--t2);margin:6px 0;font-size:13.5px}
+  .article p{color:var(--t2);margin:7px 0;font-size:13.5px;line-height:1.75}
   .article strong{color:var(--t1)}
-  .article ul{margin:6px 0 6px 20px;color:var(--t2);font-size:13.5px}
-  .article li{margin:3px 0}
+  .article ul{margin:7px 0 7px 20px;color:var(--t2);font-size:13.5px;line-height:1.75}
+  .article li{margin:4px 0}
 
   .empty{background:var(--card);border:1px solid var(--line);border-radius:14px;
     padding:60px 20px;text-align:center;color:var(--t3)}
   .foot{color:var(--t3);font-size:11px;text-align:center;margin-top:22px;line-height:1.8}
+
+  /* ---------------- 窄屏（手机） ---------------- */
+  @media (max-width:640px){
+    .topbar{gap:9px;padding:10px 0 10px;margin-bottom:14px}
+    .logo{width:32px;height:32px;border-radius:9px;font-size:16px}
+    h1{font-size:16px;letter-spacing:.2px}
+    .sub{font-size:10.5px}
+    button.act,a.act{padding:7px 11px;font-size:12px;border-radius:9px}
+    .aigc{padding:8px 11px;margin-bottom:12px;font-size:11px;line-height:1.6;gap:7px}
+    .aigc .tag{font-size:10px;padding:1px 6px;letter-spacing:.5px}
+    .dates{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+      margin-bottom:12px;scrollbar-width:none}
+    .dates::-webkit-scrollbar{display:none}
+    .dates button{flex:none;padding:5px 12px;font-size:11.5px}
+    .article{border-radius:12px}
+    .article .meta{font-size:10.5px;gap:6px 8px}
+    .article h3{font-size:14.5px;margin:18px 0 9px}
+    .article p,.article ul{font-size:13px}
+    .foot{font-size:10.5px;margin-top:18px}
+  }
+
+  /* ---------------- 宽屏（桌面） ---------------- */
+  @media (min-width:1100px){
+    .wrap{max-width:920px}
+    .article{border-radius:16px}
+    .article h3{font-size:16.5px;margin:26px 0 11px}
+    .article p,.article ul{font-size:14px;line-height:1.85}
+    .article li{margin:5px 0}
+  }
 </style>
 </head>
 <body>
