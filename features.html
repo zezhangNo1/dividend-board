@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>功能开关管理</title>
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('gx-theme');
+    if(!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f6f7f9; --card:#ffffff; --line:#e7e9ee; --line2:#f0f1f4;
+    --t1:#171a20; --t2:#5a6070; --t3:#98a0ae;
+    --brand:#0e9f6e; --brand-ink:#0b7f58; --brand-soft:rgba(14,159,110,.10);
+    --gold:#b45309; --goldbg:#fdf3e3; --goldline:#f3dfc0;
+    --up:#d92d3e;
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+  }
+  html[data-theme=dark]{
+    color-scheme: dark;
+    --bg:#0b0e13; --card:#141922; --line:#232a36; --line2:#1c222c;
+    --t1:#e8ecf2; --t2:#9aa4b2; --t3:#5f6a7a;
+    --brand:#34d399; --brand-ink:#6ee7b7; --brand-soft:rgba(52,211,153,.12);
+    --gold:#f0b357; --goldbg:rgba(217,119,6,.16); --goldline:rgba(217,119,6,.3);
+    --up:#ff6b7a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--t1);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:13px;line-height:1.6}
+  .wrap{max-width:980px;margin:0 auto;padding:0 22px 60px}
+  .topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 14px;
+    margin-bottom:18px;border-bottom:1px solid var(--line)}
+  .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#334155,#1e293b);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:700}
+  h1{font-size:18px;font-weight:700}
+  .sub{color:var(--t2);font-size:11.5px;margin-top:1px}
+  .spacer{flex:1}
+  a.back{color:var(--t2);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    border-radius:10px;padding:8px 14px;background:var(--card)}
+  a.back:hover{color:var(--t1);border-color:var(--brand)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);padding:20px 22px;margin-bottom:18px}
+  .card h2{font-size:15px;margin-bottom:12px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{color:var(--t3);font-weight:600;text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+  td{padding:8px;border-bottom:1px solid var(--line2);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  .key{font-family:ui-monospace,Menlo,monospace;color:var(--t2);font-size:11.5px}
+  .name{font-weight:600}
+  .desc{color:var(--t3);font-size:11.5px}
+
+  .layer{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .layer button{border:none;background:var(--card);color:var(--t3);font-size:11px;
+    padding:4px 9px;cursor:pointer;font-family:inherit}
+  .layer button.on{background:var(--brand);color:#fff;font-weight:600}
+  .sw{position:relative;width:38px;height:21px;border-radius:20px;background:var(--line);
+    border:none;cursor:pointer;transition:background .15s}
+  .sw::after{content:'';position:absolute;top:2.5px;left:3px;width:16px;height:16px;
+    border-radius:50%;background:#fff;transition:left .15s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .sw.on{background:var(--brand)}
+  .sw.on::after{left:19px}
+
+  input[type=text],select{background:var(--card);border:1px solid var(--line);border-radius:8px;
+    padding:7px 11px;font-size:12.5px;color:var(--t1);outline:none;font-family:inherit}
+  input[type=text]:focus{border-color:var(--brand)}
+  button.go{background:var(--brand);color:#fff;border:none;border-radius:8px;
+    padding:7px 15px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+  button.mini{background:none;border:1px solid var(--line);border-radius:6px;color:var(--t3);
+    font-size:11px;padding:2px 9px;cursor:pointer;font-family:inherit}
+  button.mini:hover{color:var(--up);border-color:var(--up)}
+  .msg{font-size:12px;border-radius:8px;padding:8px 12px;margin-top:10px;display:none}
+  .msg.show{display:block}
+  .msg.ok{background:var(--brand-soft);color:var(--brand-ink)}
+  .msg.err{background:rgba(217,45,62,.08);color:var(--up)}
+  .note{color:var(--t3);font-size:11.5px;margin-top:8px;line-height:1.8}
+  .deny{color:var(--up)}
+  .empty{padding:50px 20px;text-align:center;color:var(--t3);
+    background:var(--card);border:1px solid var(--line);border-radius:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo">管</div>
+    <div>
+      <h1>功能开关管理</h1>
+      <div class="sub">每个功能的层级与总开关 · 白名单授权 · 仅管理员可见</div>
+    </div>
+    <div class="spacer"></div>
+    <a class="back" href="account.html">返回账户</a>
+  </div>
+
+  <div class="empty" id="denied" style="display:none">无权访问此页面（需管理员账号）</div>
+
+  <div id="main" style="display:none">
+    <div class="card">
+      <h2>功能注册表</h2>
+      <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>功能</th><th>key</th><th>可见层级</th><th>总开关</th></tr></thead>
+        <tbody id="ftbody"></tbody>
+      </table>
+      </div>
+      <div class="note">层级含义：<b>public</b> 所有人可见（含游客）· <b>member</b> 登录可见 ·
+        <b>self</b> 仅自己与白名单账号可见（未授权访问返回 404，对外隐形）。<br>
+        总开关关闭后该功能对所有人不可见。新功能默认 self 层出生。</div>
+      <div class="msg ok" id="fmsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>白名单授权（self 层功能单独开给某账号）</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select id="gFeat"></select>
+        <input type="text" id="gEmail" placeholder="账号邮箱（需已注册）" style="width:210px">
+        <select id="gDays">
+          <option value="">永久</option><option value="7">7 天</option>
+          <option value="30">30 天</option><option value="90">90 天</option>
+        </select>
+        <button class="go" id="gAdd">授权</button>
+      </div>
+      <table style="margin-top:14px">
+        <thead><tr><th>功能</th><th>账号</th><th>状态</th><th>有效期至</th><th></th></tr></thead>
+        <tbody id="gtbody"></tbody>
+      </table>
+      <div class="msg ok" id="gmsg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const token = localStorage.getItem('gx-token') || '';
+const H = {'Content-Type':'application/json'};
+if (token) H['Authorization'] = 'Bearer ' + token;
+
+function say(el, msg, isErr){
+  el.className = 'msg show ' + (isErr ? 'err' : 'ok');
+  el.textContent = msg;
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+async function load(){
+  let r;
+  try{ r = await fetch('/api/features/admin/list', {headers:H}); }
+  catch(e){ $('#denied').style.display=''; $('#denied').textContent='网络异常'; return; }
+  if (r.status === 404){ $('#denied').style.display=''; return; }
+  const d = await r.json();
+
+  const LAYERS = ['public','member','self'];
+  $('#ftbody').innerHTML = d.features.map(f => `
+    <tr>
+      <td><div class="name">${f.name}</div><div class="desc">${f.description || ''}</div></td>
+      <td class="key">${f.key}</td>
+      <td><span class="layer">${LAYERS.map(l =>
+        `<button class="${f.layer===l?'on':''}" onclick="setLayer('${f.key}','${l}')">${l}</button>`).join('')}</span></td>
+      <td><button class="sw ${f.status==='on'?'on':''}" title="${f.status==='on'?'点击关闭':'点击开启'}"
+        onclick="toggle('${f.key}','${f.status}')"></button></td>
+    </tr>`).join('');
+
+  $('#gFeat').innerHTML = d.features.filter(f => f.layer === 'self')
+    .map(f => `<option value="${f.key}">${f.name}（${f.key}）</option>`).join('')
+    || '<option value="">（暂无 self 层功能）</option>';
+  $('#gtbody').innerHTML = d.grants.length ? d.grants.map(g => `
+    <tr>
+      <td class="key">${g.feature_key}</td>
+      <td>${g.email}</td>
+      <td>${g.allow ? '<span style="color:var(--brand-ink)">已授权</span>' : '<span class="deny">已拒绝</span>'}</td>
+      <td>${g.expires_at ? g.expires_at.slice(0,10) : '永久'}</td>
+      <td><button class="mini" onclick="revoke(${g.id})">删除</button></td>
+    </tr>`).join('') : '<tr><td colspan="5" class="desc" style="text-align:center;padding:18px">暂无授权记录</td></tr>';
+}
+
+async function api(path, method, body){
+  const r = await fetch(path + (body && method==='POST' ? '' : ''),
+    {method, headers:H, body: body ? JSON.stringify(body) : undefined});
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.detail || '操作失败');
+  return d;
+}
+
+async function setLayer(key, layer){
+  try{ await api('/api/features/admin/update?key=' + encodeURIComponent(key), 'POST', {layer});
+    say($('#fmsg'), `${key} 层级已切换为 ${layer}`); load();
+  }catch(e){ say($('#fmsg'), e.message, true); }
+}
+async function toggle(key, status){
+  try{ await api('/api/features/admin/update?key=' + encodeURIComponent(key), 'POST',
+    {status: status === 'on' ? 'off' : 'on'});
+    say($('#fmsg'), `${key} 已${status === 'on' ? '关闭' : '开启'}`); load();
+  }catch(e){ say($('#fmsg'), e.message, true); }
+}
+$('#gAdd').addEventListener('click', async () => {
+  try{
+    const d = await api('/api/features/admin/grant', 'POST', {
+      feature_key: $('#gFeat').value, email: $('#gEmail').value.trim(),
+      allow: true, days: $('#gDays').value ? +$('#gDays').value : null});
+    say($('#gmsg'), d.message || '已授权'); $('#gEmail').value=''; load();
+  }catch(e){ say($('#gmsg'), e.message, true); }
+});
+async function revoke(id){
+  try{ await api('/api/features/admin/grant/' + id, 'DELETE'); say($('#gmsg'), '已删除'); load(); }
+  catch(e){ say($('#gmsg'), e.message, true); }
+}
+
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 每日观察 · 红利数据日报</title>
+<meta name="description" content="每个交易日盘后，基于站内股息率数据由 AI 生成的红利板块观察日报。内容仅供参考，不构成投资建议。">
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('gx-theme');
+    if(!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    var q = new URLSearchParams(location.search).get('theme');
+    if(q === 'dark' || q === 'light') t = q;
+    document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f6f7f9; --bg-glow:rgba(16,185,129,.05);
+    --card:#ffffff; --card2:#fafbfc;
+    --line:#e7e9ee; --line2:#f0f1f4;
+    --t1:#171a20; --t2:#5a6070; --t3:#98a0ae;
+    --brand:#0e9f6e; --brand-ink:#0b7f58;
+    --brand-soft:rgba(14,159,110,.10);
+    --gold:#b45309; --goldbg:#fdf3e3; --goldline:#f3dfc0;
+    --up:#d92d3e; --down:#0e9f6e;
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+    --sticky:rgba(255,255,255,.85);
+  }
+  html[data-theme=dark]{
+    color-scheme: dark;
+    --bg:#0b0e13; --bg-glow:rgba(16,185,129,.05);
+    --card:#141922; --card2:#171d28;
+    --line:#232a36; --line2:#1c222c;
+    --t1:#e8ecf2; --t2:#9aa4b2; --t3:#5f6a7a;
+    --brand:#34d399; --brand-ink:#6ee7b7;
+    --brand-soft:rgba(52,211,153,.12);
+    --gold:#f0b357; --goldbg:rgba(217,119,6,.16); --goldline:rgba(217,119,6,.3);
+    --up:#ff6b7a; --down:#34d399;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+    --sticky:rgba(20,25,34,.85);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--t1);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(600px 300px at 15% -50px, var(--bg-glow), transparent);
+    background-repeat:no-repeat}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px 60px}
+
+  .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;
+    flex-wrap:wrap;padding:14px 0 12px;margin-bottom:18px;
+    background:var(--sticky);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line)}
+  .logo{width:38px;height:38px;border-radius:11px;flex:none;
+    background:linear-gradient(135deg,#10b981,#0d8a6c);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:19px;font-weight:700;box-shadow:0 3px 10px rgba(16,185,129,.35)}
+  html[data-theme=dark] .logo{background:linear-gradient(135deg,#059669,#065f46)}
+  h1{font-size:18px;font-weight:700;letter-spacing:.4px}
+  .sub{color:var(--t2);font-size:11.5px;margin-top:1px}
+  .spacer{flex:1}
+  button.act,a.act{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:8px 14px;font-size:13px;color:var(--t2);cursor:pointer;font-family:inherit;
+    text-decoration:none}
+  button.act:hover,a.act:hover{border-color:var(--brand);color:var(--t1)}
+
+  .aigc{display:flex;align-items:flex-start;gap:9px;
+    background:var(--goldbg);border:1px solid var(--goldline);
+    color:var(--gold);border-radius:12px;padding:10px 14px;margin-bottom:14px;
+    font-size:12px;line-height:1.7}
+  .aigc .tag{flex:none;background:var(--gold);color:#fff;border-radius:6px;
+    padding:1px 8px;font-size:11px;font-weight:700;letter-spacing:1px;margin-top:1px}
+
+  .dates{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .dates button{background:var(--card);border:1px solid var(--line);border-radius:20px;
+    padding:5px 13px;font-size:12px;color:var(--t2);cursor:pointer;font-family:inherit}
+  .dates button.on{background:linear-gradient(135deg,var(--brand),#0d9488);
+    border-color:transparent;color:#fff;font-weight:600}
+  .dates button:hover:not(.on){border-color:var(--brand);color:var(--t1)}
+
+  .article{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);padding:26px 28px}
+  .article .meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    color:var(--t3);font-size:11.5px;margin-bottom:14px;padding-bottom:14px;
+    border-bottom:1px solid var(--line2)}
+  .article .meta .pill{background:var(--brand-soft);color:var(--brand-ink);
+    border-radius:6px;padding:1px 8px;font-size:11px;font-weight:600}
+  .article .meta .pill.fb{background:var(--goldbg);color:var(--gold)}
+  .article h3{font-size:15.5px;margin:20px 0 8px;color:var(--t1)}
+  .article h3:first-of-type{margin-top:2px}
+  .article p{color:var(--t2);margin:6px 0;font-size:13.5px}
+  .article strong{color:var(--t1)}
+  .article ul{margin:6px 0 6px 20px;color:var(--t2);font-size:13.5px}
+  .article li{margin:3px 0}
+
+  .empty{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:60px 20px;text-align:center;color:var(--t3)}
+  .foot{color:var(--t3);font-size:11px;text-align:center;margin-top:22px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo">息</div>
+    <div>
+      <h1>AI 每日观察</h1>
+      <div class="sub">红利池数据日报 · 盘后生成</div>
+    </div>
+    <div class="spacer"></div>
+    <a class="act" href="index.html">看板</a>
+    <a class="act" href="cards.html">研究卡片</a>
+  </div>
+
+  <div class="aigc">
+    <span class="tag">AI 生成</span>
+    <span>本页面内容由人工智能基于站内公开数据自动生成，已按法规添加 AI 生成标识。所有数字由程序计算、AI 仅作文字解读，数据与观点仅供参考，不构成任何投资建议。</span>
+  </div>
+
+  <div class="dates" id="dates"></div>
+
+  <div class="article" id="article" style="display:none"></div>
+  <div class="empty" id="empty" style="display:none"></div>
+
+  <div class="foot">口径：股息率 = 最近已实施财年每股分红 ÷ 现价 · 数据来自公开行情接口<br>
+    本站为个人研究笔记，不构成投资建议 · 数据如有出入以交易所披露为准</div>
+</div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function renderMd(md){
+  const lines = esc(md).split('\n');
+  let html = '', inUl = false, buf = [];
+  const flushP = () => { if (buf.length){ html += '<p>' + buf.join('<br>') + '</p>'; buf = []; } };
+  const closeUl = () => { if (inUl){ html += '</ul>'; inUl = false; } };
+  const inline = t => t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  for (const line of lines){
+    const l = line.trim();
+    if (!l){ flushP(); closeUl(); continue; }
+    if (l.startsWith('### ')){ flushP(); closeUl(); html += '<h3>' + inline(l.slice(4)) + '</h3>'; }
+    else if (l.startsWith('## ')){ flushP(); closeUl(); html += '<h3>' + inline(l.slice(3)) + '</h3>'; }
+    else if (l.startsWith('# ')){ flushP(); closeUl(); html += '<h3>' + inline(l.slice(2)) + '</h3>'; }
+    else if (l.startsWith('- ') || l.startsWith('* ')){ flushP(); if(!inUl){ html += '<ul>'; inUl = true; } html += '<li>' + inline(l.slice(2)) + '</li>'; }
+    else { closeUl(); buf.push(inline(l)); }
+  }
+  flushP(); closeUl();
+  return html;
+}
+
+async function loadList(){
+  try{
+    const r = await fetch('/api/ai/daily/list');
+    if (!r.ok) throw 0;
+    const d = await r.json();
+    const box = $('#dates');
+    box.innerHTML = (d.days || []).map(x =>
+      `<button data-d="${x.trade_date}" onclick="pick('${x.trade_date}')">${x.trade_date.slice(5)}</button>`).join('');
+  }catch(e){}
+}
+
+async function loadDay(day){
+  const url = day ? '/api/ai/daily/' + day : '/api/ai/daily/latest';
+  const r = await fetch(url);
+  const d = await r.json().catch(() => ({}));
+  const art = $('#article'), emp = $('#empty');
+  document.querySelectorAll('#dates button').forEach(b =>
+    b.classList.toggle('on', b.dataset.d === (d.trade_date || day)));
+  if (!r.ok || !d.ok){
+    art.style.display = 'none'; emp.style.display = '';
+    emp.textContent = (r.status === 404) ? '该功能暂未开放' : '今日报告生成中，请稍后再看';
+    return;
+  }
+  const isAi = d.status === 'ok';
+  art.innerHTML =
+    `<div class="meta"><span class="pill ${isAi ? '' : 'fb'}">${isAi ? 'AI 生成' : '数据简报'}</span>` +
+    `<span>数据日期 ${esc(d.trade_date)}</span>` +
+    (d.model ? `<span>模型 ${esc(d.model)}</span>` : '') + `</div>` + renderMd(d.content_md || '');
+  art.style.display = ''; emp.style.display = 'none';
+}
+
+function pick(day){ loadDay(day); }
+loadList();
+loadDay(null);
+</script>
+</body>
+</html>

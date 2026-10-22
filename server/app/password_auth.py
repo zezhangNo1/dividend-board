@@ -85,9 +85,12 @@ def password_login(req: PwLoginReq, request: Request, db: Session = Depends(get_
 
 
 @router.get("/me")
-def me(user: User = Depends(current_user)):
+def me(user: User = Depends(current_user), db: Session = Depends(get_db)):
+    from .features import user_feature_keys
     return {"id": user.id, "email": user.email, "phone": user.phone,
-            "tier": user.tier, "has_password": bool(user.password_hash)}
+            "tier": user.tier, "role": user.role,
+            "has_password": bool(user.password_hash),
+            "features": user_feature_keys(db, user)}
 
 
 @router.post("/auth/set-password")

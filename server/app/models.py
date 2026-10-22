@@ -1,4 +1,4 @@
-"""数据模型：用户、验证码、自选。"""
+"""数据模型：用户、验证码、自选、功能开关、AI 日报。"""
 from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
@@ -21,6 +21,7 @@ class User(Base):
     nickname: Mapped[str | None] = mapped_column(String(64))
     status: Mapped[str] = mapped_column(String(16), default="active")  # active|banned
     tier: Mapped[str] = mapped_column(String(16), default="free")      # free|plus|pro
+    role: Mapped[str] = mapped_column(String(16), default="user")      # admin|self|user
     password_hash: Mapped[str | None] = mapped_column(String(128))     # bcrypt，可空
     token_ver: Mapped[int] = mapped_column(Integer, default=0)          # 改密后+1使旧会话失效
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
@@ -65,3 +66,58 @@ class WatchItem(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
     user: Mapped["User"] = relationship(back_populates="watchlist")
+
+
+class Feature(Base):
+    """功能注册表：每个功能一行，layer 决定默认可见范围，status 是一键总开关。
+
+    新功能默认 self 层（只对 admin/self 角色与显式授权账号可见），
+    表述合规验证后再手动切 public。
+    """
+    __tablename__ = "features"
+
+    key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    name: Mapped[str] = mapped_column(String(128))
+    layer: Mapped[str] = mapped_column(String(8), default="self")    # public|member|self
+    status: Mapped[str] = mapped_column(String(8), default="on")     # on|off
+    description: Mapped[str | None] = mapped_column(Text)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now, onupdate=now)
+
+
+class FeatureGrant(Base):
+    """把某个 self 层功能单独授权（或拒绝）给某个账号。"""
+    __tablename__ = "feature_grants"
+    __table_args__ = (UniqueConstraint("user_id", "feature_key"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    feature_key: Mapped[str] = mapped_column(String(64), index=True)
+    allow: Mapped[bool] = mapped_column(Boolean, default=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))  # 空=永久
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class FeatureAccessLog(Base):
+    """self 层功能的访问留痕：证明功能从未对公众开放。"""
+    __tablename__ = "feature_access_log"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int | None] = mapped_column(Integer, index=True)
+    feature_key: Mapped[str] = mapped_column(String(64), index=True)
+    ip: Mapped[str | None] = mapped_column(String(64))
+    ts: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class AiDaily(Base):
+    """AI 每日观察：一天一条，重新生成即覆盖（按 trade_date 唯一）。"""
+    __tablename__ = "ai_daily"
+    __table_args__ = (UniqueConstraint("trade_date"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    trade_date: Mapped[str] = mapped_column(String(10), index=True)  # 数据日期 YYYY-MM-DD
+    data_pack: Mapped[str] = mapped_column(Text)                     # 喂给模型的确定性数据包
+    content_md: Mapped[str] = mapped_column(Text)                    # 模型输出的 Markdown
+    model: Mapped[str] = mapped_column(String(64), default="")
+    tokens: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String(8), default="ok")     # ok|fallback
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
