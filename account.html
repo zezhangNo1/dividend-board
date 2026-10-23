@@ -113,6 +113,7 @@
       <button class="ghost" id="logoutBtn">退出登录</button>
       <a class="ghost" id="adminLink" style="display:none;text-decoration:none;margin-left:8px" href="features.html">功能开关管理</a>
       <a class="ghost" id="labLink" style="display:none;text-decoration:none;margin-left:8px" href="lab.html">策略实验室</a>
+      <a class="ghost" id="statsLink" style="display:none;text-decoration:none;margin-left:8px" href="stats.html">流量统计</a>
       <div class="note">退出后自选数据保留，重新登录即可恢复。<br>皖ICP备<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">2026036657号</a></div>
     </div>
   </div>
@@ -153,6 +154,7 @@ async function load(){
     if (d.has_password){ $('#pwTitle').textContent = '修改密码'; $('#oldPw').style.display = ''; }
     if (d.role === 'admin') $('#adminLink').style.display = '';
     if ((d.features || []).includes('lab.backtest')) $('#labLink').style.display = '';
+    if ((d.features || []).includes('stats.views')) $('#statsLink').style.display = '';
     $('#loading').style.display = 'none';
     $('#main').style.display = '';
     loadAlerts();
