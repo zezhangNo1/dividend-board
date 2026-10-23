@@ -158,3 +158,19 @@ class StockDividend(Base):
     code: Mapped[str] = mapped_column(String(12), index=True)
     ex_date: Mapped[str] = mapped_column(String(10))
     per: Mapped[float] = mapped_column(Float)  # 每股派息（元，税前）
+
+
+class PageView(Base):
+    """页面浏览记录（JS 埋点，页面上不展示；统计视图仅授权账号可见）。"""
+    __tablename__ = "page_views"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    day: Mapped[str] = mapped_column(String(10), index=True)          # YYYY-MM-DD
+    ts: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    path: Mapped[str] = mapped_column(String(120))                    # 页面路径
+    q: Mapped[str] = mapped_column(String(60), default="")            # 查询串（个股页 code=）
+    ref_domain: Mapped[str] = mapped_column(String(64), default="")   # 来源域（internal=站内）
+    device: Mapped[str] = mapped_column(String(16), default="")       # mobile|desktop
+    ua_short: Mapped[str] = mapped_column(String(120), default="")
+    visitor_hash: Mapped[str] = mapped_column(String(16), index=True)  # IP+UA 匿名哈希（UV 口径）
+    user_id: Mapped[int | None] = mapped_column(Integer)

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>流量统计</title>
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('gx-theme');
+    if(!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f6f7f9; --card:#ffffff; --card2:#fafbfc; --line:#e7e9ee; --line2:#f0f1f4;
+    --t1:#171a20; --t2:#5a6070; --t3:#98a0ae;
+    --brand:#0e9f6e; --brand-ink:#0b7f58; --brand-soft:rgba(14,159,110,.10);
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+  }
+  html[data-theme=dark]{
+    color-scheme: dark;
+    --bg:#0b0e13; --card:#141922; --card2:#171d28; --line:#232a36; --line2:#1c222c;
+    --t1:#e8ecf2; --t2:#9aa4b2; --t3:#5f6a7a;
+    --brand:#34d399; --brand-ink:#6ee7b7; --brand-soft:rgba(52,211,153,.12);
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--t1);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:860px;margin:0 auto;padding:0 clamp(14px,3vw,28px) 60px}
+  .topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 14px;
+    margin-bottom:18px;border-bottom:1px solid var(--line)}
+  .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#334155,#1e293b);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:700}
+  h1{font-size:18px;font-weight:700}
+  .sub{color:var(--t2);font-size:11.5px;margin-top:1px}
+  .spacer{flex:1}
+  a.back{color:var(--t2);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    border-radius:10px;padding:8px 14px;background:var(--card)}
+  a.back:hover{color:var(--t1);border-color:var(--brand)}
+  select{background:var(--card);border:1px solid var(--line);border-radius:9px;
+    padding:7px 10px;font-size:12.5px;color:var(--t1);font-family:inherit}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 15px;box-shadow:var(--shadow)}
+  .stat .k{font-size:11px;color:var(--t3);margin-bottom:4px}
+  .stat .v{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+  .stat .s{font-size:11px;color:var(--t3);margin-top:2px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);padding:18px 20px;margin-bottom:16px}
+  .card h2{font-size:14px;margin-bottom:10px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{color:var(--t3);font-weight:600;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+  td{padding:7px 8px;border-bottom:1px solid var(--line2);font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:none}
+  .num{text-align:right}
+  .muted{color:var(--t3)}
+  .bars{display:flex;align-items:flex-end;gap:3px;height:70px;margin-top:6px}
+  .bars .b{flex:1;background:var(--brand);opacity:.75;border-radius:3px 3px 0 0;min-height:2px;position:relative}
+  .bars .b span{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+    font-size:9px;color:var(--t3);white-space:nowrap}
+  .empty{padding:50px 20px;text-align:center;color:var(--t3);
+    background:var(--card);border:1px solid var(--line);border-radius:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:720px){ .grid2{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo">量</div>
+    <div>
+      <h1>流量统计</h1>
+      <div class="sub">页面浏览记录 · 仅授权账号可见 · 前台无任何展示</div>
+    </div>
+    <div class="spacer"></div>
+    <select id="days" onchange="load()">
+      <option value="7">近 7 天</option>
+      <option value="30" selected>近 30 天</option>
+      <option value="90">近 90 天</option>
+    </select>
+    <a class="back" href="account.html">返回账户</a>
+  </div>
+
+  <div class="empty" id="denied" style="display:none">该功能未对你开放（需授权账号）</div>
+
+  <div id="main" style="display:none">
+    <div class="stats" id="cards"></div>
+
+    <div class="card">
+      <h2>每日浏览（绿=PV，灰点=UV）</h2>
+      <div class="bars" id="bars"></div>
+      <table id="daily" style="margin-top:24px"></table>
+    </div>
+
+    <div class="grid2">
+      <div class="card"><h2>热门页面</h2><table id="pages"></table></div>
+      <div class="card"><h2>热门个股页</h2><table id="stocks"></table></div>
+      <div class="card"><h2>来源</h2><table id="refs"></table></div>
+      <div class="card"><h2>设备</h2><table id="devs"></table></div>
+    </div>
+  </div>
+</div>
+<script src="track.js?v=1" defer></script>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const token = localStorage.getItem('gx-token') || '';
+const H = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+function tbl(el, head, rows){
+  const cell = (c) => Array.isArray(c) ? c : [c, ''];
+  el.innerHTML = '<thead><tr>' + head.map(h => `<th class="${h[1]||''}">${h[0]}</th>`).join('') + '</tr></thead><tbody>' +
+    (rows.length ? rows.map(r => '<tr>' + r.map(c => { const [v, cls] = cell(c); return `<td class="${cls||''}">${v}</td>`; }).join('') + '</tr>').join('')
+     : `<tr><td colspan="${head.length}" class="muted" style="text-align:center;padding:14px">暂无数据</td></tr>`) + '</tbody>';
+}
+
+async function load(){
+  const days = $('#days').value;
+  let r;
+  try { r = await fetch('/api/stats/summary?days=' + days, { headers: H }); }
+  catch(e){ $('#denied').style.display=''; $('#denied').textContent='网络异常'; return; }
+  if (r.status === 404){ $('#denied').style.display=''; $('#main').style.display='none'; return; }
+  const d = await r.json();
+  $('#denied').style.display='none'; $('#main').style.display='';
+  const today = new Date().toISOString().slice(0,10);
+  const yest = d.daily.find(x => x.day === today);
+  $('#cards').innerHTML = [
+    ['总浏览 PV', d.total_pv, `近${days}天`],
+    ['访客 UV（合计）', d.total_uv, '按日去重相加'],
+    ['今日 PV', (yest ? yest.pv : 0), today],
+    ['今日 UV', (yest ? yest.uv : 0), today],
+    ['登录状态浏览', d.logged_in_pv, '占比 ' + (d.total_pv ? Math.round(d.logged_in_pv/d.total_pv*100) : 0) + '%'],
+  ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+
+  const maxpv = Math.max(...d.daily.map(x => x.pv), 1);
+  $('#bars').innerHTML = d.daily.slice(0, 30).reverse().map(x =>
+    `<div class="b" style="height:${Math.max(3, x.pv/maxpv*100)}%" title="${x.day} PV${x.pv} UV${x.uv}"></div>`).join('');
+  tbl($('#daily'), [['日期'],['PV','num'],['UV','num']],
+    d.daily.slice(0, 14).map(x => [x.day, [x.pv,'num'], [x.uv,'num']]));
+  tbl($('#pages'), [['页面'],['PV','num'],['UV','num']],
+    d.top_pages.map(p => [p.path || '/', [p.pv,'num'], [p.uv,'num']]));
+  tbl($('#stocks'), [['代码'],['浏览','num']],
+    d.top_stocks.map(s => [s.code, [s.pv,'num']]));
+  tbl($('#refs'), [['来源'],['PV','num']],
+    d.refs.map(x => [x.ref || 'direct', [x.pv,'num']]));
+  tbl($('#devs'), [['设备'],['PV','num']],
+    d.devices.map(x => [x.device, [x.pv,'num']]));
+}
+load();
+</script>
+</body>
+</html>

@@ -12,6 +12,7 @@ from .features import router as features_router, ensure_seed
 from .lab import router as lab_router
 from .alerts import router as alerts_router
 from .password_auth import router as password_router
+from .tracking import router as tracking_router
 from .watchlist import router as watch_router
 
 logging.basicConfig(level=logging.INFO)
@@ -33,6 +34,7 @@ app.include_router(alerts_router)
 app.include_router(features_router)
 app.include_router(ai_daily_router)
 app.include_router(lab_router)
+app.include_router(tracking_router)
 
 
 @app.on_event("startup")

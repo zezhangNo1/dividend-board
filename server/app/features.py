@@ -32,6 +32,7 @@ SEED_FEATURES = [
     ("lab.backtest", "策略实验室", "self", "历史回测（开发中）"),
     ("lab.signals", "择时信号看板", "self", "全标的择时信号（开发中）"),
     ("lab.factors", "多因子排行", "self", "因子排行与监控（开发中）"),
+    ("stats.views", "流量统计", "self", "页面浏览量记录与管理视图（不在前台展示）"),
 ]
 
 
