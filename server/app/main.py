@@ -9,6 +9,7 @@ from .ai_daily import router as ai_daily_router
 from .auth import router as auth_router
 from .db import Base, engine
 from .features import router as features_router, ensure_seed
+from .lab import router as lab_router
 from .password_auth import router as password_router
 from .watchlist import router as watch_router
 
@@ -29,6 +30,7 @@ app.include_router(password_router)
 app.include_router(watch_router)
 app.include_router(features_router)
 app.include_router(ai_daily_router)
+app.include_router(lab_router)
 
 
 @app.on_event("startup")

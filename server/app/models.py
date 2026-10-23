@@ -1,7 +1,7 @@
 """数据模型：用户、验证码、自选、功能开关、AI 日报。"""
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -121,3 +121,27 @@ class AiDaily(Base):
     tokens: Mapped[int] = mapped_column(Integer, default=0)
     status: Mapped[str] = mapped_column(String(8), default="ok")     # ok|fallback
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class Kline(Base):
+    """日线缓存：adj=前复权收盘（总收益口径），raw=不复权收盘（价格口径）。"""
+    __tablename__ = "kline"
+    __table_args__ = (UniqueConstraint("code", "date"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    code: Mapped[str] = mapped_column(String(12), index=True)
+    date: Mapped[str] = mapped_column(String(10))
+    adj: Mapped[float] = mapped_column(Float)
+    raw: Mapped[float] = mapped_column(Float)
+    volume: Mapped[float] = mapped_column(Float, default=0)
+
+
+class StockDividend(Base):
+    """每股分红历史（已实施，按除息日），供回测还原历史股息率。"""
+    __tablename__ = "dividends"
+    __table_args__ = (UniqueConstraint("code", "ex_date"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    code: Mapped[str] = mapped_column(String(12), index=True)
+    ex_date: Mapped[str] = mapped_column(String(10))
+    per: Mapped[float] = mapped_column(Float)  # 每股派息（元，税前）
