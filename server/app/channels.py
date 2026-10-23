@@ -68,3 +68,26 @@ class SmsChannel:
 
 
 CHANNELS = {"email": EmailChannel(), "phone": SmsChannel()}
+
+
+def send_raw(subject: str, body: str, to: str):
+    """任意邮件发送（告警通知用），无 SMTP 配置时打日志。"""
+    import logging
+    import os
+    import smtplib
+    from email.mime.text import MIMEText
+    log = logging.getLogger("channels")
+    host = os.environ.get("SMTP_HOST", "")
+    if not host:
+        log.warning("[DEV] 邮件(%s)未发送（无 SMTP）：%s", to, subject)
+        return False
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["Subject"] = subject
+    msg["From"] = os.environ.get("SMTP_FROM", "")
+    msg["To"] = to
+    with smtplib.SMTP_SSL(host, int(os.environ.get("SMTP_PORT", "465")), timeout=15) as s:
+        user = os.environ.get("SMTP_USER", "")
+        if user:
+            s.login(user, os.environ.get("SMTP_PASS", ""))
+        s.sendmail(msg["From"], [to], msg.as_string())
+    return True

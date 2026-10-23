@@ -92,6 +92,12 @@
     </div>
 
     <div class="card">
+      <h2>股息率提醒</h2>
+      <div class="note" style="margin:0 0 8px">已开启：自选股股息率上穿 <b>5.5%</b>（深度价值区）或 <b>5.0%</b>（关注区）时，邮件通知本账户邮箱；同一档位 7 天内不重复（交易时段每 10 分钟扫描）。</div>
+      <div id="alertList"></div>
+    </div>
+
+    <div class="card">
       <h2 id="pwTitle">设置密码</h2>
       <input id="oldPw" type="password" placeholder="当前密码（首次设置可留空）" style="display:none">
       <input id="newPw" type="password" placeholder="新密码（8-64 位）" autocomplete="new-password">
@@ -123,6 +129,18 @@ function go(msg, isErr){
   el.textContent = msg; el.classList.add('show');
 }
 
+async function loadAlerts(){
+  try{
+    const r = await fetch('/api/alerts', {headers: {'Authorization': 'Bearer ' + token}});
+    if (!r.ok) return;
+    const d = await r.json();
+    const box = document.getElementById('alertList');
+    box.innerHTML = d.items.length
+      ? d.items.map(a => `<div class="kv"><span class="k">${a.name} 达到 ${a.tier}% 档</span><span class="v" style="font-weight:400;color:var(--t3)">${a.dy}% · ${a.at.slice(0, 10)}</span></div>`).join('')
+      : '<div class="kv"><span class="k">暂无触发记录</span><span class="v" style="font-weight:400;color:var(--t3)">加自选后自动监控</span></div>';
+  }catch(e){}
+}
+
 async function load(){
   if (!token){ location.href = 'index.html?login=1'; return; }
   try{
@@ -137,6 +155,7 @@ async function load(){
     if ((d.features || []).includes('lab.backtest')) $('#labLink').style.display = '';
     $('#loading').style.display = 'none';
     $('#main').style.display = '';
+    loadAlerts();
   }catch(e){
     $('#loading').textContent = '网络异常，请刷新重试';
   }

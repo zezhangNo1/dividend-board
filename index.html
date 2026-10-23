@@ -771,6 +771,10 @@ function renderDesktop(rows){
 
 function renderMobile(rows){
   const box = $('#cards');
+  if (!rows.length && sector === '自选'){
+    box.innerHTML = '<div class="empty">自选为空：点任意股票前的 ☆ 加入自选。<br>自选股会自动监控股息率档位（5.5% / 5.0%），触发后邮件提醒。</div>';
+    return;
+  }
   if (!rows.length){
     box.innerHTML = '<div class="empty">没有匹配的标的</div>';
     return;

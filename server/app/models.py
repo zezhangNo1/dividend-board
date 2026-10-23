@@ -32,6 +32,19 @@ class User(Base):
     )
 
 
+class AlertEvent(Base):
+    """股息率提醒触发记录（用于冷却与历史展示）。"""
+    __tablename__ = "alert_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    code: Mapped[str] = mapped_column(String(12), index=True)
+    tier: Mapped[str] = mapped_column(String(8))            # "5.5" / "5.0"
+    price: Mapped[float] = mapped_column(Float)             # 触发时现价
+    dy: Mapped[float] = mapped_column(Float)                # 触发时股息率%
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
 class LoginFail(Base):
     """密码登录失败记录，用于防爆破锁定。"""
     __tablename__ = "login_fails"
