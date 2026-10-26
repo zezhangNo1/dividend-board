@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>广告位管理</title>
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('gx-theme');
+    if(!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f6f7f9; --card:#ffffff; --line:#e7e9ee; --line2:#f0f1f4;
+    --t1:#171a20; --t2:#5a6070; --t3:#98a0ae;
+    --brand:#0e9f6e; --brand-ink:#0b7f58; --brand-soft:rgba(14,159,110,.10);
+    --gold:#b45309; --goldbg:#fdf3e3; --goldline:#f3dfc0;
+    --up:#d92d3e;
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+  }
+  html[data-theme=dark]{
+    color-scheme: dark;
+    --bg:#0b0e13; --card:#141922; --line:#232a36; --line2:#1c222c;
+    --t1:#e8ecf2; --t2:#9aa4b2; --t3:#5f6a7a;
+    --brand:#34d399; --brand-ink:#6ee7b7; --brand-soft:rgba(52,211,153,.12);
+    --gold:#f0b357; --goldbg:rgba(217,119,6,.16); --goldline:rgba(217,119,6,.3);
+    --up:#ff6b7a;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--t1);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:13px;line-height:1.6}
+  .wrap{max-width:980px;margin:0 auto;padding:0 clamp(14px,3vw,28px) 60px}
+  .topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 14px;
+    margin-bottom:18px;border-bottom:1px solid var(--line)}
+  .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#334155,#1e293b);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:700}
+  h1{font-size:18px;font-weight:700}
+  .sub{color:var(--t2);font-size:11.5px;margin-top:1px}
+  .spacer{flex:1}
+  a.back{color:var(--t2);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    border-radius:10px;padding:8px 14px;background:var(--card)}
+  a.back:hover{color:var(--t1);border-color:var(--brand)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);padding:20px 22px;margin-bottom:16px}
+  .card h2{font-size:14.5px;margin-bottom:12px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{color:var(--t3);font-weight:600;text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+  td{padding:8px;border-bottom:1px solid var(--line2);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+
+  input[type=text],select{background:var(--card);border:1px solid var(--line);border-radius:8px;
+    padding:7px 11px;font-size:12.5px;color:var(--t1);outline:none;font-family:inherit;width:100%}
+  input:focus,select:focus{border-color:var(--brand)}
+  .form{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+  .form label{font-size:11.5px;color:var(--t3);display:block;margin-bottom:4px}
+  button.go{background:var(--brand);color:#fff;border:none;border-radius:8px;
+    padding:8px 18px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:10px}
+  button.mini{background:none;border:1px solid var(--line);border-radius:6px;color:var(--t3);
+    font-size:11px;padding:2px 9px;cursor:pointer;font-family:inherit;margin-right:4px}
+  button.mini:hover{border-color:var(--brand);color:var(--brand-ink)}
+  button.mini.danger:hover{border-color:var(--up);color:var(--up)}
+  .msg{font-size:12px;border-radius:8px;padding:8px 12px;margin-top:10px;display:none}
+  .msg.show{display:block}
+  .msg.ok{background:var(--brand-soft);color:var(--brand-ink)}
+  .msg.err{background:rgba(217,45,62,.08);color:var(--up)}
+  .st{display:inline-block;border-radius:5px;padding:0 7px;font-size:11px;font-weight:600}
+  .st.on{background:var(--brand-soft);color:var(--brand-ink)}
+  .st.off{background:var(--goldbg);color:var(--gold)}
+  .st.now{background:var(--brand);color:#fff}
+  .empty{padding:50px 20px;text-align:center;color:var(--t3);
+    background:var(--card);border:1px solid var(--line);border-radius:14px}
+  .note{color:var(--t3);font-size:11.5px;margin-top:8px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo">广</div>
+    <div>
+      <h1>广告位管理</h1>
+      <div class="sub">素材配置 · 排期 · 效果统计 · 仅管理员可见</div>
+    </div>
+    <div class="spacer"></div>
+    <a class="back" href="account.html">返回账户</a>
+  </div>
+
+  <div class="empty" id="denied" style="display:none">无权访问此页面（需管理员账号）</div>
+
+  <div id="main" style="display:none">
+    <div class="card">
+      <h2>新建素材（先存草稿，核对后点激活上线）</h2>
+      <div class="form">
+        <div><label>广告位</label><select id="fSlot"></select></div>
+        <div><label>品牌名（展示在右侧）</label><input type="text" id="fSponsor" placeholder="如：XX量化平台"></div>
+        <div><label>标题（一行）</label><input type="text" id="fTitle" placeholder="如：A股回测就用它"></div>
+        <div><label>副文案（可选）</label><input type="text" id="fBody" placeholder="一行补充说明"></div>
+        <div><label>链接</label><input type="text" id="fLink" placeholder="https://…"></div>
+        <div><label>开始日期（可选）</label><input type="text" id="fStart" placeholder="YYYY-MM-DD"></div>
+        <div><label>结束日期（可选）</label><input type="text" id="fEnd" placeholder="YYYY-MM-DD"></div>
+      </div>
+      <button class="go" id="fGo">存为草稿</button>
+      <button class="go" id="fGoOn" style="background:var(--t3)">直接激活</button>
+      <div class="msg ok" id="msg"></div>
+      <div class="note">合规守门已内置：标题/副文案含「稳赚/保本/无风险/高收益/开户/返佣/荐股/目标价」等词会被拒绝。
+        每个位只展示一条生效素材（同位取最新激活），全站下线请到「功能开关管理」关闭 ads.slots。</div>
+    </div>
+
+    <div class="card">
+      <h2>素材与效果</h2>
+      <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>位/品牌</th><th>标题</th><th>状态</th><th>排期</th>
+          <th class="num">曝光</th><th class="num">点击</th><th class="num">CTR</th><th></th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="track.js?v=1" defer></script>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const token = localStorage.getItem('gx-token') || '';
+const H = {'Content-Type': 'application/json'};
+if (token) H['Authorization'] = 'Bearer ' + token;
+
+function say(m, err){
+  const el = $('#msg');
+  el.className = 'msg show ' + (err ? 'err' : 'ok');
+  el.textContent = m;
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+async function load(){
+  let r;
+  try{ r = await fetch('/api/ads/admin/list', {headers: H}); }
+  catch(e){ $('#denied').style.display=''; $('#denied').textContent='网络异常'; return; }
+  if (r.status === 404){ $('#denied').style.display=''; return; }
+  const d = await r.json();
+  $('#fSlot').innerHTML = d.slots.map(s =>
+    `<option value="${s.key}">${s.key} · ${s.name}</option>`).join('');
+  $('#tbody').innerHTML = d.creatives.length ? d.creatives.map(c => `
+    <tr>
+      <td><b>${c.slot}</b> ${c.slot_name}<br><span style="color:var(--t3)">${c.sponsor}</span></td>
+      <td style="max-width:220px">${c.title}${c.body ? `<br><span style="color:var(--t3);font-size:11.5px">${c.body}</span>` : ''}</td>
+      <td><span class="st ${c.active_now ? 'now' : (c.status === 'active' ? 'on' : 'off')}">${
+        c.active_now ? '投放中' : ({active:'待生效', draft:'草稿', paused:'已暂停', done:'已结束'})[c.status] || c.status}</span></td>
+      <td style="font-size:11.5px;color:var(--t3)">${c.starts_at || '即刻'}<br>→ ${c.ends_at || '长期'}</td>
+      <td class="num">${c.impressions}</td>
+      <td class="num">${c.clicks}</td>
+      <td class="num">${c.ctr}%</td>
+      <td style="white-space:nowrap">
+        ${c.status !== 'active' ? `<button class="mini" onclick="setSt(${c.id},'active')">激活</button>` : ''}
+        ${c.status === 'active' ? `<button class="mini" onclick="setSt(${c.id},'paused')">暂停</button>` : ''}
+        <button class="mini danger" onclick="del(${c.id})">删除</button>
+      </td>
+    </tr>`).join('') :
+    '<tr><td colspan="8" style="text-align:center;color:var(--t3);padding:16px">暂无素材</td></tr>';
+}
+
+async function create(active){
+  const body = {
+    slot_key: $('#fSlot').value, sponsor: $('#fSponsor').value.trim(),
+    title: $('#fTitle').value.trim(), body: $('#fBody').value.trim() || null,
+    link_url: $('#fLink').value.trim() || null,
+    starts_at: $('#fStart').value.trim() || null, ends_at: $('#fEnd').value.trim() || null,
+    status: active ? 'active' : 'draft'};
+  if (!body.sponsor || !body.title){ say('品牌名和标题必填', true); return; }
+  const r = await fetch('/api/ads/admin/create', {method:'POST', headers:H, body: JSON.stringify(body)});
+  const d = await r.json();
+  if (!r.ok || !d.ok){ say(d.message || '创建失败', true); return; }
+  say(active ? '已创建并激活上线' : '已存草稿');
+  ['#fSponsor','#fTitle','#fBody','#fLink','#fStart','#fEnd'].forEach(s => $(s).value = '');
+  load();
+}
+$('#fGo').addEventListener('click', () => create(false));
+$('#fGoOn').addEventListener('click', () => create(true));
+
+async function setSt(id, status){
+  const r = await fetch(`/api/ads/admin/update/${id}`, {method:'POST', headers:H, body: JSON.stringify({status})});
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || !d.ok){ say(d.message || '操作失败', true); return; }
+  load();
+}
+async function del(id){
+  if (!confirm('删除素材及其全部曝光/点击记录？')) return;
+  await fetch(`/api/ads/admin/${id}`, {method:'DELETE', headers:H});
+  load();
+}
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>商务合作 · 高股息看板</title>
+<meta name="description" content="高股息看板（board.zekes.top）广告位招商：红利人群数据站，开放 4 个展示位，仅限工具/软件/数据服务等非金融产品类合作。">
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('gx-theme');
+    if(!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f6f7f9; --card:#ffffff; --line:#e7e9ee; --line2:#f0f1f4;
+    --t1:#171a20; --t2:#5a6070; --t3:#98a0ae;
+    --brand:#0e9f6e; --brand-ink:#0b7f58; --brand-soft:rgba(14,159,110,.10);
+    --gold:#b45309; --goldbg:#fdf3e3; --goldline:#f3dfc0;
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+  }
+  html[data-theme=dark]{
+    color-scheme: dark;
+    --bg:#0b0e13; --card:#141922; --line:#232a36; --line2:#1c222c;
+    --t1:#e8ecf2; --t2:#9aa4b2; --t3:#5f6a7a;
+    --brand:#34d399; --brand-ink:#6ee7b7; --brand-soft:rgba(52,211,153,.12);
+    --gold:#f0b357; --goldbg:rgba(217,119,6,.16); --goldline:rgba(217,119,6,.3);
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--t1);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:13px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:860px;margin:0 auto;padding:0 clamp(14px,3vw,28px) 60px}
+  .topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 14px;
+    margin-bottom:20px;border-bottom:1px solid var(--line)}
+  .logo{width:38px;height:38px;border-radius:11px;flex:none;
+    background:linear-gradient(135deg,#10b981,#0d8a6c);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:19px;font-weight:700}
+  h1{font-size:18px;font-weight:700}
+  .sub{color:var(--t2);font-size:11.5px;margin-top:1px}
+  .spacer{flex:1}
+  a.act{color:var(--t2);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    border-radius:10px;padding:8px 14px;background:var(--card)}
+  a.act:hover{color:var(--t1);border-color:var(--brand)}
+
+  .hero{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    box-shadow:var(--shadow);padding:26px 28px;margin-bottom:16px}
+  .hero h2{font-size:19px;line-height:1.5;margin-bottom:8px}
+  .hero p{color:var(--t2);font-size:13.5px}
+  .nums{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:18px}
+  .num{background:var(--brand-soft);border-radius:11px;padding:12px 14px}
+  .num b{display:block;font-size:20px;color:var(--brand-ink);font-variant-numeric:tabular-nums}
+  .num span{font-size:11.5px;color:var(--t2)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);padding:20px 24px;margin-bottom:16px}
+  .card h2{font-size:15px;margin-bottom:12px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{color:var(--t3);font-weight:600;text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+  td{padding:9px 8px;border-bottom:1px solid var(--line2);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .tag{display:inline-block;background:var(--brand-soft);color:var(--brand-ink);
+    border-radius:5px;padding:0 7px;font-size:11px;font-weight:600}
+  .price{font-weight:700;color:var(--brand-ink);white-space:nowrap}
+
+  .law{background:var(--goldbg);border:1px solid var(--goldline);border-radius:14px;
+    padding:18px 22px;margin-bottom:16px;color:var(--t1);font-size:12.5px}
+  .law h2{font-size:14px;color:var(--gold);margin-bottom:8px}
+  .law ul{margin-left:18px}
+  .law li{margin:4px 0;color:var(--t2)}
+  .law b{color:var(--t1)}
+
+  ol.flow{margin-left:18px;color:var(--t2)}
+  ol.flow li{margin:5px 0}
+  .cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px}
+  .mail{font-size:14px;font-weight:700;color:var(--brand-ink)}
+  .foot{color:var(--t3);font-size:11px;text-align:center;margin-top:22px;line-height:1.8}
+  .foot a{color:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo">息</div>
+    <div>
+      <h1>商务合作</h1>
+      <div class="sub">board.zekes.top · 红利人群数据站广告位</div>
+    </div>
+    <div class="spacer"></div>
+    <a class="act" href="index.html">返回看板</a>
+  </div>
+
+  <div class="hero">
+    <h2>一个只做公开数据整理的 A 股红利工具站</h2>
+    <p>用户是主动搜索红利/股息数据的个人投资者：看重现金流与确定性、持仓以高息标的为主、
+    多数已在持牌券商开户——工具与效率类产品的精准人群。</p>
+    <div class="nums">
+      <div class="num"><b>128</b><span>覆盖红利标的</span></div>
+      <div class="num"><b>4.17%</b><span>标的平均股息率</span></div>
+      <div class="num"><b>386</b><span>研究卡片内容库存量</span></div>
+      <div class="num"><b>12</b><span>覆盖行业板块</span></div>
+      <div class="num"><b>每日</b><span>AI 红利观察日更</span></div>
+    </div>
+  </div>
+
+  <div class="law">
+    <h2>⚠️ 合规边界（请先读）</h2>
+    <b>本站不承接任何金融产品的宣传、推介与导流合作</b>（依据《金融产品网络营销管理办法》，
+    个人主体不得开展或变相开展金融产品网络营销）。因此券商、基金、保险、银行、信托等
+    金融产品类合作一律不接，请在来信前确认产品属性。
+    <ul>
+      <li><b>可以合作</b>：量化/回测平台、数据工具与终端、记账与效率软件、办公与显示硬件等非金融产品</li>
+      <li><b>绝不合作</b>：荐股软件、投顾服务、开户返佣、收益承诺类理财课程、虚拟货币等</li>
+      <li>所有素材显著标注「广告」，不做弹窗，不做伪装内容</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>广告位与报价（单期独占）</h2>
+    <table>
+      <thead><tr><th>位置</th><th>形态</th><th>特点</th><th>起步价/月</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag">A1</span> 首页顶部横幅</td><td>文字条，自适应</td><td>打开即见，曝光最高</td><td class="price">￥800-1500</td></tr>
+        <tr><td><span class="tag">A4</span> AI 日报页底部</td><td>文字条 / 内容合作</td><td>日更页面，复访率高</td><td class="price">￥600-1200</td></tr>
+        <tr><td><span class="tag">A2</span> 首页表格下方</td><td>图文卡 / 两行文字</td><td>看完数据的决策时刻</td><td class="price">￥500-1000</td></tr>
+        <tr><td><span class="tag">A3</span> 个股档案页底部</td><td>单条文字+品牌</td><td>流量最小、意图最强</td><td class="price">￥300-600</td></tr>
+      </tbody>
+    </table>
+    <p style="color:var(--t3);font-size:11.5px;margin-top:10px">
+      报价为起步参考，按实际流量与排期浮动；3 个月以上合作另有折扣。支持「非现金置换」
+      （工具会员/数据授权换曝光）作为起步形态。素材须过合规审核，本站保留最终发布权。</p>
+  </div>
+
+  <div class="card">
+    <h2>投放流程</h2>
+    <ol class="flow">
+      <li>来信说明 <b>产品形态 + 目标位置 + 期望档期</b>（金融产品类恕不回复）</li>
+      <li>我方 2 个工作日内回复排期与报价；素材过合规审核</li>
+      <li>约定排期上线；投放期间提供按日曝光/点击数据</li>
+      <li>期满出具效果报告（曝光 / 点击 / CTR / 来源构成），续约优先</li>
+    </ol>
+    <div class="cta">
+      <span>商务联系：</span><span class="mail">ads@zekes.top</span>
+    </div>
+  </div>
+
+  <div class="foot">
+    高股息看板 · 个人独立研究笔记，只做公开数据整理与客观展示，不荐股、不预测涨跌、不提供投资建议<br>
+    全部指标口径公开于 <a href="about.html">口径说明</a> · 皖ICP备<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">2026036657号</a>
+  </div>
+</div>
+<script src="ad.js?v=1" defer></script>
+<script src="track.js?v=1" defer></script>
+</body>
+</html>

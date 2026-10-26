@@ -174,3 +174,34 @@ class PageView(Base):
     ua_short: Mapped[str] = mapped_column(String(120), default="")
     visitor_hash: Mapped[str] = mapped_column(String(16), index=True)  # IP+UA 匿名哈希（UV 口径）
     user_id: Mapped[int | None] = mapped_column(Integer)
+
+
+class AdCreative(Base):
+    """广告素材：每个广告位单期独占（同位取 status=active 且在排期内的第一条）。"""
+    __tablename__ = "ad_creatives"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    slot_key: Mapped[str] = mapped_column(String(8), index=True)      # a1|a2|a3|a4
+    sponsor: Mapped[str] = mapped_column(String(64))                  # 品牌名
+    title: Mapped[str] = mapped_column(String(128))                   # 标题一行
+    body: Mapped[str | None] = mapped_column(Text)                    # 副文案（可选）
+    link_url: Mapped[str | None] = mapped_column(String(256))
+    image_url: Mapped[str | None] = mapped_column(String(256))        # 预留，v1 只用文字条
+    status: Mapped[str] = mapped_column(String(8), default="draft")   # draft|active|paused|done
+    starts_at: Mapped[str | None] = mapped_column(String(10))         # 排期 YYYY-MM-DD（空=立即）
+    ends_at: Mapped[str | None] = mapped_column(String(10))           # 空=长期
+    impressions: Mapped[int] = mapped_column(Integer, default=0)
+    clicks: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class AdEvent(Base):
+    """广告曝光/点击事件流（效果报告的数据源）。"""
+    __tablename__ = "ad_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    day: Mapped[str] = mapped_column(String(10), index=True)
+    ts: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    creative_id: Mapped[int] = mapped_column(Integer, index=True)
+    etype: Mapped[str] = mapped_column(String(8))                     # imp|click
+    visitor_hash: Mapped[str] = mapped_column(String(16), index=True)

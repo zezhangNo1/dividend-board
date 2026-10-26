@@ -5,6 +5,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .ads import router as ads_router
 from .ai_daily import router as ai_daily_router
 from .auth import router as auth_router
 from .db import Base, engine
@@ -35,6 +36,7 @@ app.include_router(features_router)
 app.include_router(ai_daily_router)
 app.include_router(lab_router)
 app.include_router(tracking_router)
+app.include_router(ads_router)
 
 
 @app.on_event("startup")
@@ -46,6 +48,7 @@ def init_db():
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(128)"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS token_ver INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(16) DEFAULT 'user'"))
+        conn.execute(text("ALTER TABLE ad_events ALTER COLUMN etype TYPE VARCHAR(8)"))
     # 功能注册表补种（已存在的不动）
     from .db import SessionLocal
     db = SessionLocal()
