@@ -7,12 +7,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .ads import router as ads_router
 from .ai_daily import router as ai_daily_router
+from .calendar_mod import router as calendar_router
 from .auth import router as auth_router
 from .db import Base, engine
 from .features import router as features_router, ensure_seed
 from .lab import router as lab_router
 from .alerts import router as alerts_router
 from .password_auth import router as password_router
+from .tech import router as tech_router
 from .tracking import router as tracking_router
 from .watchlist import router as watch_router
 
@@ -37,6 +39,8 @@ app.include_router(ai_daily_router)
 app.include_router(lab_router)
 app.include_router(tracking_router)
 app.include_router(ads_router)
+app.include_router(calendar_router)
+app.include_router(tech_router)
 
 
 @app.on_event("startup")
@@ -49,6 +53,7 @@ def init_db():
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS token_ver INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(16) DEFAULT 'user'"))
         conn.execute(text("ALTER TABLE ad_events ALTER COLUMN etype TYPE VARCHAR(8)"))
+        conn.execute(text("ALTER TABLE alert_events ALTER COLUMN tier TYPE VARCHAR(24)"))
     # 功能注册表补种（已存在的不动）
     from .db import SessionLocal
     db = SessionLocal()

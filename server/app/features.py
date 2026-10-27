@@ -27,6 +27,7 @@ SEED_FEATURES = [
     ("board.main", "高股息看板", "public", "118 只标的全景行情与股息率"),
     ("board.cards", "研究卡片库", "public", "历史研究卡片存档"),
     ("board.stock", "个股档案页", "public", "个股股息率与分红明细"),
+    ("board.calendar", "除息日历", "public", "未来除权除息日历与领息提醒"),
     ("ai.daily", "AI 每日观察", "public", "每日盘后 AI 生成的红利数据观察"),
     ("ai.report", "AI 个股报告", "member", "按需个股 AI 报告（Phase 3，接口未开放）"),
     ("lab.backtest", "策略实验室", "self", "历史回测（开发中）"),

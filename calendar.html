@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>除息日历 · 高股息看板</title>
+<meta name="description" content="红利标的未来除权除息日历：未来 90 天哪些股票除息、每股派息多少，自选股除息自动邮件提醒。">
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('gx-theme');
+    if(!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f6f7f9; --bg-glow:rgba(16,185,129,.05);
+    --card:#ffffff; --card2:#fafbfc; --line:#e7e9ee; --line2:#f0f1f4;
+    --t1:#171a20; --t2:#5a6070; --t3:#98a0ae;
+    --brand:#0e9f6e; --brand-ink:#0b7f58; --brand-soft:rgba(14,159,110,.10);
+    --gold:#b45309; --goldbg:#fdf3e3; --goldline:#f3dfc0;
+    --blue:#1e5fa8; --bluebg:#eef4fb;
+    --up:#d92d3e;
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+    --sticky:rgba(255,255,255,.85);
+  }
+  html[data-theme=dark]{
+    color-scheme: dark;
+    --bg:#0b0e13; --bg-glow:rgba(16,185,129,.05);
+    --card:#141922; --card2:#171d28; --line:#232a36; --line2:#1c222c;
+    --t1:#e8ecf2; --t2:#9aa4b2; --t3:#5f6a7a;
+    --brand:#34d399; --brand-ink:#6ee7b7; --brand-soft:rgba(52,211,153,.12);
+    --gold:#f0b357; --goldbg:rgba(217,119,6,.16); --goldline:rgba(217,119,6,.3);
+    --blue:#7fb0f5; --bluebg:rgba(59,130,246,.14);
+    --up:#ff6b7a;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+    --sticky:rgba(20,25,34,.85);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--t1);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(600px 300px at 15% -50px, var(--bg-glow), transparent);
+    background-repeat:no-repeat}
+  .wrap{max-width:860px;margin:0 auto;padding:0 clamp(14px,3vw,28px) 60px}
+  .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;
+    flex-wrap:wrap;padding:12px 0 10px;margin-bottom:16px;
+    background:var(--sticky);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line)}
+  .logo{width:36px;height:36px;border-radius:10px;flex:none;
+    background:linear-gradient(135deg,#10b981,#0d8a6c);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:18px;font-weight:700}
+  h1{font-size:17px;font-weight:700;letter-spacing:.3px}
+  .sub{color:var(--t2);font-size:11px;margin-top:1px}
+  .spacer{flex:1}
+  a.act{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:7px 13px;font-size:12.5px;color:var(--t2);text-decoration:none}
+  a.act:hover{border-color:var(--brand);color:var(--t1)}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:12px 14px;box-shadow:var(--shadow)}
+  .stat .k{font-size:11px;color:var(--t3);margin-bottom:3px}
+  .stat .v{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+  .stat .v i{font-style:normal;font-size:11px;font-weight:500;color:var(--t3)}
+
+  .month{margin-bottom:18px}
+  .mhead{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .mhead b{font-size:15px}
+  .mhead span{color:var(--t3);font-size:11.5px}
+  .rows{background:var(--card);border:1px solid var(--line);border-radius:13px;
+    overflow:hidden;box-shadow:var(--shadow)}
+  .row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line2)}
+  .row:last-child{border-bottom:none}
+  .day{flex:none;width:56px;text-align:center}
+  .day b{display:block;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
+  .day i{font-style:normal;font-size:10.5px;color:var(--t3)}
+  .row.soon .day b{color:var(--gold)}
+  .who{flex:1;min-width:0}
+  .who b{font-size:13.5px}
+  .who .cd{color:var(--t3);font-size:11px;margin-left:6px;font-family:ui-monospace,Menlo,monospace}
+  .who .tags{margin-top:2px;font-size:11px;color:var(--t3)}
+  .wtag{display:inline-block;background:var(--brand-soft);color:var(--brand-ink);
+    border-radius:5px;padding:0 6px;font-size:10.5px;font-weight:600;margin-right:6px}
+  .per{flex:none;text-align:right}
+  .per b{font-size:14px;font-variant-numeric:tabular-nums}
+  .per i{font-style:normal;display:block;font-size:10.5px;color:var(--t3)}
+  .per.earn b{color:var(--brand-ink)}
+  @media (max-width:560px){
+    .row{padding:10px 12px;gap:9px}
+    .per i{display:none}
+  }
+  .empty{background:var(--card);border:1px solid var(--line);border-radius:13px;
+    padding:50px 20px;text-align:center;color:var(--t3)}
+  .foot{color:var(--t3);font-size:11px;text-align:center;margin-top:22px;line-height:1.8}
+  .foot a{color:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo">息</div>
+    <div>
+      <h1>除息日历</h1>
+      <div class="sub">本站标的池 · 未来 90 天除权除息 · 每日更新</div>
+    </div>
+    <div class="spacer"></div>
+    <a class="act" href="index.html">看板</a>
+    <a class="act" href="ai.html">AI 观察</a>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div id="list"></div>
+  <div class="empty" id="empty" style="display:none">未来 90 天暂无本站池内标的除息安排<br>（已宣布未定除息日的分红会在这边陆续出现）</div>
+
+  <div class="foot">
+    数据来自公开分红公告接口，除息日与派息额以交易所最终实施为准 · 仅供参考，不构成投资建议<br>
+    登录后加自选，除息前 7 天 / 1 天自动邮件提醒 · <a href="about.html">口径说明</a>
+  </div>
+</div>
+<script src="ad.js?v=1" defer></script>
+<script src="follow.js?v=1" defer></script>
+<script src="track.js?v=1" defer></script>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const token = localStorage.getItem('gx-token') || '';
+const H = token ? {'Authorization': 'Bearer ' + token} : {};
+let watch = new Set();
+
+async function loadWatch(){
+  if (!token) return;
+  try{
+    const r = await fetch('/api/watchlist', {headers: H});
+    if (r.ok) watch = new Set(((await r.json()).items || []).map(i => i.code));
+  }catch(e){}
+}
+
+async function load(){
+  const r = await fetch('/api/calendar?days=90');
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || !d.ok){ $('#empty').style.display = ''; return; }
+  const items = d.items || [];
+  if (!items.length){ $('#empty').style.display = ''; return; }
+  const wk = items.filter(i => watch.has(i.code));
+  $('#stats').innerHTML = [
+    ['未来 30 天', items.filter(i => i.in_days <= 30).length, '只除息'],
+    ['未来 90 天', items.length, '只除息'],
+    ['我的自选命中', wk.length, '只（提醒覆盖）'],
+    ['最近一只', items[0].in_days, '天后'],
+  ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}<i> ${s}</i></div></div>`).join('');
+
+  // 按月分组
+  const months = {};
+  items.forEach(i => {
+    const m = i.ex_date.slice(0, 7);
+    (months[m] = months[m] || []).push(i);
+  });
+  const now = new Date();
+  $('#list').innerHTML = Object.keys(months).sort().map(m => {
+    const [y, mm] = m.split('-');
+    const rows = months[m].map(i => {
+      const dt = new Date(i.ex_date + 'T00:00:00');
+      const soon = i.in_days <= 7;
+      return `<div class="row ${soon ? 'soon' : ''}">
+        <div class="day"><b>${i.ex_date.slice(8)}</b><i>${'日一二三四五六'[dt.getDay()]}曜</i></div>
+        <div class="who"><b>${i.name}</b><span class="cd">${i.code}</span>
+          <div class="tags">${watch.has(i.code) ? '<span class="wtag">自选</span>' : ''}还有 ${i.in_days} 天</div></div>
+        <div class="per ${watch.has(i.code) ? 'earn' : ''}"><b>每股 ${i.per.toFixed(4)} 元</b><i>税前派息</i></div>
+      </div>`;
+    }).join('');
+    return `<div class="month"><div class="mhead"><b>${y} 年 ${+mm} 月</b><span>${months[m].length} 只除息</span></div>
+      <div class="rows">${rows}</div></div>`;
+  }).join('');
+}
+loadWatch().then(load);
+</script>
+</body>
+</html>

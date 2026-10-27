@@ -39,7 +39,7 @@ class AlertEvent(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     code: Mapped[str] = mapped_column(String(12), index=True)
-    tier: Mapped[str] = mapped_column(String(8))            # "5.5" / "5.0"
+    tier: Mapped[str] = mapped_column(String(24))           # "5.5"/"5.0"/"exdiv:YYYY-MM-DD"
     price: Mapped[float] = mapped_column(Float)             # 触发时现价
     dy: Mapped[float] = mapped_column(Float)                # 触发时股息率%
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
@@ -205,3 +205,16 @@ class AdEvent(Base):
     creative_id: Mapped[int] = mapped_column(Integer, index=True)
     etype: Mapped[str] = mapped_column(String(8))                     # imp|click
     visitor_hash: Mapped[str] = mapped_column(String(16), index=True)
+
+
+class DivCalendar(Base):
+    """未来除权除息日历（东财全市场拉取后过滤到本站标的池）。"""
+    __tablename__ = "div_calendar"
+    __table_args__ = (UniqueConstraint("code", "ex_date"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    code: Mapped[str] = mapped_column(String(12), index=True)
+    name: Mapped[str] = mapped_column(String(32), default="")
+    ex_date: Mapped[str] = mapped_column(String(10), index=True)
+    per: Mapped[float] = mapped_column(Float, default=0)              # 每股派息（元，税前）
+    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)

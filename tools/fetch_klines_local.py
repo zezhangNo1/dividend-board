@@ -45,10 +45,12 @@ def _get(s, fqt, end):
         return []
 
 
+LITE = "--lite" in sys.argv  # 每只单页 800 根（≈3.3 年），够布林日/周/月用
+
 def kline(code, fqt):
-    """倒序分页拉全史。返回按日期升序 [[date, close, volume]]。"""
+    """倒序分页拉全史（--lite 时单页）。返回按日期升序 [[date, close, volume]]。"""
     s, merged, end = sym(code), {}, END
-    for _ in range(6):  # 2015 至今约 2900 根，4 页够，留余量
+    for _ in range(1 if LITE else 6):  # 2015 至今约 2900 根，4 页够，留余量
         rows = _get(s, fqt, end)
         if not rows:
             break
@@ -67,7 +69,10 @@ def kline(code, fqt):
 
 def main(codes_path, out_path, resume=False):
     spec = json.load(open(codes_path))
-    codes = spec["all"] if isinstance(spec, dict) else spec
+    codes = spec["missing"] if isinstance(spec, dict) and spec.get("missing") else (
+        spec["all"] if isinstance(spec, dict) else spec)
+    if isinstance(spec, dict) and spec.get("missing"):
+        codes = spec["missing"]
     payload = {}
     if resume and os.path.exists(out_path):
         payload = json.load(open(out_path))

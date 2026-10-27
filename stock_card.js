@@ -44,6 +44,12 @@ window.renderStockCard = function(el, r, q, generated){
     divs += '<tr><td><span class="tag">' + (d.mmdd === '12-31' ? '年度' : '中期') + '</span>除息 ' + d.exd + '</td><td>' + d.per.toFixed(4) + ' 元/股</td></tr>';
   }
   if (!divs) divs = '<tr><td>暂无已实施的派息记录</td><td>—</td></tr>';
+  // 距 5.0% 档偏离（客观换算，非建议）
+  var p50 = dps ? dps / 0.05 : null;
+  var dev50 = (p50 && price) ? (price - p50) / price * 100 : null;
+  var devLine = dev50 === null ? '' :
+    '当前股息率 ' + dy.toFixed(2) + '%（' + tc[1] + '）；现价较 5.0% 档参考价 ' + fmt(p50) + ' 元' +
+    (dev50 <= 0 ? ' 已低 ' + Math.abs(dev50).toFixed(1) + '%' : ' 高 ' + dev50.toFixed(1) + '%') + '。';
   var sh = price ? Math.floor(100000 / price / 100) * 100 : null;
   var inc = (sh && dps) ? sh * dps : null;
   el.innerHTML = '<div class="scard">' +
@@ -61,12 +67,14 @@ window.renderStockCard = function(el, r, q, generated){
     '<div class="px"><div class="k">PE / PB</div><div class="v">' + fmt(pe, 1) + '<small>/ ' + fmt(pb, 2) + '</small></div></div>' +
     '<div class="px"><div class="k">近 12 月派息</div><div class="v">' + (r.times12 || 0) + '<small>次</small></div></div></div>' +
     '<div class="sec"><h4>股息率参考价</h4><div class="tiers">' + tps + '</div>' +
-    '<div class="calc" style="margin-top:8px">参考价 ＝ 每股分红 ÷ 目标股息率。金框为当前股息率所在档；绿色「已低」＝ 现价已低于该档参考价。</div></div>' +
+    '<div class="calc" style="margin-top:8px">' + devLine + '参考价 ＝ 每股分红 ÷ 目标股息率。金框为当前股息率所在档；绿色「已低」＝ 现价已低于该档参考价。</div></div>' +
     '<div class="sec"><h4>近一年位置</h4><div class="poswrap">' +
     '<span class="k">' + (lo ? lo.toFixed(2) : '—') + '</span>' +
     '<div class="bar2"><i style="width:' + (pct === null ? 0 : Math.max(1.5, Math.min(100, pct))) + '%"></i></div>' +
     '<span class="k">' + (hi ? hi.toFixed(2) : '—') + '</span>' +
     '<span class="v">' + (pct === null ? '—' : pct.toFixed(0) + '%') + '</span></div></div>' +
+    '<div class="sec"><h4>技术位置（布林带 20,2）</h4><div class="calc" id="techBox_' + r.code + '">计算中…</div>' +
+    '<div class="calc note" style="margin-top:6px;font-size:10.5px">周/月线由日线重采样；位置为客观状态描述，不构成任何操作提示。</div></div>' +
     '<div class="sec"><h4>分红明细（FY' + (r.fy || '—') + '，已实施）</h4><table>' + divs + '</table></div>' +
     '<div class="sec"><h4>10 万元收息测算</h4><div class="calc">' +
     '按现价 ' + fmt(price) + ' 元可买入约 <b>' + (sh ? sh.toLocaleString() : '—') + '</b> 股，' +
@@ -75,5 +83,25 @@ window.renderStockCard = function(el, r, q, generated){
     '<div class="note">按最近已完成财年的分红静态推算，分红政策可能变化，不代表未来收益。</div></div></div>' +
     '<div class="ft">数据来自公开行情与分红接口，打开/刷新时实时抓取现价，分红快照每日更新' + (gen ? '（' + gen + '）' : '') +
     '。所有价格档位仅为股息率换算的数学参考，<b>不构成任何投资建议</b>；历史分红不代表未来，投资决策需独立判断。</div><div style="text-align:center;margin-top:8px"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" style="color:inherit">皖ICP备2026036657号</a></div></div>';
+  fillTech(r.code);
 };
+
+function fillTech(code){
+  try {
+    fetch('/api/stock/tech?code=' + encodeURIComponent(code))
+      .then(function(res){ return res.ok ? res.json() : null; })
+      .then(function(d){
+        var box = document.getElementById('techBox_' + code);
+        if (!box) return;
+        if (!d || !d.ok){ box.textContent = (d && d.message) || '暂无数据'; return; }
+        var rows = [];
+        [['daily', '日线'], ['weekly', '周线'], ['monthly', '月线']].forEach(function(p){
+          var b = d.bands[p[0]];
+          if (b) rows.push('<b>' + p[1] + '</b>：' + b.label + '（带宽位置 ' + b.pb + '%）');
+        });
+        box.innerHTML = rows.join('　·　') + '<div class="note" style="font-size:10.5px;color:inherit;opacity:.75;margin-top:4px">数据截至 ' + d.asof + '</div>';
+      })
+      .catch(function(){ var box = document.getElementById('techBox_' + code); if (box) box.textContent = '暂无数据'; });
+  } catch (e) {}
+}
 })();

@@ -67,7 +67,7 @@ def fetch_quotes(codes: list[str]) -> dict:
     return out
 
 
-def scan_alerts(db: Session) -> dict:
+def scan_alerts(db: Session, dry: bool = False) -> dict:
     dps_map = load_dps_map()
     items = db.scalars(select(WatchItem)).all()
     if not items:
@@ -102,16 +102,70 @@ def scan_alerts(db: Session) -> dict:
             trig.setdefault((it.user_id, user.email), []).append(
                 (name or q["name"], it.code, tlabel, tname, round(dy, 2), round(q["price"], 2)))
 
+    # ---- 除息提醒：自选股未来除息 T-7 / T-1 ----
+    try:
+        from .calendar_mod import refresh_calendar
+        from .models import DivCalendar
+        refresh_calendar(db)
+        today = datetime.now().date()
+        cal = db.scalars(select(DivCalendar).where(
+            DivCalendar.ex_date >= today.isoformat(),
+            DivCalendar.ex_date <= (today + timedelta(days=8)).isoformat())).all()
+        cal_map = {c.code: c for c in cal}
+        for it in items:
+            user = users.get(it.user_id)
+            if not user or user.status != "active" or not user.email:
+                continue
+            c = cal_map.get(it.code)
+            if not c:
+                continue
+            days_left = (datetime.strptime(c.ex_date, "%Y-%m-%d").date() - today).days
+            if days_left not in (7, 1):
+                continue
+            ev_key = f"exdiv:{c.ex_date}"
+            recent = db.scalar(select(AlertEvent).where(
+                AlertEvent.user_id == it.user_id,
+                AlertEvent.code == it.code,
+                AlertEvent.tier == ev_key,
+            ))
+            if recent:
+                continue
+            name, _ = dps_map.get(it.code, (c.name, None))
+            db.add(AlertEvent(user_id=it.user_id, code=it.code, tier=ev_key,
+                              price=0, dy=days_left))
+            trig.setdefault((it.user_id, user.email), []).append(
+                (name or c.name, it.code, ev_key,
+                 f"{'7' if days_left == 7 else '1'} 天后除息", round(c.per, 4), days_left))
+    except Exception:
+        pass  # 除息数据不可得时不影响股息率提醒
+
     sent = 0
     for (uid, email), rows in trig.items():
-        lines = ["您自选的股票有股息率档位提醒：", ""]
-        for nm, code, tlabel, tname, dy, price in rows:
-            lines.append(f"· {nm}({code}) 现价 {price}，股息率 {dy}%，已达 {tlabel}% 档（{tname}）")
-            lines.append(f"  {tlabel}% 参考价 = 每股分红 ÷ {tlabel}%，详见看板：https://board.zekes.top")
+        dy_rows = [r for r in rows if not r[2].startswith("exdiv:")]
+        ex_rows = [r for r in rows if r[2].startswith("exdiv:")]
+        lines = []
+        if dy_rows:
+            lines.append("您自选的股票有股息率档位提醒：")
+            lines.append("")
+            for nm, code, tlabel, tname, dy, price in dy_rows:
+                lines.append(f"· {nm}({code}) 现价 {price}，股息率 {dy}%，已达 {tlabel}% 档（{tname}）")
+                lines.append(f"  {tlabel}% 参考价 = 每股分红 ÷ {tlabel}%，详见看板：https://board.zekes.top")
+        if ex_rows:
+            lines.append("")
+            lines.append("您自选的股票即将除息：")
+            for nm, code, _, tname, per, _d in ex_rows:
+                lines.append(f"· {nm}({code}) {tname}，每股派息 {per} 元（税前）")
+                lines.append("  除息日股价会相应调减，留意分红到账时间")
+        if not lines:
+            continue
         lines += ["", "数据来自公开行情接口，仅供参考，不构成投资建议。",
-                  "同一档位 7 天内不会重复提醒。"]
+                  "股息率档位 7 天内不重复提醒；除息提醒每个除息日只发一次。"]
+        if dry:
+            print("[dry-run] 会发给", email, ":\n" + "\n".join(lines))
+            sent += 1
+            continue
         try:
-            send_raw("【泽克的数据笔记】自选股息率提醒 " +
+            send_raw("【泽克的数据笔记】自选股息率/除息提醒 " +
                       "、".join(sorted({r[0] for r in rows})), "\n".join(lines), email)
             sent += 1
         except Exception:
@@ -121,11 +175,12 @@ def scan_alerts(db: Session) -> dict:
 
 
 @router.post("/cron/scan-alerts")
-def cron_scan(x_cron_secret: str = Header(default=""), db: Session = Depends(get_db)):
+def cron_scan(x_cron_secret: str = Header(default=""), dry: bool = False,
+              db: Session = Depends(get_db)):
     secret = os.environ.get("CRON_SECRET", "")
     if not secret or x_cron_secret != secret:
         raise HTTPException(403, "forbidden")
-    return scan_alerts(db)
+    return scan_alerts(db, dry=dry)
 
 
 @router.get("/alerts")

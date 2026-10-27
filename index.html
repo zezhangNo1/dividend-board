@@ -144,6 +144,11 @@
   .dy.high{background:var(--goldbg);color:var(--gold)}
   .dy.mid{background:var(--bluebg);color:var(--blue)}
   .dy.low{background:var(--card2);color:var(--t3)}
+  .zone{font-size:10.5px;font-weight:600;border-radius:7px;padding:2px 8px;display:inline-block;white-space:nowrap}
+  .zone.z-deep{background:var(--goldbg);color:var(--gold)}
+  .zone.z-watch{background:var(--bluebg);color:var(--blue)}
+  .zone.z-obs{background:var(--card2);color:var(--t2);border:1px solid var(--line)}
+  .zone.z-mid{color:var(--t3)}
   .sm{color:var(--t2);font-size:12px}
   .sm b{color:var(--t1);font-weight:600}
   .tgt{line-height:1.35}
@@ -326,6 +331,7 @@
     <input id="q" placeholder="搜名称 / 代码" autocomplete="off">
     <button class="act" id="refresh">刷新行情</button>
     <a class="act" href="ai.html">AI 观察</a>
+    <a class="act" href="calendar.html">除息日历</a>
     <a class="act" href="cards.html">研究卡片</a>
     <a class="act" href="about.html">口径说明</a>
     <button class="iconbtn" id="themeBtn" title="切换明暗主题">🌙</button>
@@ -349,6 +355,7 @@
             <th data-k="price">现价 <span class="ar">↕</span></th>
             <th data-k="chg">涨跌 <span class="ar">↕</span></th>
             <th data-k="dy">股息率 <span class="ar">↕</span></th>
+            <th data-k="zone">档位 <span class="ar">↕</span></th>
             <th data-k="dps">每股分红 <span class="ar">↕</span></th>
             <th data-k="times">年派息 <span class="ar">↕</span></th>
             <th data-k="t55">5.5% 价 <span class="ar">↕</span></th>
@@ -665,6 +672,17 @@ function tierClass(dy){
   return 'low';
 }
 
+function zoneOf(dy){
+  if (dy === null || dy === undefined) return ['z-mid', '—'];
+  if (dy >= 5.5) return ['z-deep', '深度价值区'];
+  if (dy >= 5.0) return ['z-watch', '关注区'];
+  if (dy >= 4.5) return ['z-obs', '观察区'];
+  return ['z-mid', '中性'];
+}
+function zoneHtml(dy){
+  const z = zoneOf(dy);
+  return '<span class="zone ' + z[0] + '">' + z[1] + '</span>';
+}
 function rowsView(){
   if (!DATA) return [];
   return DATA.rows.filter(r => {
@@ -698,6 +716,8 @@ function sortedRows(){
   const rows = rowsView(), k = sort.k, dir = sort.dir;
   rows.sort((a, b) => {
     if (k === 'name') return a.name.localeCompare(b.name, 'zh') * dir;
+    if (k === 'zone'){ const xa = a.dy ?? -Infinity, ya = b.dy ?? -Infinity;
+      return xa === ya ? 0 : (xa - ya) * dir; }
     let x = a[k], y = b[k];
     x = (x === null || x === undefined) ? -Infinity : Number(x);
     y = (y === null || y === undefined) ? -Infinity : Number(y);
@@ -735,7 +755,7 @@ function render(){
 function renderDesktop(rows){
   const tb = $('#tbody');
   if (!rows.length){
-    tb.innerHTML = '<tr><td colspan="12" class="empty">没有匹配的标的</td></tr>';
+    tb.innerHTML = '<tr><td colspan="13" class="empty">没有匹配的标的</td></tr>';
     return;
   }
   tb.innerHTML = rows.map(r => {
@@ -757,6 +777,7 @@ function renderDesktop(rows){
       <td class="px">${fmt(r.price)}</td>
       <td class="${cls}">${r.chg === null ? '—' : sign + fmt(r.chg) + '%'}</td>
       <td><span class="dy ${tierClass(dy)}">${dy === null ? '—' : fmt(dy) + '%'}</span></td>
+      <td>${zoneHtml(dy)}</td>
       <td class="sm"><b>${fmt(r.dps, 3)}</b><br>${r.fy ? 'FY' + r.fy : '—'}</td>
       <td class="sm"><b>${r.times ? r.times + ' 次' : '—'}</b><br><span style="font-size:11px;color:var(--t3)">近12月</span></td>
       ${tgts}
@@ -805,6 +826,7 @@ function renderMobile(rows){
       <div class="r2">
         <span class="price">${fmt(r.price)}</span>
         <span class="chg ${cls}">${r.chg === null ? '—' : sign + fmt(r.chg) + '%'}</span>
+        <span class="zone ${zoneOf(dy)[0]}" style="font-size:11px;padding:3px 9px">${zoneOf(dy)[1]}</span>
         <span class="dy ${tierClass(dy)}">${dy === null ? '—' : fmt(dy) + '%'}</span>
       </div>
       <div class="r3"><span>每股分红 ${fmt(r.dps, 3)}（FY${r.fy || '—'} · 近1年派 ${r.times || 0} 次）</span>
