@@ -75,6 +75,8 @@ window.renderStockCard = function(el, r, q, generated){
     '<span class="v">' + (pct === null ? '—' : pct.toFixed(0) + '%') + '</span></div></div>' +
     '<div class="sec"><h4>技术位置（布林带 20,2）</h4><div class="calc" id="techBox_' + r.code + '">计算中…</div>' +
     '<div class="calc note" style="margin-top:6px;font-size:10.5px">周/月线由日线重采样；位置为客观状态描述，不构成任何操作提示。</div></div>' +
+    '<div class="sec"><h4>历史股息率分位</h4><div class="calc" id="yhBox_' + r.code + '">计算中…</div>' +
+    '<div class="calc note" style="margin-top:6px;font-size:10.5px">口径：近12个月已实施派息 ÷ 月末收盘（不复权），按月采样。分位为客观统计描述，不构成任何操作提示。</div></div>' +
     '<div class="sec"><h4>分红明细（FY' + (r.fy || '—') + '，已实施）</h4><table>' + divs + '</table></div>' +
     '<div class="sec"><h4>10 万元收息测算</h4><div class="calc">' +
     '按现价 ' + fmt(price) + ' 元可买入约 <b>' + (sh ? sh.toLocaleString() : '—') + '</b> 股，' +
@@ -84,6 +86,7 @@ window.renderStockCard = function(el, r, q, generated){
     '<div class="ft">数据来自公开行情与分红接口，打开/刷新时实时抓取现价，分红快照每日更新' + (gen ? '（' + gen + '）' : '') +
     '。所有价格档位仅为股息率换算的数学参考，<b>不构成任何投资建议</b>；历史分红不代表未来，投资决策需独立判断。</div><div style="text-align:center;margin-top:8px"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" style="color:inherit">皖ICP备2026036657号</a></div></div>';
   fillTech(r.code);
+  fillYield(r.code);
 };
 
 function fillTech(code){
@@ -102,6 +105,34 @@ function fillTech(code){
         box.innerHTML = rows.join('　·　') + '<div class="note" style="font-size:10.5px;color:inherit;opacity:.75;margin-top:4px">数据截至 ' + d.asof + '</div>';
       })
       .catch(function(){ var box = document.getElementById('techBox_' + code); if (box) box.textContent = '暂无数据'; });
+  } catch (e) {}
+}
+
+function fillYield(code){
+  try {
+    fetch('/api/stock/yieldhist?code=' + encodeURIComponent(code))
+      .then(function(res){ return res.ok ? res.json() : null; })
+      .then(function(d){
+        var box = document.getElementById('yhBox_' + code);
+        if (!box) return;
+        if (!d || !d.ok){ box.textContent = (d && d.message) || '历史数据积累中'; return; }
+        var yrs = d.years >= 9.5 ? '近10年' : '近' + d.years + '年';
+        var hi = d.pct >= 80, lo = d.pct <= 20;
+        var dotColor = hi ? 'var(--gold,#e8b04b)' : (lo ? '#7fd8a5' : '#fff');
+        box.innerHTML =
+          '<div style="font-size:12px;color:inherit">当前股息率 <b style="font-size:16px">' + d.cur.toFixed(2) + '%</b>，' + yrs + '分位 <b style="font-size:16px">' + d.pct + '%</b>（高于 ' + d.pct + '% 的历史月份）</div>' +
+          '<div style="position:relative;height:26px;margin:10px 2px 2px">' +
+            '<div style="position:absolute;top:9px;left:0;right:0;height:9px;border-radius:5px;background:linear-gradient(90deg,#7fd8a5,#e8b04b,#ff8f96)"></div>' +
+            '<div style="position:absolute;top:4px;width:2px;height:19px;background:rgba(255,255,255,.55);left:25%"></div>' +
+            '<div style="position:absolute;top:4px;width:2px;height:19px;background:rgba(255,255,255,.55);left:50%"></div>' +
+            '<div style="position:absolute;top:4px;width:2px;height:19px;background:rgba(255,255,255,.55);left:75%"></div>' +
+            '<div style="position:absolute;top:0;width:13px;height:13px;border-radius:50%;background:' + dotColor + ';border:2px solid rgba(0,0,0,.35);left:calc(' + Math.max(0, Math.min(97, d.pct)) + '% - 6px)"></div>' +
+          '</div>' +
+          '<div style="display:flex;justify-content:space-between;font-size:10.5px;color:inherit;opacity:.75;margin-top:2px">' +
+            '<span>低（' + d.min + '%）</span><span>P25 ' + d.p25 + '%</span><span>中位 ' + d.median + '%</span><span>P75 ' + d.p75 + '%</span><span>高（' + d.max + '%）</span></div>' +
+          '<div style="font-size:10.5px;color:inherit;opacity:.75;margin-top:6px">样本 ' + d.months + ' 个月（' + d.from + ' ~ ' + d.to + '）；股息率高通常对应价格低，反之亦然</div>';
+      })
+      .catch(function(){ var box = document.getElementById('yhBox_' + code); if (box) box.textContent = '历史数据积累中'; });
   } catch (e) {}
 }
 })();

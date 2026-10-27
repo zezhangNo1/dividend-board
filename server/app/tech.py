@@ -93,3 +93,78 @@ def stock_tech(code: str, user: User | None = Depends(require_feature("board.sto
     return {"ok": True, "code": code, "name": names.get(code, code),
             "asof": rows[-1].date, "bands": out,
             "note": "布林带(20,2)不复权日线口径；周/月线由日线重采样"}
+
+
+# ---------------------------------------------------------------- 历史股息率分位
+def _month_ends(rows: list[Kline]) -> list[Kline]:
+    out, cur = [], None
+    for r in rows:
+        if cur is None or r.date[:7] != cur.date[:7]:
+            out.append(cur) if cur else None
+            cur = r
+        else:
+            cur = r
+    if cur:
+        out.append(cur)
+    return out
+
+
+@router.get("/yieldhist")
+def yield_hist(code: str, user: User | None = Depends(require_feature("board.stock")),
+               db: Session = Depends(get_db)):
+    """月度股息率序列 + 当前分位（理杏仁式）。dy = 过去365天每股派息(除息口径) ÷ 月末不复权收盘。"""
+    from datetime import timedelta
+    from .models import StockDividend
+    from .lab import trailing_dps
+
+    krows = db.scalars(select(Kline).where(Kline.code == code).order_by(Kline.date)).all()
+    divs = db.scalars(select(StockDividend).where(
+        StockDividend.code == code).order_by(StockDividend.ex_date)).all()
+    pairs = [(d.ex_date, d.per) for d in divs]
+    if not krows or not pairs:
+        return {"ok": False, "message": "分红历史数据积累中"}
+
+    pts = []
+    for r in _month_ends(krows):
+        if not r.raw or r.raw <= 0:
+            continue
+        dps = trailing_dps(pairs, r.date)
+        if dps > 0:
+            pts.append((r.date[:7], round(dps / r.raw * 100, 3)))
+    if len(pts) < 24:
+        return {"ok": False, "message": "历史数据积累中（不足两年）"}
+
+    # 稳健过滤：剔除中位数 1/3~3 倍之外的异常月（防历史脏价/错配干扰统计）
+    import statistics
+    med0 = statistics.median(v for _, v in pts)
+    raw_n = len(pts)
+    pts = [p for p in pts if med0 / 3 <= p[1] <= med0 * 3]
+    if len(pts) < 24:
+        return {"ok": False, "message": "历史数据积累中（不足两年）"}
+
+    vals = sorted(v for _, v in pts)
+    cur = pts[-1][1]
+    pct = round(sum(1 for v in vals if v <= cur) / len(vals) * 100)
+
+    def q(p):
+        return round(vals[min(len(vals) - 1, int(len(vals) * p))], 2)
+
+    # 降采样到 ≤150 点
+    step = max(1, len(pts) // 150)
+    samp = pts[::step]
+    if samp[-1] != pts[-1]:
+        samp.append(pts[-1])
+    names = {}
+    try:
+        with open(SITE_DATA_PATH, encoding="utf-8") as f:
+            names = {r["code"]: r["name"] for r in json.load(f).get("rows", [])}
+    except Exception:
+        pass
+    years = round((len(pts)) / 12, 1)
+    return {"ok": True, "code": code, "name": names.get(code, code),
+            "months": len(pts), "years": years,
+            "from": pts[0][0], "to": pts[-1][0],
+            "cur": cur, "pct": pct,
+            "min": q(0.0), "p25": q(0.25), "median": q(0.5), "p75": q(0.75), "max": q(1.0),
+            "points": samp,
+            "note": "月度采样：近12个月已实施派息 ÷ 月末收盘（不复权）；分位=当前值高于历史样本的比例"}
