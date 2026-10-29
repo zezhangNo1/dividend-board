@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>泽克的数据笔记 · 个人工具集</title>
+<meta name="description" content="泽克的数据笔记：A股高股息数据看板、美市时钟（纳指开闭市查询）等自用数据工具集合。数据来自公开接口，仅供参考。">
+<script src="ledger.css?v=20261029" defer></script>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#EFF1E9; --card:#FFFFFF; --card2:#F7F8F3;
+    --ink:#1C2430; --ink2:#5B6470; --ink3:#9AA2AE;
+    --brand:#14261E; --brand-hi:#1D362A; --gold:#C9A75A; --gold-ink:#8A6D2F;
+    --green:#1F9D55; --line:#E2E5DC; --line2:#EDEFE7;
+    --shadow:0 1px 2px rgba(28,36,48,.05), 0 2px 8px rgba(28,36,48,.05);
+  }
+  html[data-theme=dark]{
+    color-scheme: dark;
+    --bg:#101511; --card:#171F1A; --card2:#1B241E;
+    --ink:#E5E9E2; --ink2:#9AA8A0; --ink3:#5E6B63;
+    --brand:#C9A75A; --brand-hi:#E0C88A; --gold:#C9A75A; --gold-ink:#E0C88A;
+    --green:#5FBF8A; --line:#26302A; --line2:#1E2822;
+    --shadow:0 1px 2px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:0 clamp(16px,4vw,32px) 64px}
+
+  .masthead{background:var(--brand);color:#F2F4EA;border-radius:0 0 22px 22px;
+    padding:34px 30px 30px;position:relative;overflow:hidden}
+  html[data-theme=dark] .masthead{background:linear-gradient(160deg,#1B2620,#14201A)}
+  .masthead::after{content:'';position:absolute;left:30px;right:30px;bottom:22px;
+    border-top:1px solid rgba(201,167,90,.85);border-bottom:1px solid rgba(201,167,90,.45);height:4px}
+  .seal{display:inline-block;border:1.5px solid var(--gold);color:var(--gold);
+    border-radius:8px;padding:3px 12px;font-size:12px;letter-spacing:4px;font-weight:600;margin-bottom:14px}
+  .masthead h1{font-size:26px;font-weight:800;letter-spacing:1px;font-family:"Songti SC","STSong",serif}
+  .masthead p{color:rgba(242,244,234,.72);font-size:13px;margin-top:6px;padding-bottom:26px}
+  .masthead .meta{position:absolute;top:30px;right:28px;text-align:right;font-size:11px;
+    color:rgba(201,167,90,.9);line-height:1.9}
+
+  h2.sec{font-size:13px;color:var(--ink3);letter-spacing:3px;margin:30px 2px 12px;font-weight:600}
+  .site{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:18px 20px;margin-bottom:12px;text-decoration:none;color:var(--ink);
+    box-shadow:var(--shadow);transition:border-color .15s,transform .15s;position:relative}
+  .site:hover{border-color:var(--gold);transform:translateY(-1px)}
+  .site .row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .site b{font-size:16.5px;font-weight:800}
+  .site .url{font-size:11.5px;color:var(--gold-ink);font-family:ui-monospace,Menlo,monospace}
+  .site .go{margin-left:auto;color:var(--ink3);font-size:12px}
+  .site p{color:var(--ink2);font-size:12.5px;margin-top:6px}
+  .site .tags{margin-top:9px;display:flex;gap:6px;flex-wrap:wrap}
+  .site .tags span{font-size:10.5px;color:var(--ink2);background:var(--card2);
+    border:1px solid var(--line2);border-radius:6px;padding:1px 8px}
+
+  .follow{display:flex;gap:12px;flex-wrap:wrap}
+  .fbtn{flex:1;min-width:200px;background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:16px 20px;text-decoration:none;color:var(--ink);box-shadow:var(--shadow);cursor:pointer;font-family:inherit}
+  .fbtn:hover{border-color:var(--gold)}
+  .fbtn b{display:block;font-size:14.5px}
+  .fbtn span{font-size:12px;color:var(--ink2)}
+  .fbtn i{font-style:normal;float:right;color:var(--ink3);font-size:12px}
+
+  footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);
+    font-size:11px;color:var(--ink3);text-align:center;line-height:2}
+  footer a{color:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <span class="seal">数据笔记</span>
+    <h1>泽克的数据笔记</h1>
+    <p>用数据记账，用工具看盘 —— 全部自建，口径公开，仅供参考</p>
+    <div class="meta">皖ICP备<br>2026036657号</div>
+  </div>
+
+  <h2 class="sec">数 据 工 具</h2>
+
+  <a class="site" href="https://board.zekes.top/">
+    <div class="row"><b>高股息看板</b><span class="url">board.zekes.top</span><span class="go">进入 ▸</span></div>
+    <p>A 股 128 只红利标的的分红数据账本：股息率看板、除权除息日历、历史股息率分位、布林技术位置，每个交易日盘后自动生成 AI 红利观察。</p>
+    <div class="tags"><span>股息率查询</span><span>除息日历</span><span>历史分位</span><span>自选提醒</span><span>AI 日报</span></div>
+  </a>
+
+  <a class="site" href="https://nasdaq.zekes.top/">
+    <div class="row"><b>美市时钟</b><span class="url">nasdaq.zekes.top</span><span class="go">进入 ▸</span></div>
+    <p>纳斯达克开闭市时间查询：开市倒计时、夏令时自动换算、全年休市日历、热门纳指基金申购额度状态与走势。</p>
+    <div class="tags"><span>开闭市倒计时</span><span>休市日历</span><span>纳指基金额度</span><span>走势图</span></div>
+  </a>
+
+  <h2 class="sec">更 多</h2>
+
+  <a class="site" href="https://board.zekes.top/cards.html">
+    <div class="row"><b>研究卡片库</b><span class="url">board.zekes.top/cards</span><span class="go">进入 ▸</span></div>
+    <p>386 张个股研究卡片存档，按标的聚合，覆盖银行、家电、白酒、能源等 12 个板块。</p>
+  </a>
+
+  <h2 class="sec">关 注</h2>
+  <div class="follow">
+    <a class="fbtn" href="#" data-follow="xhs" style="display:none">
+      <b>小红书 <i>▸</i></b><span>Zzzzzzzzz分析高股息 · 每日红利笔记</span>
+    </a>
+    <a class="fbtn" href="#" data-follow="gzh" style="display:none">
+      <b>公众号 <i>▸</i></b><span>泽克的数据笔记 · 长文与工具更新</span>
+    </a>
+  </div>
+
+  <footer>
+    数据均来自公开行情接口，仅供参考，不构成任何投资建议 ·
+    <a href="https://board.zekes.top/ads.html">商务合作</a> ·
+    <a href="https://board.zekes.top/about.html">口径与免责</a><br>
+    © 2026 泽克的数据笔记 · 皖ICP备<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">2026036657号</a>
+  </footer>
+</div>
+<script src="follow.js?v=1" defer></script>
+<script src="track.js?v=1" defer></script>
+</body>
+</html>
