@@ -337,6 +337,11 @@ html body .dlg h3{
   font-family:var(--serif);
   letter-spacing:.16em;
 }
+html body .dlg .reason{
+  font-size:12.5px;color:var(--gold);background:var(--gold-soft);
+  border:1px solid var(--goldline);border-radius:2px;
+  padding:7px 10px;margin:8px 0 2px;line-height:1.7;
+}
 html body .dlg input{
   background:none;
   border:none;
@@ -397,6 +402,24 @@ html body #stockModal .frame .bar button.rf{
   font-size:13px;
   height:auto;
   padding:6px 14px;
+}
+/* 到息提醒按钮：金色描边强调；监控中变实底 */
+html body #stockModal .frame .bar button.al{
+  background:none;
+  border:1px solid rgba(201,167,90,.65);
+  border-radius:2px;
+  color:var(--gold-bright);
+  font-family:var(--serif);
+  font-size:13px;
+  height:auto;
+  padding:6px 14px;
+  cursor:pointer;
+}
+html body #stockModal .frame .bar button.al:hover{background:rgba(201,167,90,.18)}
+html body #stockModal .frame .bar button.al.on{
+  background:var(--gold-bright);
+  border-color:var(--gold-bright);
+  color:#14261E;
 }
 html body #stockModal .frame .bar a.open{
   color:rgba(233,237,226,.85);font-size:13px;
