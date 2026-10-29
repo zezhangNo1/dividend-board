@@ -98,7 +98,13 @@ html body .topbar{
   color:#E9EDE2;
   border-bottom:3px double rgba(201,167,90,.65);
   backdrop-filter:none;-webkit-backdrop-filter:none;
+  padding:12px 18px 10px;
+  gap:10px;
 }
+/* 账号区永远靠右：窄屏换行时整组右对齐，不再跳到左下角 */
+html body .topbar #loginBtn,
+html body .topbar .whoami{margin-left:auto}
+html body .topbar .status{margin-left:0}
 html body .topbar .logo{
   background:none;
   border:1.5px solid var(--gold-bright);
@@ -122,6 +128,7 @@ html body .topbar input#q, html body .topbar input{
   box-shadow:none;
   font-family:var(--serif);
 }
+html body .topbar input#q{width:160px}
 html body .topbar input::placeholder{color:rgba(233,237,226,.45)}
 html body .topbar input:focus{
   border-bottom-color:var(--gold-bright);
