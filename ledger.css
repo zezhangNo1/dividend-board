@@ -375,20 +375,39 @@ html body #stockModal .frame{
 html body #stockModal .frame .bar{
   background:var(--cover);
   border-bottom:2px solid rgba(201,167,90,.5);
+  padding:10px 14px;
+  column-gap:8px;
 }
 html body #stockModal .frame .bar .t{font-family:var(--serif);letter-spacing:.08em;color:#F2F4EA}
 html body #stockModal .frame .bar .t small{color:rgba(233,237,226,.55)}
 html body #stockModal .frame .bar button.bk,
-html body #stockModal .frame .bar button.rf,
-html body #stockModal .frame .bar button.x{
+html body #stockModal .frame .bar button.rf{
   background:none;
-  border:1px solid rgba(233,237,226,.32);
+  border:1px solid rgba(233,237,226,.5);
   border-radius:2px;
-  color:rgba(233,237,226,.85);
+  color:#F2F4EA;
   font-family:var(--serif);
+  font-size:13px;
+  height:auto;
+  padding:6px 14px;
 }
-html body #stockModal .frame .bar a.open{color:rgba(233,237,226,.7)}
-html body #stockModal .frame .bar button:hover{border-color:var(--gold-bright);color:#F2F4EA}
+html body #stockModal .frame .bar a.open{
+  color:rgba(233,237,226,.85);font-size:13px;
+  border:1px solid rgba(233,237,226,.5);border-radius:2px;padding:6px 14px;
+}
+html body #stockModal .frame .bar button:hover{border-color:var(--gold-bright);color:var(--gold-bright)}
+html body #stockModal .frame .bar a.open:hover{color:var(--gold-bright)}
+/* 关闭：金色大 ✕，永远显眼 */
+html body #stockModal .frame .bar button.x{
+  width:36px;height:36px;min-width:36px;
+  background:var(--gold-bright);
+  color:#14261E;
+  border:none;border-radius:2px;
+  font-size:19px;font-weight:700;line-height:1;
+  font-family:var(--sans);
+  cursor:pointer;
+}
+html body #stockModal .frame .bar button.x:hover{background:#E0C285;color:#0F1B15}
 html body #stockModal .shost{background:var(--cover-deep)}
 
 /* ---------------- 通用组件（二级页面） ---------------- */
