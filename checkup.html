@@ -29,6 +29,9 @@
     padding-right:max(22px, calc(50vw - 528px));
   }
   h1{font-size:18px;font-weight:700;letter-spacing:.4px}
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand .sub{font-size:11.5px;color:rgba(233,237,226,.66);margin-top:1px;letter-spacing:.04em}
+  .spacer{flex:1}
   .lede{font-size:13px;color:var(--ink-2);margin:6px 0 20px;line-height:1.8}
   .card{border:1px solid var(--rule);border-radius:2px;padding:16px 18px;margin-bottom:16px}
   .card h2{
@@ -99,8 +102,13 @@
 <body>
 <div class="wrap">
   <div class="topbar" id="cuTop">
-    <div class="logo">息</div>
-    <h1>持仓体检</h1>
+    <div class="brand">
+      <div class="logo">息</div>
+      <div>
+        <h1>持仓体检</h1>
+        <div class="sub">股息质量 · 板块集中度 · 档位分布 · 未来除息</div>
+      </div>
+    </div>
     <div class="spacer"></div>
     <a class="act" href="index.html">返回看板</a>
     <button class="iconbtn" id="themeBtn" title="切换明暗主题">🌙</button>
@@ -126,11 +134,11 @@
 
   <div id="result">
     <div class="card">
-      <h2>组合概览</h2>
+      <h2>股息质量与档位分布</h2>
       <div class="agg" id="agg"></div>
     </div>
     <div class="card">
-      <h2>逐票档案</h2>
+      <h2>逐票明细</h2>
       <div style="overflow-x:auto">
       <table>
         <thead><tr>
@@ -142,7 +150,7 @@
       </div>
     </div>
     <div class="card">
-      <h2>体检提示</h2>
+      <h2>板块集中度与提示（含未来除息）</h2>
       <ul class="notes" id="notes"></ul>
       <p class="fine" id="fine"></p>
     </div>
