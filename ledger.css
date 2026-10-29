@@ -520,7 +520,10 @@ html body #stockModal .frame .bar button.ai{
 }
 html body #stockModal .frame .bar button.ai:hover{background:rgba(232,154,143,.16);color:#F4B7AD}
 /* AI 报告弹窗（纸面阅读版式） */
-html body #reportModal .frame{max-width:760px;background:var(--paper-hi)}
+html body #reportModal .frame{
+  max-width:760px;min-height:min(72vh,640px);background:var(--paper-hi);
+  display:flex;flex-direction:column;
+}
 html body #reportModal .aigc-chip{
   font-family:var(--serif);font-size:11px;letter-spacing:.12em;
   border:1px solid var(--seal);color:var(--seal);

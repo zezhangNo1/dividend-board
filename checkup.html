@@ -48,7 +48,9 @@
     font-family:var(--serif);font-size:13px;padding:9px 16px;cursor:pointer;
   }
   button.ghost:hover{border-color:var(--rule-strong);color:var(--ink)}
-  .hint{font-size:12px;color:var(--ink-3)}
+.hint{font-size:12.5px;color:var(--ink-3);font-weight:600}
+  .hint.err{color:var(--seal)}
+  textarea#codes.err{border-color:var(--seal);box-shadow:0 0 0 3px var(--seal-soft)}
   .deny{padding:80px 20px;text-align:center;color:var(--ink-3);line-height:2.2}
   .deny b{color:var(--ink-2)}
   /* 结果 */
@@ -170,6 +172,13 @@ function boot(){
       return;
     }
     $('#importBtn').style.display = '';
+    // 首次使用引导：自选非空且输入为空时自动填入，点「开始体检」即可跑
+    api('/api/watchlist').then(function(d){
+      if (d.items && d.items.length && !$('#codes').value.trim()){
+        $('#codes').value = d.items.map(function(i){ return i.code; }).join('\n');
+        $('#hint').textContent = '已自动填入你的 ' + d.items.length + ' 只自选，点「开始体检」即可';
+      }
+    }).catch(function(){});
   }).catch(function(){});
 }
 $('#importBtn').addEventListener('click', function(){
@@ -188,7 +197,14 @@ $('#importBtn').addEventListener('click', function(){
 $('#runBtn').addEventListener('click', function(){
   var b = this;
   var raw = $('#codes').value.trim();
-  if (!raw){ $('#hint').textContent = '先填入持仓代码'; return; }
+  if (!raw){
+    $('#hint').textContent = '请先填入持仓代码（每行一个，或点「导入我的自选」）';
+    $('#hint').classList.add('err');
+    $('#codes').classList.add('err');
+    setTimeout(function(){ $('#codes').classList.remove('err'); }, 1600);
+    return;
+  }
+  $('#hint').classList.remove('err');
   var codes = raw.split(/[\s,，;；\n]+/).filter(function(c){ return c.trim(); });
   b.disabled = true; b.textContent = '体检中…'; $('#hint').textContent = '';
   api('/api/checkup', {method: 'POST', body: JSON.stringify({codes: codes})})
