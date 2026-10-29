@@ -184,12 +184,16 @@ def call_llm(pack: dict) -> tuple[str, int, str]:
             ],
             "temperature": 0.4,
             "max_tokens": 1800,
+            # 推理模型会把额度先花在思考上导致正文为空，简报不需要深推理
+            "thinking": {"type": "disabled"},
         },
         timeout=180,
     )
     resp.raise_for_status()
     data = resp.json()
-    content = data["choices"][0]["message"]["content"].strip()
+    content = (data["choices"][0]["message"].get("content") or "").strip()
+    if not content:
+        raise RuntimeError("模型返回正文为空（可能被思考耗尽 max_tokens）")
     tokens = data.get("usage", {}).get("total_tokens", 0)
     return content, int(tokens), LLM_MODEL_STRONG
 
