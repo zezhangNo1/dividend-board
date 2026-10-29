@@ -248,7 +248,8 @@ $('#runBtn').addEventListener('click', function(){
 });
 function zoneCls(dy){ return dy >= 5.5 ? 'deep' : (dy >= 4.5 ? 'watch' : 'mid'); }
 function render(d){
-  $('#result').style.display = '';
+  // #result 默认由 CSS 规则 display:none 隐藏，必须显式置 block（置 '' 无效）
+  $('#result').style.display = 'block';
   var a = d.aggregate;
   $('#agg').innerHTML =
     '<div><div class="k">持仓标的</div><div class="v">' + d.count + '<small>只</small></div></div>' +
