@@ -129,7 +129,7 @@
   </div>
 
   <div class="deny" id="deny" style="display:none">
-    <b id="denyTitle">请先登录</b><br><span id="denySub">登录后使用持仓体检（内测中，需授权账号）</span><br>
+    <b id="denyTitle">请先登录</b><br><span id="denySub">登录后即可使用持仓体检</span><br>
     <a href="index.html?login=1" style="color:var(--ink-2);border-bottom:1px dashed var(--ink-3)">去登录</a>
     <span style="opacity:.4"> · </span>
     <a href="index.html" style="color:var(--ink-2)">返回看板</a>
@@ -190,10 +190,10 @@ function boot(){
     $('#deny').style.display = '';
     $('#inputCard').style.display = 'none';
   }
-  if (!token){ denyWith('请先登录', '登录后使用持仓体检（内测中，需授权账号）'); return; }
+  if (!token){ denyWith('请先登录', '登录后即可使用持仓体检'); return; }
   api('/api/me').then(function(d){
     if ((d.features || []).indexOf('portfolio.checkup') < 0){
-      denyWith('暂未对你开放', '该功能内测中，需授权账号；可在功能开放后重试');
+      denyWith('暂未开放', '该功能暂不可用，请稍后再试');
       return;
     }
     $('#importBtn').style.display = '';
