@@ -307,6 +307,136 @@ def latest_report(code: str, user: User = Depends(require_feature("ai.report")),
     return _row_json(row, cached=True)
 
 
+# ---------------------------------------------------------------- 流式生成（SSE）
+def call_llm_stream(pack: dict):
+    """yield 增量正文片段；全部片段拼起来 = 完整报告。失败抛异常由上层降级。"""
+    import json as _json
+    with httpx.stream(
+        "POST",
+        f"{LLM_BASE_URL}/chat/completions",
+        headers={"Authorization": f"Bearer {LLM_API_KEY}"},
+        json={
+            "model": LLM_MODEL_STRONG,
+            "messages": [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": "数据包如下（JSON）：\n" + _json.dumps(pack, ensure_ascii=False, indent=1)},
+            ],
+            "temperature": 0.4,
+            "max_tokens": 1800,
+            "stream": True,
+            "thinking": {"type": "disabled"},
+        },
+        timeout=httpx.Timeout(300, connect=15),
+    ) as resp:
+        resp.raise_for_status()
+        for line in resp.iter_lines():
+            if not line or not line.startswith("data:"):
+                continue
+            payload = line[5:].strip()
+            if payload == "[DONE]":
+                break
+            try:
+                obj = _json.loads(payload)
+            except ValueError:
+                continue
+            choices = obj.get("choices") or []
+            if not choices:
+                continue
+            delta = (choices[0].get("delta") or {})
+            piece = delta.get("content") or ""
+            if piece:
+                yield piece
+            usage = obj.get("usage")
+            if usage:
+                yield ("__usage__", usage.get("total_tokens", 0))
+
+
+@router.get("/stream/{code}")
+def stream_report(code: str, user: User = Depends(require_feature("ai.report")),
+                  db: Session = Depends(get_db)):
+    """SSE：事件 {"t": "meta"|"delta"|"done"|"banned"|"error", ...}。当日缓存直接整段吐出。"""
+    from fastapi.responses import StreamingResponse
+    import asyncio
+
+    if not user:
+        raise HTTPException(404, "Not Found")
+    if not (code.isdigit() and len(code) == 6):
+        raise HTTPException(400, "股票代码格式不正确")
+    today = str(date.today())
+
+    def sse(obj) -> str:
+        return "data: " + json.dumps(obj, ensure_ascii=False) + "\n\n"
+
+    def gen():
+        # 1) 当日缓存：整段返回
+        cached = db.scalar(select(AiReport).where(
+            AiReport.code == code, AiReport.trade_date == today
+        ).order_by(AiReport.id.desc()).limit(1))
+        if cached:
+            yield sse({"t": "meta", "model": cached.model or "数据模板", "cached": True})
+            yield sse({"t": "delta", "c": cached.content_md})
+            yield sse({"t": "done", "cached": True, "trade_date": cached.trade_date,
+                       "status": cached.status, "tokens": cached.tokens})
+            return
+
+        # 2) 限额（非 admin）
+        if user.role != "admin":
+            month_start = datetime.now(timezone.utc).replace(
+                day=1, hour=0, minute=0, second=0, microsecond=0)
+            used = len(db.scalars(select(AiReport).where(
+                AiReport.user_id == user.id,
+                AiReport.created_at >= month_start)).all())
+            if used >= MONTHLY_LIMIT:
+                yield sse({"t": "error", "message": f"本月额度已用完（{MONTHLY_LIMIT} 次/月）"})
+                return
+
+        # 3) 数据包 → 流式生成 → 禁用词在线检查
+        try:
+            pack, gen_date = build_stock_pack(db, code)
+        except HTTPException as e:
+            yield sse({"t": "error", "message": e.detail})
+            return
+        uni, _ = _load_universe()
+        name = uni[code]["name"]
+        yield sse({"t": "meta", "model": LLM_MODEL_STRONG, "cached": False})
+
+        acc, tokens, ok = "", 0, False
+        if LLM_API_KEY:
+            try:
+                for piece in call_llm_stream(pack):
+                    if isinstance(piece, tuple):
+                        tokens = piece[1]
+                        continue
+                    acc += piece
+                    hits = banned_hits(acc)
+                    if hits:
+                        yield sse({"t": "banned", "words": hits})
+                        acc = ""
+                        break
+                    yield sse({"t": "delta", "c": piece})
+                else:
+                    ok = bool(acc.strip())
+            except Exception as e:
+                print(f"[ai_report] 流式调用失败: {e}")
+        if ok and banned_hits(acc):
+            ok = False
+        if not ok:
+            content, model, tokens, status = fallback_md(pack), "", 0, "fallback"
+            yield sse({"t": "delta", "c": content})
+        else:
+            content, model, status = acc, LLM_MODEL_STRONG, "ok"
+
+        row = AiReport(user_id=user.id, code=code, name=name, trade_date=today,
+                       content_md=content, model=model, tokens=tokens, status=status)
+        db.add(row)
+        db.commit()
+        yield sse({"t": "done", "cached": False, "trade_date": today,
+                   "status": status, "tokens": tokens, "model": model})
+
+    return StreamingResponse(gen(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
 def _row_json(row: AiReport, cached: bool) -> dict:
     return {"ok": True, "code": row.code, "name": row.name,
             "trade_date": row.trade_date, "content_md": row.content_md,

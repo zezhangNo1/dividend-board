@@ -569,6 +569,52 @@ html body #reportModal .rpt-foot{
   font-size:11px;color:var(--ink-3);line-height:1.8;margin-top:20px;
   padding-top:12px;border-top:1px dashed var(--rule-strong);
 }
+/* 流式光标与生成中标记 */
+html body #reportModal .rpt-cursor{
+  display:inline-block;color:var(--seal);font-weight:700;
+  animation:rgblink 1s steps(2) infinite;
+}
+@keyframes rgblink{50%{opacity:0}}
+html body #reportModal .rpt-meta .chip.gen{
+  border-color:var(--goldline);color:var(--gold);
+}
+/* ---------------- 分享面板 ---------------- */
+html body #shareModal .dlg-share{max-width:340px}
+html body .dlg .share-opt{
+  width:100%;display:flex;align-items:center;gap:14px;
+  background:var(--paper-deep);border:1px solid var(--rule);border-radius:2px;
+  padding:12px 14px;margin-top:10px;cursor:pointer;text-align:left;
+  font-family:var(--sans);
+}
+html body .dlg .share-opt:hover{border-color:var(--goldline);background:var(--gold-soft)}
+html body .dlg .share-opt .ic{
+  font-size:20px;color:var(--gold);flex:none;width:26px;text-align:center;
+}
+html body .dlg .share-opt .tx b{
+  display:block;font-family:var(--serif);font-size:14.5px;letter-spacing:.06em;color:var(--ink);
+}
+html body .dlg .share-opt .tx i{
+  display:block;font-style:normal;font-size:11.5px;color:var(--ink-3);margin-top:3px;line-height:1.6;
+}
+/* 分享图底部的分享条（浅纸底 + 二维码） */
+html body .dz-share-strip{
+  display:flex;align-items:center;gap:14px;
+  background:#F2F4EA;color:#14261E;
+  padding:12px 18px;margin-top:14px;
+  border-top:2px solid rgba(201,167,90,.8);
+}
+html body .dz-share-strip .tx{flex:1;min-width:0}
+html body .dz-share-strip .t1{
+  font-family:"Songti SC","STSong","Noto Serif CJK SC","SimSun",serif;
+  font-size:14px;font-weight:700;letter-spacing:.06em;
+}
+html body .dz-share-strip .url{
+  font-family:"Songti SC","STSong","Noto Serif CJK SC","SimSun",serif;
+  font-size:12px;color:#55604F;margin-top:3px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+html body .dz-share-strip .qrbox{flex:none;width:74px;height:74px;background:#F2F4EA}
+html body .dz-share-strip .qrbox img,html body .dz-share-strip .qrbox canvas{display:block}
 html body #stockModal .frame .bar a.open{
   color:rgba(233,237,226,.85);font-size:13px;
   border:1px solid rgba(233,237,226,.5);border-radius:2px;padding:6px 14px;
