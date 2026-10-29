@@ -137,6 +137,22 @@ class AiDaily(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 
+class AiReport(Base):
+    """AI 个股报告：每 (code, trade_date) 可多份，读取时取最新；同日命中缓存即返回。"""
+    __tablename__ = "ai_reports"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    code: Mapped[str] = mapped_column(String(12), index=True)
+    name: Mapped[str] = mapped_column(String(32), default="")
+    trade_date: Mapped[str] = mapped_column(String(10), index=True)
+    content_md: Mapped[str] = mapped_column(Text)
+    model: Mapped[str] = mapped_column(String(64), default="")
+    tokens: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String(8), default="ok")     # ok|fallback
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
 class Kline(Base):
     """日线缓存：adj=前复权收盘（总收益口径），raw=不复权收盘（价格口径）。"""
     __tablename__ = "kline"

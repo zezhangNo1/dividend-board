@@ -506,6 +506,69 @@ html body #stockModal .frame .bar button.al.on{
   border-color:var(--gold-bright);
   color:#14261E;
 }
+/* AI 报告按钮：印章红描边 */
+html body #stockModal .frame .bar button.ai{
+  background:none;
+  border:1px solid rgba(232,154,143,.6);
+  border-radius:2px;
+  color:#E89A8F;
+  font-family:var(--serif);
+  font-size:13px;
+  height:auto;
+  padding:6px 14px;
+  cursor:pointer;
+}
+html body #stockModal .frame .bar button.ai:hover{background:rgba(232,154,143,.16);color:#F4B7AD}
+/* AI 报告弹窗（纸面阅读版式） */
+html body #reportModal .frame{max-width:760px;background:var(--paper-hi)}
+html body #reportModal .aigc-chip{
+  font-family:var(--serif);font-size:11px;letter-spacing:.12em;
+  border:1px solid var(--seal);color:var(--seal);
+  border-radius:2px;padding:3px 8px;flex:none;
+}
+html body #reportModal .rhost{
+  flex:1;min-height:0;overflow-y:auto;
+  padding:22px 28px 26px;
+  font-variant-numeric:tabular-nums;
+}
+html body #reportModal .rpt-loading{
+  text-align:center;color:var(--ink-3);padding:70px 0;font-size:13px;line-height:2;
+}
+html body #reportModal .rpt-meta{
+  font-size:11.5px;color:var(--ink-3);margin-bottom:14px;
+  padding-bottom:10px;border-bottom:1px solid var(--rule);
+}
+html body #reportModal .rpt-meta .chip{
+  border:1px solid var(--yield);color:var(--yield);
+  border-radius:2px;padding:0 6px;font-size:10.5px;
+}
+html body #reportModal .rpt-meta .chip.warn{
+  border-color:var(--goldline);color:var(--gold);
+}
+html body #reportModal .rpt-md h2{
+  font-family:var(--serif);font-size:15.5px;font-weight:700;letter-spacing:.1em;
+  color:var(--ink);
+  border-bottom:1px solid var(--rule-strong);
+  padding-bottom:5px;margin:22px 0 10px;
+}
+html body #reportModal .rpt-md h2:first-child{margin-top:0}
+html body #reportModal .rpt-md p{
+  font-size:13.5px;color:var(--ink-2);line-height:1.9;margin:0 0 10px;
+}
+html body #reportModal .rpt-md b{color:var(--ink);font-weight:600}
+html body #reportModal .rpt-md ul{list-style:none;margin:0 0 12px}
+html body #reportModal .rpt-md li{
+  font-size:13px;color:var(--ink-2);line-height:1.9;
+  padding:4px 0 4px 16px;position:relative;
+  border-bottom:1px dashed var(--rule);
+}
+html body #reportModal .rpt-md li::before{
+  content:'·';position:absolute;left:2px;color:var(--seal);font-weight:700;
+}
+html body #reportModal .rpt-foot{
+  font-size:11px;color:var(--ink-3);line-height:1.8;margin-top:20px;
+  padding-top:12px;border-top:1px dashed var(--rule-strong);
+}
 html body #stockModal .frame .bar a.open{
   color:rgba(233,237,226,.85);font-size:13px;
   border:1px solid rgba(233,237,226,.5);border-radius:2px;padding:6px 14px;

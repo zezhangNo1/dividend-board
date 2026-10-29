@@ -74,11 +74,15 @@ def fetch_quotes(codes: list[str]) -> dict:
                     continue
                 try:
                     price = float(p[3])
-                except Exception:
+                except ValueError:
                     continue
                 if price <= 0:
                     continue
-                out[p[2]] = {"price": price, "name": p[1].replace(" ", "")}
+                try:
+                    chg = float(p[32])
+                except (ValueError, IndexError):
+                    chg = None
+                out[p[2]] = {"price": price, "name": p[1].replace(" ", ""), "chg": chg}
         except Exception:
             continue
     return out

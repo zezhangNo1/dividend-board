@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>持仓体检 · 高股息看板</title>
+<meta name="description" content="输入持仓代码，输出股息质量、板块集中度、档位分布与除息日聚合的规则化体检。纯数据统计，不构成投资建议。">
+<meta name="robots" content="noindex,nofollow">
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('gx-theme');
+    if(!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    var q = new URLSearchParams(location.search).get('theme');
+    if(q === 'dark' || q === 'light') t = q;
+    document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px 60px}
+  body{font-size:14px;line-height:1.7}
+  h1{font-size:18px;font-weight:700;letter-spacing:.4px}
+  .lede{font-size:13px;color:var(--ink-2);margin:6px 0 20px;line-height:1.8}
+  .card{border:1px solid var(--rule);border-radius:2px;padding:16px 18px;margin-bottom:16px}
+  .card h2{
+    font-size:14px;font-weight:700;letter-spacing:.12em;margin-bottom:10px;
+    padding-bottom:6px;border-bottom:1px solid var(--rule-strong);
+  }
+  textarea#codes{
+    width:100%;min-height:88px;resize:vertical;
+    background:var(--paper-hi);border:1px solid var(--rule-strong);border-radius:2px;
+    padding:10px 12px;font-size:14px;color:var(--ink);
+    font-family:var(--serif);letter-spacing:.06em;line-height:1.9;
+  }
+  textarea#codes:focus{outline:none;border-color:var(--yield)}
+  .actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center}
+  button.run{
+    background:var(--cover);color:#E9EDE2;border:none;border-radius:2px;
+    font-family:var(--serif);font-size:14px;letter-spacing:.25em;
+    padding:10px 26px 10px calc(26px + .25em);cursor:pointer;
+  }
+  button.run:hover{background:#1D362A}
+  button.run:disabled{opacity:.55;cursor:default}
+  button.ghost{
+    background:none;border:1px solid var(--rule);border-radius:2px;color:var(--ink-2);
+    font-family:var(--serif);font-size:13px;padding:9px 16px;cursor:pointer;
+  }
+  button.ghost:hover{border-color:var(--rule-strong);color:var(--ink)}
+  .hint{font-size:12px;color:var(--ink-3)}
+  .deny{padding:80px 20px;text-align:center;color:var(--ink-3);line-height:2.2}
+  .deny b{color:var(--ink-2)}
+  /* 结果 */
+  #result{display:none}
+  .agg{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule)}
+  .agg div{padding:12px 16px 10px;border-left:1px solid var(--rule)}
+  .agg div:first-child{border-left:none;padding-left:2px}
+  .agg .k{font-family:var(--serif);font-size:12px;color:var(--ink-2);letter-spacing:.08em}
+  .agg .v{font-family:var(--serif);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .agg .v small{font-size:12px;font-weight:400;color:var(--ink-3);margin-left:2px}
+  table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  th{
+    font-family:var(--serif);font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--ink-2);
+    text-align:right;padding:8px 10px;border-bottom:1px solid var(--rule-strong);white-space:nowrap;
+  }
+  th.l,td.l{text-align:left}
+  td{padding:7px 10px;border-bottom:1px solid var(--rule);text-align:right;font-size:13px;white-space:nowrap}
+  td .dy{font-family:var(--serif);font-weight:700}
+  td .dy.deep{color:var(--seal)} td .dy.watch{color:var(--gold)} td .dy.mid{color:var(--ink-2)}
+  .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--ink-3)}
+  .notes li{
+    list-style:none;font-size:13px;color:var(--ink-2);line-height:1.9;
+    padding:7px 0 7px 18px;position:relative;border-bottom:1px dashed var(--rule);
+  }
+  .notes li::before{content:'·';position:absolute;left:4px;color:var(--seal);font-weight:700;font-size:16px}
+  .fine{font-size:11.5px;color:var(--ink-3);line-height:1.9;margin-top:10px}
+  .exd{font-size:12.5px;color:var(--ink-2);line-height:2}
+  .exd b{color:var(--gold)}
+  @media (max-width:640px){
+    .agg{grid-template-columns:1fr 1fr}
+    .agg div:nth-child(odd){border-left:none;padding-left:2px}
+    table{font-size:12px}
+    td,th{padding:6px 6px}
+    td.hide-m,th.hide-m{display:none}
+  }
+</style>
+<link rel="stylesheet" href="ledger.css?v=20261029i">
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo">息</div>
+    <h1>持仓体检</h1>
+    <div class="spacer"></div>
+    <a class="act" href="index.html">返回看板</a>
+    <button class="iconbtn" id="themeBtn" title="切换明暗主题">🌙</button>
+  </div>
+  <p class="lede">输入持仓代码（每行一个或空格分隔，最多 20 只），输出股息质量、板块集中度、档位分布与未来除息的规则化体检。<b>纯数据统计，零 AI 参与，不构成投资建议。</b></p>
+
+  <div class="card" id="inputCard">
+    <h2>我的持仓</h2>
+    <textarea id="codes" placeholder="例如：&#10;600015&#10;601166&#10;601225 601088" inputmode="numeric"></textarea>
+    <div class="actions">
+      <button class="run" id="runBtn">开始体检</button>
+      <button class="ghost" id="importBtn" style="display:none">导入我的自选</button>
+      <span class="hint" id="hint"></span>
+    </div>
+  </div>
+
+  <div class="deny" id="deny" style="display:none">
+    该功能暂未对你开放<br><b>登录账号未获授权（内测中）</b><br>
+    <a href="index.html" style="color:var(--ink-2)">返回看板</a>
+  </div>
+
+  <div id="result">
+    <div class="card">
+      <h2>组合概览</h2>
+      <div class="agg" id="agg"></div>
+    </div>
+    <div class="card">
+      <h2>逐票档案</h2>
+      <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th class="l">标的</th><th class="l">板块</th><th>现价</th><th>涨跌</th>
+          <th>股息率</th><th>档位</th><th class="hide-m">DPS</th><th class="hide-m">PE/PB</th><th class="hide-m">近一年位置</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      </div>
+    </div>
+    <div class="card">
+      <h2>体检提示</h2>
+      <ul class="notes" id="notes"></ul>
+      <p class="fine" id="fine"></p>
+    </div>
+  </div>
+
+  <footer style="margin-top:40px;text-align:center;font-size:12px;color:var(--ink-3);line-height:2">
+    <a href="index.html">高股息看板</a> · 数据来自公开行情接口，仅供参考，不构成任何投资建议<br>
+    体检为等权口径的客观统计描述 · © 2026 · 皖ICP备<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">2026036657号</a>
+  </footer>
+</div>
+
+<script>
+'use strict';
+var token = localStorage.getItem('gx-token') || '';
+function api(path, opts){
+  opts = opts || {};
+  return fetch(path, Object.assign({}, opts, {
+    headers: Object.assign({'Content-Type': 'application/json'},
+      token ? {'Authorization': 'Bearer ' + token} : {}, opts.headers || {})
+  })).then(function(r){
+    return r.json().catch(function(){ return {}; }).then(function(d){
+      if (!r.ok) throw new Error(d.detail || ('HTTP ' + r.status));
+      return d;
+    });
+  });
+}
+function $(s){ return document.querySelector(s); }
+function fmt(v, d){ d = d || 2; return (v === null || v === undefined || isNaN(v)) ? '—' : Number(v).toFixed(d); }
+
+function boot(){
+  if (!token){ $('#deny').style.display = ''; $('#inputCard').style.display = 'none'; return; }
+  api('/api/me').then(function(d){
+    if ((d.features || []).indexOf('portfolio.checkup') < 0){
+      $('#deny').style.display = '';
+      $('#inputCard').style.display = 'none';
+      return;
+    }
+    $('#importBtn').style.display = '';
+  }).catch(function(){});
+}
+$('#importBtn').addEventListener('click', function(){
+  var b = this;
+  b.disabled = true; b.textContent = '导入中…';
+  api('/api/watchlist').then(function(d){
+    if (d.items && d.items.length){
+      $('#codes').value = d.items.map(function(i){ return i.code; }).join('\n');
+      $('#hint').textContent = '已导入 ' + d.items.length + ' 只自选';
+    } else {
+      $('#hint').textContent = '自选为空，先去看板加自选';
+    }
+  }).catch(function(e){ $('#hint').textContent = e.message; })
+    .finally(function(){ b.disabled = false; b.textContent = '导入我的自选'; });
+});
+$('#runBtn').addEventListener('click', function(){
+  var b = this;
+  var raw = $('#codes').value.trim();
+  if (!raw){ $('#hint').textContent = '先填入持仓代码'; return; }
+  var codes = raw.split(/[\s,，;；\n]+/).filter(function(c){ return c.trim(); });
+  b.disabled = true; b.textContent = '体检中…'; $('#hint').textContent = '';
+  api('/api/checkup', {method: 'POST', body: JSON.stringify({codes: codes})})
+    .then(render)
+    .catch(function(e){ $('#hint').textContent = e.message; })
+    .finally(function(){ b.disabled = false; b.textContent = '开始体检'; });
+});
+function zoneCls(dy){ return dy >= 5.5 ? 'deep' : (dy >= 4.5 ? 'watch' : 'mid'); }
+function render(d){
+  $('#result').style.display = '';
+  var a = d.aggregate;
+  $('#agg').innerHTML =
+    '<div><div class="k">持仓标的</div><div class="v">' + d.count + '<small>只</small></div></div>' +
+    '<div><div class="k">平均股息率</div><div class="v">' + (a.avg_dy === null ? '—' : a.avg_dy + '<small>%</small>') +
+      '<small style="display:block;font-size:11px">全池 ' + (a.pool_avg_dy === null ? '—' : a.pool_avg_dy + '%') + '</small></div></div>' +
+    '<div><div class="k">最大板块</div><div class="v">' + a.top_sector['share%'] + '<small>%</small></div>' +
+      '<small style="display:block;font-size:11px">' + a.top_sector.name + ' ' + a.top_sector.count + ' 只</small></div></div>' +
+    '<div><div class="k">周期类占比</div><div class="v">' + a['cyclical_share%'] + '<small>%</small></div>' +
+      '<small style="display:block;font-size:11px">中位 PE ' + (a.median_pe === null ? '—' : a.median_pe) + '</small></div></div>';
+  $('#tbody').innerHTML = d.rows.map(function(r){
+    var cls = r.chg > 0 ? 'up' : (r.chg < 0 ? 'down' : 'flat');
+    var sign = r.chg > 0 ? '+' : '';
+    return '<tr>' +
+      '<td class="l"><b>' + r.name + '</b> <span style="color:var(--ink-3);font-size:11px">' + r.code + '</span></td>' +
+      '<td class="l" style="color:var(--ink-2)">' + (r.sector || '—') + '</td>' +
+      '<td>' + fmt(r.price) + '</td>' +
+      '<td class="' + cls + '">' + (r.chg === null || r.chg === undefined ? '—' : sign + fmt(r.chg) + '%') + '</td>' +
+      '<td><span class="dy ' + zoneCls(r.dy) + '">' + (r.dy === null ? '—' : fmt(r.dy) + '%') + '</span></td>' +
+      '<td style="color:var(--ink-2)">' + r.zone + '</td>' +
+      '<td class="hide-m">' + fmt(r.dps, 3) + '</td>' +
+      '<td class="hide-m" style="color:var(--ink-2)">' + fmt(r.pe, 1) + ' / ' + fmt(r.pb, 2) + '</td>' +
+      '<td class="hide-m" style="color:var(--ink-2)">' + (r.pct === null || r.pct === undefined ? '—' : r.pct + '%') + '</td>' +
+      '</tr>';
+  }).join('');
+  var exd = a.exdiv_30d.length
+    ? '<li class="exd" style="border-bottom:1px dashed var(--rule)">未来 30 天除息：<b>' +
+      a.exdiv_30d.map(function(e){ return e.name + '（' + e.ex_date + '，每股 ' + e.per + ' 元）'; }).join('、') + '</b></li>'
+    : '';
+  $('#notes').innerHTML = d.notes.map(function(n){ return '<li>' + n + '</li>'; }).join('') + exd;
+  $('#fine').textContent = d.disclaimer + '（分红快照 ' + d.generated + '，行情为体检时刻实时价）' +
+    (d.missing && d.missing.length ? '；未识别代码：' + d.missing.join('、') : '');
+  window.scrollTo({top: $('#result').offsetTop - 60, behavior: 'smooth'});
+}
+// 主题切换
+(function(){
+  var b = document.getElementById('themeBtn');
+  function sync(){ b.textContent = document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙'; }
+  sync();
+  b.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = cur;
+    try{ localStorage.setItem('gx-theme', cur); }catch(e){}
+    sync();
+  });
+})();
+boot();
+</script>
+</body>
+</html>

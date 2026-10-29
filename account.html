@@ -53,7 +53,7 @@
   .note{font-size:12px;color:var(--t3);margin-top:8px;line-height:1.8}
   .loading{padding:60px 0;text-align:center;color:var(--t3)}
 </style>
-<link rel="stylesheet" href="ledger.css?v=20261029b">
+<link rel="stylesheet" href="ledger.css?v=20261029i">
 </head>
 <body>
 <div class="wrap">
@@ -97,6 +97,7 @@
       <h2>其他</h2>
       <button class="ghost" id="logoutBtn">退出登录</button>
       <a class="ghost" id="adminLink" style="display:none;text-decoration:none;margin-left:8px" href="features.html">功能开关管理</a>
+      <a class="ghost" id="checkupLink" style="display:none;text-decoration:none;margin-left:8px" href="checkup.html">持仓体检</a>
       <a class="ghost" id="labLink" style="display:none;text-decoration:none;margin-left:8px" href="lab.html">策略实验室</a>
       <a class="ghost" id="statsLink" style="display:none;text-decoration:none;margin-left:8px" href="stats.html">流量统计</a>
       <a class="ghost" id="adsLink" style="display:none;text-decoration:none;margin-left:8px" href="ads_admin.html">广告位管理</a>
@@ -139,6 +140,7 @@ async function load(){
     $('#pPw').className = 'v ' + (d.has_password ? 'ok' : 'muted');
     if (d.has_password){ $('#pwTitle').textContent = '修改密码'; $('#oldPw').style.display = ''; }
     if (d.role === 'admin'){ $('#adminLink').style.display = ''; $('#adsLink').style.display = ''; }
+    if ((d.features || []).includes('portfolio.checkup')) $('#checkupLink').style.display = '';
     if ((d.features || []).includes('lab.backtest')) $('#labLink').style.display = '';
     if ((d.features || []).includes('stats.views')) $('#statsLink').style.display = '';
     $('#loading').style.display = 'none';
