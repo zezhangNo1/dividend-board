@@ -21,13 +21,6 @@
   *{box-sizing:border-box;margin:0;padding:0}
   .wrap{max-width:1100px;margin:0 auto;padding:0 22px 60px}
   body{font-size:14px;line-height:1.7}
-  /* 真通栏：拉满视口宽，内容仍与 1100 容器对齐；窄屏自动退为全宽 */
-  #cuTop{
-    margin-left:min(-22px, calc(50% - 50vw));
-    margin-right:min(-22px, calc(50% - 50vw));
-    padding-left:max(22px, calc(50vw - 528px));
-    padding-right:max(22px, calc(50vw - 528px));
-  }
   h1{font-size:18px;font-weight:700;letter-spacing:.4px}
   .brand{display:flex;align-items:center;gap:11px}
   .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:11px;flex-wrap:wrap}

@@ -100,6 +100,9 @@ html body .topbar{
   backdrop-filter:none;-webkit-backdrop-filter:none;
   padding:12px 18px 10px;
   gap:10px;
+  /* 通栏：绿条拉满视口宽，内容仍停在各页自己的容器内 */
+  margin-left:calc(50% - 50vw);
+  margin-right:calc(50% - 50vw);
 }
 /* 账号区永远靠右：窄屏换行时整组右对齐，不再跳到左下角 */
 html body .topbar #loginBtn,
