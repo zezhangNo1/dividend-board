@@ -52,38 +52,47 @@ window.renderStockCard = function(el, r, q, generated){
     (dev50 <= 0 ? ' 已低 ' + Math.abs(dev50).toFixed(1) + '%' : ' 高 ' + dev50.toFixed(1) + '%') + '。';
   var sh = price ? Math.floor(100000 / price / 100) * 100 : null;
   var inc = (sh && dps) ? sh * dps : null;
-  el.innerHTML = '<div class="scard">' +
-    '<div class="hd"><div class="mark">息</div>' +
+  el.innerHTML = '<div class="dossier">' +
+    '<div class="dhead"><div class="mark">息</div>' +
     '<div><div class="t1">个股股息档案</div><div class="t2">按最新数据实时计算 · 高股息看板</div></div>' +
-    '<div class="date">数据更新<b>' + gen + '</b>' + qtime + '</div></div>' +
-    '<div class="hero"><div><div class="nm">' + r.name + '</div>' +
-    '<div class="meta"><i>' + r.code + '</i><i>' + r.sector + '</i>市值 ' + (r.mktcap ? r.mktcap.toFixed(0) + ' 亿' : '—') + '</div></div>' +
+    '<div class="ddate">数据更新<b>' + gen + '</b>' + qtime + '</div></div>' +
+    '<div class="dbody">' +
+    /* ---- 左列 · 行情账页（事实） ---- */
+    '<div class="dcol dcol-a">' +
+    '<div class="dhero"><div class="nm">' + r.name + '</div>' +
+    '<div class="dmeta"><i>' + r.code + '</i><i>' + r.sector + '</i>市值 ' + (r.mktcap ? r.mktcap.toFixed(0) + ' 亿' : '—') + '</div>' +
     '<div class="dybox"><div class="k">股息率（现价 × FY' + (r.fy || '—') + ' 分红）</div>' +
     '<div class="v">' + (dy === null ? '—' : dy.toFixed(2) + '%') + '</div>' +
     '<span class="tier ' + tc[0] + '">' + tc[1] + '</span></div></div>' +
-    '<div class="pxrow">' +
-    '<div class="px"><div class="k">现价</div><div class="v">' + fmt(price) + '<small>' + (chg === null || chg === undefined ? '' : sign + fmt(chg) + '%') + '</small></div></div>' +
-    '<div class="px"><div class="k">每股分红</div><div class="v">' + fmt(dps, 3) + '<small>FY' + (r.fy || '—') + '</small></div></div>' +
-    '<div class="px"><div class="k">PE / PB</div><div class="v">' + fmt(pe, 1) + '<small>/ ' + fmt(pb, 2) + '</small></div></div>' +
-    '<div class="px"><div class="k">近 12 月派息</div><div class="v">' + (r.times12 || 0) + '<small>次</small></div></div></div>' +
-    '<div class="sec"><h4>股息率参考价</h4><div class="tiers">' + tps + '</div>' +
-    '<div class="calc" style="margin-top:8px">' + devLine + '参考价 ＝ 每股分红 ÷ 目标股息率。金框为当前股息率所在档；绿色「已低」＝ 现价已低于该档参考价。</div></div>' +
-    '<div class="sec"><h4>近一年位置</h4><div class="poswrap">' +
+    '<div class="dsec"><h5>行情速览</h5><div class="qgrid">' +
+    '<div class="q"><div class="k">现价</div><div class="v">' + fmt(price) + '<small>' + (chg === null || chg === undefined ? '' : sign + fmt(chg) + '%') + '</small></div></div>' +
+    '<div class="q"><div class="k">每股分红</div><div class="v">' + fmt(dps, 3) + '<small>FY' + (r.fy || '—') + '</small></div></div>' +
+    '<div class="q"><div class="k">PE / PB</div><div class="v">' + fmt(pe, 1) + '<small>/ ' + fmt(pb, 2) + '</small></div></div>' +
+    '<div class="q"><div class="k">近 12 月派息</div><div class="v">' + (r.times12 || 0) + '<small>次</small></div></div>' +
+    '</div></div>' +
+    '<div class="dsec"><h5>近一年位置</h5><div class="poswrap">' +
     '<span class="k">' + (lo ? lo.toFixed(2) : '—') + '</span>' +
     '<div class="bar2"><i style="width:' + (pct === null ? 0 : Math.max(1.5, Math.min(100, pct))) + '%"></i></div>' +
     '<span class="k">' + (hi ? hi.toFixed(2) : '—') + '</span>' +
     '<span class="v">' + (pct === null ? '—' : pct.toFixed(0) + '%') + '</span></div></div>' +
-    '<div class="sec"><h4>技术位置（布林带 20,2）</h4><div class="calc" id="techBox_' + r.code + '">计算中…</div>' +
-    '<div class="calc note" style="margin-top:6px;font-size:10.5px">周/月线由日线重采样；位置为客观状态描述，不构成任何操作提示。</div></div>' +
-    '<div class="sec"><h4>历史股息率分位</h4><div class="calc" id="yhBox_' + r.code + '">计算中…</div>' +
+    '<div class="dsec"><h5>分红明细（FY' + (r.fy || '—') + '，已实施）</h5><table>' + divs + '</table></div>' +
+    '</div>' +
+    /* ---- 右列 · 推演账页（换算） ---- */
+    '<div class="dcol dcol-b">' +
+    '<div class="dsec"><h5>股息率参考价</h5><div class="tiers">' + tps + '</div>' +
+    '<div class="calc" style="margin-top:8px">' + devLine + '参考价 ＝ 每股分红 ÷ 目标股息率。金框为当前股息率所在档；绿色「已低」＝ 现价已低于该档参考价。</div></div>' +
+    '<div class="dsec"><h5>历史股息率分位</h5><div class="calc" id="yhBox_' + r.code + '">计算中…</div>' +
     '<div class="calc note" style="margin-top:6px;font-size:10.5px">口径：近12个月已实施派息 ÷ 月末收盘（不复权），按月采样。分位为客观统计描述，不构成任何操作提示。</div></div>' +
-    '<div class="sec"><h4>分红明细（FY' + (r.fy || '—') + '，已实施）</h4><table>' + divs + '</table></div>' +
-    '<div class="sec"><h4>10 万元收息测算</h4><div class="calc">' +
+    '<div class="dsec"><h5>技术位置（布林带 20,2）</h5><div class="calc" id="techBox_' + r.code + '">计算中…</div>' +
+    '<div class="calc note" style="margin-top:6px;font-size:10.5px">周/月线由日线重采样；位置为客观状态描述，不构成任何操作提示。</div></div>' +
+    '<div class="dsec"><h5>10 万元收息测算</h5><div class="calc">' +
     '按现价 ' + fmt(price) + ' 元可买入约 <b>' + (sh ? sh.toLocaleString() : '—') + '</b> 股，' +
     '以 FY' + (r.fy || '—') + ' 每股分红 ' + fmt(dps, 3) + ' 元计，一年预期到账 <b>' + (inc ? '¥ ' + inc.toFixed(0) : '—') + '</b>' +
     (inc ? '（' + (inc / 100000 * 100).toFixed(2) + '% 本金）' : '') + '。' +
     '<div class="note">按最近已完成财年的分红静态推算，分红政策可能变化，不代表未来收益。</div></div></div>' +
-    '<div class="ft">数据来自公开行情与分红接口，打开/刷新时实时抓取现价，分红快照每日更新' + (gen ? '（' + gen + '）' : '') +
+    '</div>' +
+    '</div>' +
+    '<div class="dfoot">数据来自公开行情与分红接口，打开/刷新时实时抓取现价，分红快照每日更新' + (gen ? '（' + gen + '）' : '') +
     '。所有价格档位仅为股息率换算的数学参考，<b>不构成任何投资建议</b>；历史分红不代表未来，投资决策需独立判断。</div><div style="text-align:center;margin-top:8px"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" style="color:inherit">皖ICP备2026036657号</a></div></div>';
   fillTech(r.code);
   fillYield(r.code);

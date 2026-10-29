@@ -224,10 +224,10 @@
     text-overflow:ellipsis;white-space:nowrap}
   .whoami button{background:var(--card);border:1px solid var(--line);border-radius:10px;
     padding:7px 12px;font-size:12px;color:var(--t2);cursor:pointer;font-family:inherit}
-  /* 个股详情弹窗 */
-  #stockModal{align-items:stretch;justify-content:center;padding:14px}
-  #stockModal .frame{position:relative;width:100%;max-width:680px;background:var(--card);
-    border-radius:18px;overflow:hidden;box-shadow:var(--shadow-lg);display:flex;flex-direction:column}
+  /* 个股详情弹窗（卷宗两栏） */
+  #stockModal{align-items:flex-start;justify-content:center;padding:14px;overflow-y:auto}
+  #stockModal .frame{position:relative;width:100%;max-width:920px;margin:auto;
+    background:var(--card);border-radius:2px;overflow:hidden;box-shadow:var(--shadow-lg);display:flex;flex-direction:column}
   #stockModal .frame .bar{display:flex;flex-wrap:wrap;align-items:center;padding:9px 14px;
     background:var(--card2);border-bottom:1px solid var(--line);flex:none}
   #stockModal .frame .bar .t{flex:1;min-width:0;font-size:13.5px;font-weight:700;
@@ -249,7 +249,7 @@
     cursor:pointer;font-family:inherit;padding:0 11px}
   #stockModal .frame .bar button.x:hover{border-color:var(--up);color:var(--up)}
   #stockModal iframe{flex:1;width:100%;border:none;min-height:0}
-  #stockModal .shost{flex:1;min-height:0;overflow-y:auto;background:#1a0c0d}
+  #stockModal .shost{flex:1;min-height:0;overflow-y:auto;background:#0F1B15;padding:14px}
   #stockModal .shost .scard{border-radius:0;box-shadow:none}
   .det{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;
     color:var(--brand-ink);background:var(--brand-soft);border:1px solid var(--brand);
@@ -283,7 +283,7 @@
   /* ---- 个股档案卡组件（.scard）静态样式：账本家族配色 ---- */
   .scard{--red-deep:#0C1712;--red:#14261E;--red-hi:#1D362A;--gold:#C9A75A;--gold-soft:rgba(201,167,90,.18);--cream:#F2F4EA;--cream2:rgba(242,244,234,.72);--cream3:rgba(242,244,234,.45);--panel:rgba(233,237,226,.07);--panel-line:rgba(233,237,226,.14);--up2:#E89A8F;--down2:#7FBF9C;border-radius:2px;overflow:hidden;color:var(--cream);font-size:13px;line-height:1.5;background:linear-gradient(165deg,var(--red-hi) 0%,var(--red) 45%,var(--red-deep) 100%);box-shadow:none;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}.scard *{box-sizing:border-box;margin:0;padding:0}.scard .hd{display:flex;align-items:center;gap:10px;padding:14px 18px 11px;border-bottom:1px solid var(--panel-line)}.scard .mark{width:34px;height:34px;border-radius:10px;flex:none;background:linear-gradient(135deg,var(--gold),#c9922f);color:#4a2408;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800}.scard .hd .t1{font-size:14px;font-weight:700;letter-spacing:1px}.scard .hd .t2{font-size:11px;color:var(--cream3);margin-top:1px}.scard .hd .date{margin-left:auto;text-align:right;font-size:11px;color:var(--cream3)}.scard .hd .date b{display:block;color:var(--cream2);font-weight:600;font-size:12px}.scard .hero{display:flex;align-items:center;gap:18px;padding:18px 18px 16px;flex-wrap:wrap}.scard .hero .nm{font-size:28px;font-weight:800;letter-spacing:1px;line-height:1.2}.scard .hero .meta{font-size:12px;color:var(--cream3);margin-top:4px}.scard .hero .meta i{font-style:normal;border:1px solid var(--panel-line);border-radius:9px;padding:1px 8px;margin-right:6px;color:var(--cream2)}.scard .dybox{margin-left:auto;text-align:right}.scard .dybox .k{font-size:11px;color:var(--cream3)}.scard .dybox .v{font-size:36px;font-weight:800;color:var(--gold);line-height:1.05;font-variant-numeric:tabular-nums;text-shadow:0 2px 14px rgba(232,176,75,.35)}.scard .tier{display:inline-block;margin-top:5px;font-size:11px;font-weight:600;border-radius:9px;padding:2px 10px}.scard .t-high{background:var(--gold);color:#4a2408}.scard .t-mid{background:rgba(255,255,255,.16);color:var(--cream)}.scard .t-low{background:rgba(255,255,255,.09);color:var(--cream2)}.scard .pxrow{display:flex;gap:8px;padding:0 18px 14px;flex-wrap:wrap}.scard .px{flex:1;min-width:130px;background:var(--panel);border:1px solid var(--panel-line);border-radius:12px;padding:9px 13px}.scard .px .k{font-size:11px;color:var(--cream3)}.scard .px .v{font-size:18px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}.scard .px .v small{font-size:11px;font-weight:400;color:var(--cream3);margin-left:2px}.scard .sec{padding:2px 18px 6px}.scard .sec h4{font-size:12px;color:var(--gold);letter-spacing:2px;margin:11px 0 7px;font-weight:700}.scard .tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.scard .tp{background:var(--panel);border:1px solid var(--panel-line);border-radius:10px;padding:7px 9px;text-align:center}.scard .tp .r{font-size:12px;font-weight:700;color:var(--gold)}.scard .tp .p{font-size:14px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}.scard .tp .g{font-size:10.5px;margin-top:3px;color:var(--cream3);border-radius:7px;padding:1px 6px;display:inline-block}.scard .tp .g.hit{background:var(--gold-soft);color:var(--gold);font-weight:700}.scard .tp.now{outline:2px solid var(--gold);outline-offset:-2px}.scard .poswrap{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--panel-line);border-radius:12px;padding:9px 13px}.scard .poswrap .k{font-size:11px;color:var(--cream3);flex:none}.scard .bar2{flex:1;height:7px;border-radius:4px;background:rgba(0,0,0,.28);position:relative}.scard .bar2 i{position:absolute;top:0;bottom:0;left:0;border-radius:4px;background:linear-gradient(90deg,#7fd8a5,#e8b04b,#ff8f96)}.scard .poswrap .v{font-size:13px;font-weight:700;flex:none;font-variant-numeric:tabular-nums}.scard table{width:100%;border-collapse:collapse}.scard td{padding:5px 4px;font-size:12px;border-bottom:1px dashed rgba(255,255,255,.09)}.scard tr:last-child td{border-bottom:none}.scard td:last-child{text-align:right;font-variant-numeric:tabular-nums;color:var(--cream)}.scard td:first-child{color:var(--cream2)}.scard td .tag{font-size:10px;border:1px solid var(--panel-line);border-radius:7px;padding:0 6px;margin-right:6px;color:var(--cream3)}.scard .calc{background:var(--panel);border:1px solid var(--panel-line);border-radius:12px;padding:11px 14px;font-size:12px;color:var(--cream2);line-height:1.8}.scard .calc b{color:var(--gold);font-weight:700;font-size:14px}.scard .calc .note{font-size:10.5px;color:var(--cream3)}.scard .ft{padding:12px 18px 16px;font-size:10.5px;color:var(--cream3);line-height:1.7;border-top:1px solid var(--panel-line);margin-top:11px}@media (max-width:560px){.scard .hero .nm{font-size:22px}.scard .dybox .v{font-size:28px}.scard .tiers{grid-template-columns:repeat(2,1fr)}.scard .pxrow .px{min-width:calc(50% - 4px)}}
 </style>
-<link rel="stylesheet" href="ledger.css?v=20261029">
+<link rel="stylesheet" href="ledger.css?v=20261029b">
 </head>
 <body>
 <div class="wrap">
@@ -397,7 +397,6 @@
 <div class="modal" id="stockModal">
   <div class="frame">
     <div class="bar">
-      <button class="bk" id="stockBack">返回看板</button>
       <div class="t" id="stockTitle">个股档案</div>
       <button class="rf" id="stockRefresh" title="重取行情并重算">刷新行情</button>
       <a class="open" id="stockOpen" href="#" target="_blank">新窗口</a>
@@ -408,7 +407,7 @@
 </div>
 
 <script src="site_data.js?v=20261017d"></script>
-<script src="stock_card.js?v=20261017d"></script>
+<script src="stock_card.js?v=20261029b"></script>
 <script>
 'use strict';
 const TARGETS = [
@@ -594,7 +593,7 @@ function starHtml(code){
   return `<button class="star ${on ? 'on' : ''}" data-star="${code}" title="加入自选">${on ? '★' : '☆'}</button>`;
 }
 function detailBtn(code){
-  return `<a class="det" href="stock.html?code=${code}" target="_blank" title="在新窗口打开个股档案">详情<span class="ar2">▸</span></a>`;
+  return `<button class="det" data-code="${code}" title="弹窗打开个股档案">详情<span class="ar2">▸</span></button>`;
 }
 function openStock(code){
   const m = $('#stockModal');
@@ -755,10 +754,13 @@ function renderDesktop(rows){
   }).join('');
 
   tb.querySelectorAll('tr[data-code]').forEach(tr => {
-    tr.addEventListener('click', () => toggleDetail(tr));
+    tr.addEventListener('click', () => openStock(tr.dataset.code));
   });
   tb.querySelectorAll('button[data-star]').forEach(b => {
     b.addEventListener('click', e => { e.stopPropagation(); toggleStar(b.dataset.star); });
+  });
+  tb.querySelectorAll('.det').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); openStock(b.dataset.code); });
   });
 }
 
@@ -822,6 +824,8 @@ function renderMobile(rows){
     });
     const st = el.querySelector('button[data-star]');
     if (st) st.addEventListener('click', e => { e.stopPropagation(); toggleStar(st.dataset.star); });
+    const dt = el.querySelector('.det');
+    if (dt) dt.addEventListener('click', e => { e.stopPropagation(); openStock(dt.dataset.code); });
   });
 }
 
@@ -1028,7 +1032,7 @@ function boot(){
 $('#q').addEventListener('input', e => { keyword = e.target.value.trim(); render(); });
 // 调试/深链：?autodet=600015 自动打开个股弹窗
 const _auto = new URLSearchParams(location.search).get('autodet');
-if (_auto) location.href = 'stock.html?code=' + encodeURIComponent(_auto);
+if (_auto) setTimeout(() => openStock(_auto), 300);
 if (new URLSearchParams(location.search).get('login') === '1') openLogin();
 // ?probe=1 时 9 秒后打印运行时诊断
 if (new URLSearchParams(location.search).get('probe')){

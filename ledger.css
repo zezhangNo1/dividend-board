@@ -432,3 +432,107 @@ html body button, html body input{font-family:inherit}
 
 /* 广告位：安静容器 */
 html body .ad-slot{margin:16px 0}
+
+/* ---------------- 个股档案 · 卷宗两栏（.dossier，取代旧 .scard） ----------------
+   左列＝行情账页（事实），右列＝推演账页（换算）；≤720px 叠回单列。 */
+html body .dossier{
+  --dz-cream:#F2F4EA; --dz-cream2:rgba(242,244,234,.72); --dz-cream3:rgba(242,244,234,.45);
+  --dz-panel:rgba(233,237,226,.07); --dz-line:rgba(233,237,226,.14);
+  --dz-gold:#C9A75A; --dz-seal:#E89A8F; --dz-down:#7FBF9C;
+  background:linear-gradient(165deg,#1D362A 0%,#14261E 45%,#0C1712 100%);
+  color:var(--dz-cream);
+  border-radius:2px;
+  font-size:13px;line-height:1.55;
+  box-shadow:none;
+  overflow:hidden;
+  font-family:var(--sans);
+}
+html body .dossier *{box-sizing:border-box;margin:0;padding:0}
+html body .dossier .dhead{
+  display:flex;align-items:center;gap:11px;
+  padding:13px 18px 11px;
+  border-bottom:1px solid var(--dz-line);
+  background:rgba(12,23,18,.35);
+}
+html body .dossier .dhead .mark{
+  width:34px;height:34px;flex:none;
+  border:1.5px solid var(--dz-gold);border-radius:2px;
+  color:var(--dz-gold);font-family:var(--serif);font-size:17px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+html body .dossier .dhead .t1{font-family:var(--serif);font-size:14px;font-weight:700;letter-spacing:.16em}
+html body .dossier .dhead .t2{font-size:11px;color:var(--dz-cream3);margin-top:1px}
+html body .dossier .dhead .ddate{margin-left:auto;text-align:right;font-size:11px;color:var(--dz-cream3)}
+html body .dossier .dhead .ddate b{display:block;color:var(--dz-cream2);font-size:12px;font-variant-numeric:tabular-nums}
+html body .dossier .dbody{display:grid;grid-template-columns:5fr 7fr}
+html body .dossier .dcol{padding:14px 18px 18px;min-width:0}
+html body .dossier .dcol-b{border-left:1px solid rgba(233,237,226,.22)}
+html body .dossier .dhero{padding:4px 0 2px}
+html body .dossier .dhero .nm{font-family:var(--serif);font-size:27px;font-weight:700;letter-spacing:.06em;line-height:1.2}
+html body .dossier .dhero .dmeta{font-size:11.5px;color:var(--dz-cream3);margin-top:5px;font-variant-numeric:tabular-nums}
+html body .dossier .dhero .dmeta i{font-style:normal;border:1px solid var(--dz-line);border-radius:2px;padding:1px 7px;margin-right:6px;color:var(--dz-cream2)}
+html body .dossier .dybox{margin-top:12px;padding-top:10px;border-top:1px dashed var(--dz-line)}
+html body .dossier .dybox .k{font-size:11px;color:var(--dz-cream3)}
+html body .dossier .dybox .v{
+  font-family:var(--serif);font-size:35px;font-weight:700;line-height:1.1;
+  color:var(--dz-gold);font-variant-numeric:tabular-nums;
+}
+html body .dossier .tier{
+  display:inline-block;margin-top:6px;font-size:11px;font-weight:600;
+  border-radius:2px;padding:2px 10px;font-family:var(--serif);letter-spacing:.08em;
+}
+html body .dossier .t-high{background:var(--dz-gold);color:#14261E}
+html body .dossier .t-mid{background:rgba(201,167,90,.16);color:var(--dz-gold);border:1px solid rgba(201,167,90,.5)}
+html body .dossier .t-low{background:rgba(233,237,226,.08);color:var(--dz-cream2);border:1px solid var(--dz-line)}
+html body .dossier .dsec{margin-top:16px}
+html body .dossier .dsec:first-of-type{margin-top:0}
+html body .dossier .dsec h5{
+  font-family:var(--serif);font-size:12px;font-weight:700;letter-spacing:.16em;
+  color:var(--dz-gold);margin-bottom:8px;padding-bottom:5px;
+  border-bottom:1px solid var(--dz-line);
+}
+html body .dossier .qgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+html body .dossier .q{
+  background:var(--dz-panel);border:1px solid var(--dz-line);border-radius:2px;padding:8px 11px;
+}
+html body .dossier .q .k{font-size:11px;color:var(--dz-cream3)}
+html body .dossier .q .v{font-size:17px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums;font-family:var(--serif)}
+html body .dossier .q .v small{font-size:11px;font-weight:400;color:var(--dz-cream3);margin-left:3px;font-family:var(--sans)}
+html body .dossier .tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+html body .dossier .tp{
+  background:var(--dz-panel);border:1px solid var(--dz-line);border-radius:2px;
+  padding:8px 6px;text-align:center;
+}
+html body .dossier .tp .r{font-size:11.5px;font-weight:700;color:var(--dz-gold);font-family:var(--serif)}
+html body .dossier .tp .p{font-size:14.5px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums;font-family:var(--serif)}
+html body .dossier .tp .g{font-size:10.5px;margin-top:3px;color:var(--dz-cream3);display:inline-block;border-radius:2px;padding:0 5px}
+html body .dossier .tp .g.hit{background:rgba(127,191,156,.16);color:#8FD4AE;font-weight:700}
+html body .dossier .tp.now{outline:1.5px solid var(--dz-gold);outline-offset:-1.5px}
+html body .dossier .calc{
+  background:var(--dz-panel);border:1px solid var(--dz-line);border-radius:2px;
+  padding:10px 12px;font-size:12px;color:var(--dz-cream2);line-height:1.8;
+}
+html body .dossier .calc b{color:var(--dz-gold);font-weight:700;font-size:14px}
+html body .dossier .calc .note{font-size:10.5px;color:var(--dz-cream3)}
+html body .dossier .poswrap{
+  display:flex;align-items:center;gap:10px;
+  background:var(--dz-panel);border:1px solid var(--dz-line);border-radius:2px;padding:9px 12px;
+}
+html body .dossier .poswrap .k{font-size:11.5px;color:var(--dz-cream3);flex:none;font-variant-numeric:tabular-nums}
+html body .dossier .bar2{flex:1;height:4px;background:rgba(0,0,0,.35);position:relative}
+html body .dossier .bar2 i{position:absolute;top:0;bottom:0;left:0;background:linear-gradient(90deg,#7FBF9C,#C9A75A,#E89A8F)}
+html body .dossier .poswrap .v{font-size:13px;font-weight:700;flex:none;font-variant-numeric:tabular-nums}
+html body .dossier table{width:100%;border-collapse:collapse}
+html body .dossier td{padding:5px 4px;font-size:12px;border-bottom:1px dashed rgba(233,237,226,.1);color:var(--dz-cream2)}
+html body .dossier tr:last-child td{border-bottom:none}
+html body .dossier td:last-child{text-align:right;font-variant-numeric:tabular-nums;color:var(--dz-cream)}
+html body .dossier td .tag{font-size:10px;border:1px solid var(--dz-line);border-radius:2px;padding:0 6px;margin-right:6px;color:var(--dz-cream3)}
+html body .dossier .dfoot{
+  padding:13px 18px 15px;font-size:11px;color:var(--dz-cream3);line-height:1.85;
+  border-top:1px solid var(--dz-line);
+}
+@media (max-width:720px){
+  html body .dossier .dbody{grid-template-columns:1fr}
+  html body .dossier .dcol-b{border-left:none;border-top:1px solid var(--dz-line);padding-top:16px}
+  html body .dossier .tiers{grid-template-columns:repeat(2,1fr)}
+}
