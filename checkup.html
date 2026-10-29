@@ -21,7 +21,13 @@
   *{box-sizing:border-box;margin:0;padding:0}
   .wrap{max-width:1100px;margin:0 auto;padding:0 22px 60px}
   body{font-size:14px;line-height:1.7}
-  .topbar{margin:0 -22px;padding:12px 22px 10px}
+  /* 真通栏：拉满视口宽，内容仍与 1100 容器对齐；窄屏自动退为全宽 */
+  #cuTop{
+    margin-left:min(-22px, calc(50% - 50vw));
+    margin-right:min(-22px, calc(50% - 50vw));
+    padding-left:max(22px, calc(50vw - 528px));
+    padding-right:max(22px, calc(50vw - 528px));
+  }
   h1{font-size:18px;font-weight:700;letter-spacing:.4px}
   .lede{font-size:13px;color:var(--ink-2);margin:6px 0 20px;line-height:1.8}
   .card{border:1px solid var(--rule);border-radius:2px;padding:16px 18px;margin-bottom:16px}
@@ -92,7 +98,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="topbar">
+  <div class="topbar" id="cuTop">
     <div class="logo">息</div>
     <h1>持仓体检</h1>
     <div class="spacer"></div>
@@ -156,7 +162,7 @@ function api(path, opts){
       token ? {'Authorization': 'Bearer ' + token} : {}, opts.headers || {})
   })).then(function(r){
     return r.json().catch(function(){ return {}; }).then(function(d){
-      if (!r.ok) throw new Error(d.detail || ('HTTP ' + r.status));
+      if (!r.ok){ var err = new Error(d.detail || ('HTTP ' + r.status)); err.status = r.status; throw err; }
       return d;
     });
   });
@@ -165,11 +171,16 @@ function $(s){ return document.querySelector(s); }
 function fmt(v, d){ d = d || 2; return (v === null || v === undefined || isNaN(v)) ? '—' : Number(v).toFixed(d); }
 
 function boot(){
-  if (!token){ $('#deny').style.display = ''; $('#inputCard').style.display = 'none'; return; }
+  function denyWith(title, sub){
+    $('#denyTitle').textContent = title;
+    $('#denySub').textContent = sub;
+    $('#deny').style.display = '';
+    $('#inputCard').style.display = 'none';
+  }
+  if (!token){ denyWith('请先登录', '登录后使用持仓体检（内测中，需授权账号）'); return; }
   api('/api/me').then(function(d){
     if ((d.features || []).indexOf('portfolio.checkup') < 0){
-      $('#deny').style.display = '';
-      $('#inputCard').style.display = 'none';
+      denyWith('暂未对你开放', '该功能内测中，需授权账号；可在功能开放后重试');
       return;
     }
     $('#importBtn').style.display = '';
@@ -180,7 +191,9 @@ function boot(){
         $('#hint').textContent = '已自动填入你的 ' + d.items.length + ' 只自选，点「开始体检」即可';
       }
     }).catch(function(){});
-  }).catch(function(){});
+  }).catch(function(e){
+    denyWith('登录已过期', '请重新登录后再使用持仓体检');
+  });
 }
 $('#importBtn').addEventListener('click', function(){
   var b = this;
@@ -210,7 +223,14 @@ $('#runBtn').addEventListener('click', function(){
   b.disabled = true; b.textContent = '体检中…'; $('#hint').textContent = '';
   api('/api/checkup', {method: 'POST', body: JSON.stringify({codes: codes})})
     .then(render)
-    .catch(function(e){ $('#hint').textContent = e.message; })
+    .catch(function(e){
+      var msg = e.message;
+      if (e.status === 404 || /Not Found/.test(msg)) msg = '登录已过期或功能未开放：请回看板重新登录后再试';
+      if (e.status === 401) msg = '登录已过期：请回看板重新登录';
+      $('#hint').textContent = msg;
+      $('#hint').classList.add('err');
+      $('#hint').scrollIntoView({behavior: 'smooth', block: 'center'});
+    })
     .finally(function(){ b.disabled = false; b.textContent = '开始体检'; });
 });
 function zoneCls(dy){ return dy >= 5.5 ? 'deep' : (dy >= 4.5 ? 'watch' : 'mid'); }
