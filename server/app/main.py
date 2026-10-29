@@ -54,6 +54,7 @@ def init_db():
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(16) DEFAULT 'user'"))
         conn.execute(text("ALTER TABLE ad_events ALTER COLUMN etype TYPE VARCHAR(8)"))
         conn.execute(text("ALTER TABLE alert_events ALTER COLUMN tier TYPE VARCHAR(24)"))
+        conn.execute(text("ALTER TABLE watchlist ADD COLUMN IF NOT EXISTS tiers VARCHAR(64)"))
     # 功能注册表补种（已存在的不动）
     from .db import SessionLocal
     db = SessionLocal()

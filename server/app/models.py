@@ -76,6 +76,7 @@ class WatchItem(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     code: Mapped[str] = mapped_column(String(12), index=True)  # 股票代码
     note: Mapped[str | None] = mapped_column(Text)
+    tiers: Mapped[str | None] = mapped_column(String(64))  # 到息提醒档位 JSON，如 ["5.5","5.0"]；NULL=默认两档
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
     user: Mapped["User"] = relationship(back_populates="watchlist")

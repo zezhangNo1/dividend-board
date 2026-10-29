@@ -20,9 +20,26 @@ from .models import AlertEvent, User, WatchItem
 
 router = APIRouter(prefix="/api", tags=["alerts"])
 
-TIERS = [("5.5", 5.5, "深度价值区"), ("5.0", 5.0, "进入关注区")]
+# 全部可选档位：label, rate, 名称（到息=股息率上穿该档）
+ALL_TIERS = [("5.5", 5.5, "深度价值区"), ("5.0", 5.0, "进入关注区"),
+             ("4.5", 4.5, "观察区上沿"), ("4.0", 4.0, "中性区上沿")]
+DEFAULT_TIERS = ["5.5", "5.0"]
 COOLDOWN_DAYS = 7
 SITE_DATA_PATH = os.environ.get("SITE_DATA_PATH", "/srv/site_data.json")
+
+
+def item_tiers(it) -> list[tuple[str, float, str]]:
+    """自选条目的提醒档位；未设置/异常回默认两档。"""
+    want = DEFAULT_TIERS
+    if getattr(it, "tiers", None):
+        try:
+            vals = [t for t in json.loads(it.tiers)
+                    if t in {"5.5", "5.0", "4.5", "4.0"}]
+            if vals:
+                want = vals
+        except Exception:
+            pass
+    return [t for t in ALL_TIERS if t[0] in want]
 
 
 def now():
@@ -86,7 +103,7 @@ def scan_alerts(db: Session, dry: bool = False) -> dict:
         if not q or not dps:
             continue
         dy = dps / q["price"] * 100
-        for tlabel, trate, tname in TIERS:
+        for tlabel, trate, tname in item_tiers(it):
             if dy < trate:
                 continue
             recent = db.scalar(select(AlertEvent).where(
