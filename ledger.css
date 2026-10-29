@@ -1,0 +1,434 @@
+/* ============================================================
+   息·账 ledger.css — 全站设计令牌与组件库（派息账本方向 v2.0）
+   用法：<link rel="stylesheet" href="ledger.css"> 放在各页自身
+   <style> 之后引入，令牌与组件覆盖即可生效。
+   明色 = 存折纸；暗色 = 夜盘墨纸。
+   ============================================================ */
+
+:root{
+  color-scheme: light;
+  /* 令牌：同时兼容旧变量名（--bg/--card/--t1/--brand...） */
+  --paper:#EFF1E9;         /* 存折纸 */
+  --paper-hi:#F7F8F2;      /* 纸面提亮（回单/浮层） */
+  --paper-deep:#E7EADF;    /* 纸面加深（按压/次级底） */
+  --cover:#14261E;         /* 存折封面墨绿 */
+  --cover-deep:#0F1B15;
+  --ink:#1C2B24;           /* 主文字 */
+  --ink-2:#55604F;         /* 次级文字 */
+  --ink-3:#8B937F;         /* 弱文字 */
+  --seal:#B5382C;          /* 印章朱红：涨 / 深息区 */
+  --seal-soft:rgba(181,56,44,.08);
+  --yield:#1E6B4E;         /* 派息绿：跌 / 品牌动作 */
+  --yield-soft:rgba(30,107,78,.09);
+  --gold:#8A6D1F;          /* 烫金：关注区 / 会员 */
+  --gold-bright:#C9A75A;   /* 封面墨绿底上用的亮金 */
+  --gold-soft:rgba(138,109,31,.10);
+  --goldline:rgba(138,109,31,.32);
+  --rule:rgba(28,43,36,.16);        /* 账本细线 */
+  --rule-strong:rgba(28,43,36,.45); /* 段落粗线 */
+  --serif:"Songti SC","STSong","Noto Serif CJK SC","SimSun",serif;
+  --sans:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+
+  /* ---- 旧变量映射（历史页面兼容层） ---- */
+  --bg:var(--paper);
+  --bg-glow:transparent;
+  --card:var(--paper-hi);
+  --card2:var(--paper-deep);
+  --line:var(--rule);
+  --line2:rgba(28,43,36,.09);
+  --t1:var(--ink);
+  --t2:var(--ink-2);
+  --t3:var(--ink-3);
+  --brand:var(--yield);
+  --brand-ink:#174F3A;
+  --brand-soft:var(--yield-soft);
+  --goldbg:var(--gold-soft);
+  --blue:var(--gold);          /* 旧「关注区」蓝 → 烫金 */
+  --bluebg:var(--gold-soft);
+  --up:#C7362B;                /* A股红涨 */
+  --down:var(--yield);         /* A股绿跌 */
+  --shadow:none;
+  --shadow-lg:0 18px 50px rgba(20,38,30,.28);
+  --bar-track:rgba(28,43,36,.14);
+  --sticky:rgba(239,241,233,.92);
+}
+html[data-theme=dark]{
+  color-scheme: dark;
+  --paper:#101A15;             /* 夜盘墨纸 */
+  --paper-hi:#16241D;
+  --paper-deep:#1B2B23;
+  --cover:#0C1712;
+  --cover-deep:#080F0B;
+  --ink:#E6EAD9;
+  --ink-2:#A9B2A2;
+  --ink-3:#7D8776;
+  --seal:#E06B5E;
+  --seal-soft:rgba(224,107,94,.12);
+  --yield:#4C9A78;
+  --yield-soft:rgba(76,154,120,.14);
+  --gold:#C9A75A;
+  --gold-bright:#D9BC74;
+  --gold-soft:rgba(201,167,90,.12);
+  --goldline:rgba(201,167,90,.36);
+  --rule:rgba(233,237,226,.15);
+  --rule-strong:rgba(233,237,226,.42);
+  --up:#E06B5E;
+  --down:#4C9A78;
+  --shadow:none;
+  --shadow-lg:0 18px 50px rgba(0,0,0,.5);
+  --bar-track:rgba(233,237,226,.16);
+  --sticky:rgba(16,26,21,.92);
+}
+
+/* ---------------- 基础 ---------------- */
+html body{
+  background:var(--paper);
+  background-image:none;
+  color:var(--ink);
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--cover);color:var(--paper)}
+html[data-theme=light] ::selection{background:#14261E;color:#EFF1E9}
+:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+
+/* ---------------- 顶栏 → 封面墨绿报头 ---------------- */
+html body .topbar{
+  background:var(--cover);
+  color:#E9EDE2;
+  border-bottom:3px double rgba(201,167,90,.65);
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+html body .topbar .logo{
+  background:none;
+  border:1.5px solid var(--gold-bright);
+  border-radius:2px;
+  color:var(--gold-bright);
+  font-family:var(--serif);
+  box-shadow:none;
+}
+html body .topbar h1{
+  font-family:var(--serif);
+  letter-spacing:.14em;
+  color:#F2F4EA;
+}
+html body .topbar .sub{color:rgba(233,237,226,.66)}
+html body .topbar .sub b{color:#F2F4EA}
+html body .topbar input#q, html body .topbar input{
+  background:rgba(233,237,226,.07);
+  border:none;border-bottom:1px solid rgba(233,237,226,.35);
+  border-radius:0;
+  color:#F2F4EA;
+  box-shadow:none;
+  font-family:var(--serif);
+}
+html body .topbar input::placeholder{color:rgba(233,237,226,.45)}
+html body .topbar input:focus{
+  border-bottom-color:var(--gold-bright);
+  box-shadow:none;
+}
+html body .topbar button.act, html body .topbar a.act,
+html body .topbar button.iconbtn, html body .topbar .whoami button{
+  background:none;
+  border:1px solid rgba(233,237,226,.4);
+  border-radius:2px;
+  color:rgba(233,237,226,.9);
+  box-shadow:none;
+  font-family:var(--serif);
+}
+html body .topbar button.act:hover, html body .topbar a.act:hover,
+html body .topbar button.iconbtn:hover{
+  border-color:var(--gold-bright);
+  color:#F2F4EA;
+}
+html body .topbar .whoami em{color:rgba(233,237,226,.75)}
+html body .topbar .status{
+  background:none;
+  border:1px solid rgba(233,237,226,.32);
+  border-radius:2px;
+  color:rgba(233,237,226,.75);
+  box-shadow:none;
+}
+html body .topbar #loginBtn{
+  background:var(--gold-bright);
+  border:none;
+  color:#14261E;
+  border-radius:2px;
+  font-family:var(--serif);
+  letter-spacing:.2em;
+  box-shadow:none;
+  font-weight:700;
+}
+html[data-theme=dark] html body .topbar #loginBtn,
+html[data-theme=dark] body .topbar #loginBtn{color:#0C1712}
+
+/* ---------------- KPI 统计条 → 对账单横条 ---------------- */
+html body .stats{
+  gap:0;
+  border-top:1px solid var(--rule-strong);
+  border-bottom:1px solid var(--rule);
+}
+html body .stat{
+  background:none;
+  border:none;
+  border-left:1px solid var(--rule);
+  border-radius:0;
+  box-shadow:none;
+  padding:14px 18px 12px;
+  position:relative;
+}
+html body .stat:first-child{border-left:none;padding-left:2px}
+html body .stat::after{display:none}
+html body .stat .k{
+  font-family:var(--serif);
+  letter-spacing:.1em;
+  color:var(--ink-2);
+}
+html body .stat .v{
+  font-family:var(--serif);
+  font-size:26px;
+  letter-spacing:.02em;
+  color:var(--ink);
+}
+html body .stat .v i{font-size:12px;color:var(--ink-3)}
+
+/* ---------------- 页签 → 账本页签 ---------------- */
+html body nav button{
+  background:none;
+  border:1px solid var(--rule);
+  border-radius:2px;
+  font-family:var(--serif);
+  box-shadow:none;
+  color:var(--ink-2);
+}
+html body nav button:hover{border-color:var(--rule-strong);color:var(--ink)}
+html body nav button.on{
+  background:var(--cover);
+  border-color:var(--cover);
+  color:#E9EDE2;
+  box-shadow:none;
+}
+html body nav button.on i{color:var(--gold-bright)}
+
+/* ---------------- 表格 → 账本 ---------------- */
+html body .panel{
+  border:1px solid var(--rule);
+  border-radius:2px;
+  box-shadow:none;
+  background:
+    repeating-linear-gradient(transparent 0 35px, rgba(28,43,36,.035) 35px 36px);
+}
+html[data-theme=dark] body .panel{
+  background:repeating-linear-gradient(transparent 0 35px, rgba(233,237,226,.03) 35px 36px);
+}
+html body thead th{
+  font-family:var(--serif);
+  font-weight:700;
+  letter-spacing:.1em;
+  font-size:12px;
+  color:var(--ink-2);
+  background:var(--sticky);
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+  border-bottom:1px solid var(--rule-strong);
+}
+html body thead th.sorted{color:var(--seal)}
+html body tbody td{border-bottom:1px solid var(--rule)}
+html body tbody tr:hover td{background:var(--yield-soft)}
+html body tbody tr.open td{background:var(--paper-deep)}
+html body .ind{
+  background:none;border:none;border-radius:0;
+  color:var(--ink-3);
+}
+html body .dy{
+  font-family:var(--serif);
+  font-weight:700;
+  font-size:15px;
+  background:none;
+  border-radius:0;
+  padding:0;
+}
+html body .dy.high{color:var(--seal)}
+html body .dy.mid{color:var(--gold)}
+html body .dy.low{color:var(--ink-2)}
+html body .zone{
+  border-radius:2px;
+  font-family:var(--serif);
+  border:1px solid var(--rule);
+  background:none;
+}
+html body .zone.z-deep{border-color:var(--seal);color:var(--seal);background:var(--seal-soft)}
+html body .zone.z-watch{border-color:var(--goldline);color:var(--gold);background:var(--gold-soft)}
+html body .zone.z-obs{border-color:var(--rule);color:var(--ink-2);background:none}
+html body .tgt b{font-family:var(--serif)}
+html body .tgt span.hit{color:var(--yield);background:var(--yield-soft)}
+html body .bar{background:var(--bar-track);border-radius:0;height:3px}
+html body .bar i{border-radius:0}
+html body .bar i.low{background:var(--yield)}
+html body .bar i.high{background:var(--seal)}
+html body .star{color:var(--ink-3)}
+html body .star:hover, html body .star.on{color:var(--gold)}
+html body .det{
+  background:var(--cover);
+  color:#E9EDE2;
+  border:none;
+  border-radius:2px;
+  font-family:var(--serif);
+}
+html body .det:hover{background:var(--gold-bright);color:#14261E}
+html body tr.det td{background:var(--paper-deep)}
+html body .detbox h4{
+  font-family:var(--serif);
+  letter-spacing:.1em;
+  color:var(--ink-2);
+}
+html body .detbox li, html body .kv div{border-bottom:1px dashed var(--rule)}
+
+/* ---------------- 移动端卡片 → 账线条目 ---------------- */
+html body .stk{
+  background:none;
+  border:none;
+  border-bottom:1px solid var(--rule);
+  border-radius:0;
+  box-shadow:none;
+  padding:14px 2px;
+}
+html body .stk .r1 .nm{font-family:var(--serif)}
+html body .stk .tier{
+  background:var(--paper-deep);
+  border:1px solid var(--rule);
+  border-radius:2px;
+}
+html body .stk .tier .gp.hit{color:var(--yield);background:var(--yield-soft)}
+html body .stk .detail{border-top:1px dashed var(--rule)}
+html body .stk .more{color:var(--ink-3)}
+
+/* ---------------- 弹窗 → 回单 ---------------- */
+html body .modal{
+  background:rgba(12,23,18,.58);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+  align-items:flex-start;
+  overflow-y:auto;
+}
+html body .dlg{
+  background:var(--paper-hi);
+  border:1px solid var(--rule);
+  border-top:none;
+  border-radius:2px;
+  margin:5vh auto;
+  box-shadow:var(--shadow-lg);
+  position:relative;
+}
+html body .dlg::before{
+  content:'';
+  display:block;
+  height:8px;
+  background-image:radial-gradient(circle at 7px -2px, transparent 5px, var(--paper-hi) 5px);
+  background-size:16px 8px;
+}
+html body .dlg h3{
+  font-family:var(--serif);
+  letter-spacing:.16em;
+}
+html body .dlg input{
+  background:none;
+  border:none;
+  border-bottom:1px solid var(--rule-strong);
+  border-radius:0;
+  font-family:var(--serif);
+  font-size:15px;
+}
+html body .dlg input:focus{border-bottom:2px solid var(--cover);outline:none;padding-bottom:8px}
+html body .dlg button.go{
+  background:var(--cover);
+  border-radius:2px;
+  font-family:var(--serif);
+  letter-spacing:.3em;
+  box-shadow:none;
+}
+html body .dlg button.go:hover{background:#1D362A}
+html body .dlg button.send{
+  background:none;
+  border:1px solid var(--rule-strong);
+  border-radius:2px;
+  color:var(--ink-2);
+}
+html body .dlg .tip{background:var(--yield-soft);color:var(--yield);border-radius:2px}
+html body .dlg .tabs2 .t2{
+  background:none;
+  border:1px solid var(--rule);
+  border-radius:2px;
+  font-family:var(--serif);
+}
+html body .dlg .tabs2 .t2.on{
+  background:var(--cover);
+  border-color:var(--cover);
+  color:#E9EDE2;
+}
+html body .dlg .forgot{color:var(--ink-3)}
+
+/* ---------------- 个股档案弹窗 → 卷宗 ---------------- */
+html body #stockModal .frame{
+  border-radius:2px;
+  box-shadow:var(--shadow-lg);
+}
+html body #stockModal .frame .bar{
+  background:var(--cover);
+  border-bottom:2px solid rgba(201,167,90,.5);
+}
+html body #stockModal .frame .bar .t{font-family:var(--serif);letter-spacing:.08em;color:#F2F4EA}
+html body #stockModal .frame .bar .t small{color:rgba(233,237,226,.55)}
+html body #stockModal .frame .bar button.bk,
+html body #stockModal .frame .bar button.rf,
+html body #stockModal .frame .bar button.x{
+  background:none;
+  border:1px solid rgba(233,237,226,.32);
+  border-radius:2px;
+  color:rgba(233,237,226,.85);
+  font-family:var(--serif);
+}
+html body #stockModal .frame .bar a.open{color:rgba(233,237,226,.7)}
+html body #stockModal .frame .bar button:hover{border-color:var(--gold-bright);color:#F2F4EA}
+html body #stockModal .shost{background:var(--cover-deep)}
+
+/* ---------------- 通用组件（二级页面） ---------------- */
+html body h2{
+  font-family:var(--serif);
+  letter-spacing:.1em;
+  border-left:none;
+  border-bottom:1px solid var(--rule-strong);
+  padding:0 0 6px;
+}
+html body .card{
+  background:none;
+  border:1px solid var(--rule);
+  border-radius:2px;
+  box-shadow:none;
+}
+html body .formula{
+  background:var(--paper-deep);
+  border:1px dashed var(--rule-strong);
+  border-radius:2px;
+  font-family:var(--serif);
+}
+html body .warn{
+  background:var(--gold-soft);
+  border:1px solid var(--goldline);
+  border-radius:2px;
+  color:var(--gold);
+}
+html body .empty{color:var(--ink-3)}
+html body a.back{font-family:var(--serif)}
+html body footer{
+  border-top:3px double var(--rule-strong);
+  font-family:var(--sans);
+}
+html body footer a{color:var(--ink-2)}
+html body .note{
+  border-top:1px dashed var(--rule-strong);
+  padding-top:12px;
+}
+html body button, html body input{font-family:inherit}
+
+/* 广告位：安静容器 */
+html body .ad-slot{margin:16px 0}
