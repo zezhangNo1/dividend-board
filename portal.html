@@ -3,142 +3,130 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#F4F0E6">
+<meta name="theme-color" content="#F5F7FB">
 <title>泽克的数据笔记 · 个人工具集</title>
 <meta name="description" content="泽克的数据笔记：高股息看板、美市时钟、Codex 全球价格、副业雷达、高性价比人生指南等自建数据工具集合。数据来自公开接口，仅供参考。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="泽克的数据笔记 · 个人工具集">
 <meta property="og:description" content="自建数据工具集合：高股息看板、美市时钟、Codex 全球价格、副业雷达、高性价比人生指南。">
 <style>
-  /* ============ 「水墨卷轴」令牌：宣纸 / 墨分五色 / 一点朱砂 ============ */
+  /* ============ 「浅色科技」令牌：晨雾白 / 石板墨 / 电光蓝紫 ============ */
   :root{
-    --paper:#F4F0E6; --card:#FCFAF3;
-    --ink:#26241F; --ink2:#6E6A5E; --ink3:#A29D8F;
-    --line:rgba(56,52,44,.14); --line-hi:rgba(56,52,44,.32);
-    --cinnabar:#B03A2E;            /* 朱砂：印章、点睛，全页唯一暖色 */
-    --jade:#2E7D6B;                /* 黛青：开市状态 */
-    --r:16px;
-    --card:#FCFAF3;
+    --bg:#F5F7FB; --card:rgba(255,255,255,.78);
+    --ink:#0F172A; --ink2:#5B6B82; --ink3:#93A1B5;
+    --line:rgba(15,23,42,.09); --line-hi:rgba(37,99,235,.35);
+    --blue:#2563EB; --violet:#7C3AED; --cyan:#0891B2; --cyan-hi:#06B6D4;
+    --ease:cubic-bezier(.25,.8,.25,1);
+    --r:18px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{color-scheme:light}
   body{
-    background:
-      radial-gradient(120% 90% at 50% -10%, #FAF7EE 0%, transparent 55%),
-      var(--paper);
-    color:var(--ink);
+    background:var(--bg);color:var(--ink);
     font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
     font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;
     min-height:100vh;overflow-x:hidden;
   }
-  /* 宣纸纤维 */
-  body::after{
-    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
-  }
-  .pb-wrap{position:relative;z-index:1;max-width:1060px;margin:0 auto;padding:0 clamp(16px,4vw,32px) 56px}
+  .pb-wrap{max-width:1060px;margin:0 auto;padding:0 clamp(16px,4vw,32px) 56px}
 
-  /* ============ 卷首：水墨远山（鼠标视差 + 云雾漂移 + 墨晕入场） ============ */
-  .pb-scene{position:relative;height:clamp(320px,44vh,430px);margin:0 calc(clamp(16px,4vw,32px) * -1);overflow:hidden}
-  .pb-scene svg{position:absolute;left:0;right:0;bottom:-2px;width:100%;height:auto;display:block}
-  .pb-far,.pb-mid,.pb-near{transition:transform .5s cubic-bezier(.2,.6,.3,1)}
-  .pb-scene .pb-birds{transition:transform .5s cubic-bezier(.2,.6,.3,1)}
-  .pb-mist1,.pb-mist2{animation:pb-drift 34s ease-in-out infinite alternate}
-  .pb-mist2{animation-duration:47s;animation-direction:alternate-reverse}
-  @keyframes pb-drift{from{transform:translateX(-36px)}to{transform:translateX(36px)}}
-  @media (prefers-reduced-motion: no-preference){
-    .pb-scene svg{animation:pb-soak 1.6s cubic-bezier(.2,.6,.2,1) both}
-    @keyframes pb-soak{from{opacity:0;filter:blur(10px)}to{opacity:1;filter:blur(0)}}
+  /* ============ 页头：蓝图网格 + 光晕 + 星座线 ============ */
+  .pb-head{
+    position:relative;margin:0 calc(clamp(16px,4vw,32px) * -1);
+    padding:52px clamp(16px,4vw,32px) 40px;overflow:hidden;
+    background:
+      radial-gradient(420px 300px at 88% 12%, rgba(124,58,237,.10), transparent 70%),
+      radial-gradient(520px 340px at 8% -10%, rgba(37,99,235,.12), transparent 72%),
+      linear-gradient(180deg,#F7F9FD 0%, rgba(245,247,251,0) 100%);
   }
-  /* 题跋区 */
-  .pb-head{position:absolute;top:clamp(22px,4.5vh,44px);left:clamp(16px,4vw,32px);right:clamp(16px,4vw,32px);
-    display:flex;justify-content:space-between;gap:18px;pointer-events:none}
-  .pb-head > *{pointer-events:auto}
-  .pb-brand{display:flex;align-items:flex-start;gap:16px}
+  .pb-head::before{  /* 细蓝图网格 */
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:
+      repeating-linear-gradient(0deg, rgba(37,99,235,.045) 0 1px, transparent 1px 44px),
+      repeating-linear-gradient(90deg, rgba(37,99,235,.045) 0 1px, transparent 1px 44px);
+    -webkit-mask-image:radial-gradient(70% 90% at 60% 0%, #000 30%, transparent 100%);
+    mask-image:radial-gradient(70% 90% at 60% 0%, #000 30%, transparent 100%);
+  }
+  .pb-const{position:absolute;right:clamp(16px,8vw,110px);top:24px;width:170px;height:110px;opacity:.5;pointer-events:none}
+  .pb-head-in{position:relative;display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap}
+  .pb-brand{display:flex;align-items:center;gap:16px}
+  .pb-logo{
+    width:54px;height:54px;border-radius:15px;flex:none;display:grid;place-items:center;
+    background:linear-gradient(135deg,#3B82F6 0%,#6366F1 55%,#7C3AED 100%);
+    color:#fff;font-family:"Songti SC","STSong",serif;font-weight:900;font-size:26px;
+    box-shadow:0 10px 24px -10px rgba(79,70,229,.55), inset 0 1px 0 rgba(255,255,255,.35);
+  }
   .pb-head h1{
-    font-family:"Songti SC","STSong","SimSun",serif;
-    font-size:clamp(30px,5.2vw,44px);font-weight:900;letter-spacing:6px;color:var(--ink);
-    line-height:1.18;margin-top:2px;
+    font-size:clamp(26px,4.4vw,34px);font-weight:800;letter-spacing:.5px;line-height:1.2;
+    background:linear-gradient(100deg,#0F172A 20%,#2563EB 65%,#7C3AED 105%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
   }
-  .pb-head .pb-tag{color:var(--ink2);font-size:13px;letter-spacing:2px;margin-top:10px}
-  .pb-chop{
-    width:52px;height:52px;border-radius:7px;background:var(--cinnabar);color:#F8F3E7;
-    font-family:"Songti SC","STSong",serif;font-weight:900;font-size:17px;line-height:1.15;
-    display:grid;grid-template-columns:1fr 1fr;place-items:center;padding:5px;
-    transform:rotate(-4deg);box-shadow:0 4px 14px -6px rgba(176,58,46,.55);
-    transition:transform .25s;
-  }
-  .pb-chop:hover{transform:rotate(-1deg) scale(1.05)}
-  .pb-chop span{display:block}
-  /* 竖排题款 */
-  .pb-tk{
-    position:absolute;right:clamp(16px,4vw,32px);bottom:44px;
-    writing-mode:vertical-rl;font-family:"Songti SC","STSong",serif;
-    font-size:14px;letter-spacing:8px;color:var(--ink2);opacity:.85;
-    border-right:1px solid var(--line-hi);padding-right:10px;
-  }
+  .pb-head .pb-tag{color:var(--ink2);font-size:13px;margin-top:5px;letter-spacing:.5px}
   .pb-icp{font-size:11px;color:var(--ink3);text-align:right;line-height:1.9;
-    background:rgba(252,250,243,.72);border:1px solid var(--line);border-radius:10px;
-    padding:7px 13px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+    background:rgba(255,255,255,.7);border:1px solid var(--line);border-radius:12px;
+    padding:7px 13px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
   .pb-icp a{color:inherit;text-decoration:none}
   .pb-icp a:hover{color:var(--ink2)}
 
-  /* ============ Bento：纸上墨卡 ============ */
-  .pb-grid{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:minmax(112px,auto);gap:14px;margin-top:26px}
+  /* ============ Bento：玻璃白卡 + 图标配图 ============ */
+  .pb-grid{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:minmax(112px,auto);gap:14px;margin-top:6px}
   .pb-t{
     position:relative;border:1px solid var(--line);border-radius:var(--r);
     background:var(--card);
-    box-shadow:0 1px 2px rgba(56,52,44,.05), 0 14px 30px -22px rgba(56,52,44,.4);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    box-shadow:0 1px 2px rgba(15,23,42,.04), 0 16px 34px -24px rgba(15,23,42,.28);
     padding:20px 22px;display:flex;flex-direction:column;
-    transition:border-color .2s,transform .2s,box-shadow .2s;
+    transition:transform .32s var(--ease), box-shadow .32s var(--ease), border-color .32s var(--ease);
     overflow:hidden;
   }
-  .pb-t:hover{border-color:var(--line-hi);transform:translateY(-2px);
-    box-shadow:0 2px 4px rgba(56,52,44,.06), 0 20px 38px -24px rgba(56,52,44,.5)}
-  /* 墨晕：指针走过处洇开一团淡墨 */
-  .pb-t::before{
-    content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-    background:radial-gradient(300px circle at var(--mx,50%) var(--my,50%),rgba(56,52,44,.065),transparent 62%);
-    opacity:0;transition:opacity .3s;
+  .pb-t:hover{
+    transform:translateY(-3px);border-color:var(--line-hi);
+    box-shadow:0 2px 4px rgba(15,23,42,.05), 0 22px 44px -24px rgba(37,99,235,.35);
   }
-  .pb-t:hover::before{opacity:1}
-  /* 整卡主链接（拉伸铺满），抽屉内容以 z-index 浮在其上 */
   .pb-main{position:relative;z-index:1;color:inherit;text-decoration:none;display:flex;flex-direction:column;flex:1}
   .pb-main::after{content:'';position:absolute;inset:-20px;z-index:0}
-  .pb-main:focus-visible{outline:2px solid var(--jade);outline-offset:2px;border-radius:10px}
-  .pb-t .pb-trow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-  .pb-t b{font-size:16.5px;font-weight:800;letter-spacing:.4px;font-family:"Songti SC","STSong",serif}
+  .pb-main:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:10px}
+  .pb-trow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .pb-ic{
+    width:42px;height:42px;border-radius:12px;flex:none;display:grid;place-items:center;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.3), 0 8px 16px -10px var(--ic-sh,rgba(37,99,235,.6));
+    transition:transform .32s var(--ease);
+  }
+  .pb-t:hover .pb-ic{transform:scale(1.06)}
+  .pb-ic svg{width:22px;height:22px;display:block}
+  .hero-ic{width:48px;height:48px;border-radius:14px}
+  .hero-ic svg{width:26px;height:26px}
+  .pb-t b{font-size:16px;font-weight:800;letter-spacing:.2px}
   .pb-t .pb-url{font-size:11.5px;color:var(--ink3);font-family:ui-monospace,"SF Mono",Menlo,monospace}
-  .pb-t .pb-go{margin-left:auto;color:var(--ink3);font-size:12px;transition:color .2s,transform .2s;white-space:nowrap}
-  .pb-t:hover .pb-go{color:var(--cinnabar);transform:translateX(2px)}
-  .pb-t p{color:var(--ink2);font-size:12.5px;margin-top:8px;max-width:52ch}
+  .pb-t .pb-go{margin-left:auto;color:var(--ink3);font-size:12px;transition:color .25s,transform .25s;white-space:nowrap}
+  .pb-t:hover .pb-go{color:var(--blue);transform:translateX(2px)}
+  .pb-t p{color:var(--ink2);font-size:12.5px;margin-top:10px;max-width:52ch}
 
-  /* 抽屉：悬停/点开时向下抽出 */
-  .pb-dw{display:grid;grid-template-rows:0fr;transition:grid-template-rows .42s cubic-bezier(.2,.7,.25,1);z-index:2;position:relative}
+  /* 抽屉：悬停 / 点开向下抽出 */
+  .pb-dw{display:grid;grid-template-rows:0fr;transition:grid-template-rows .38s var(--ease);z-index:2;position:relative}
   .pb-dw > div{overflow:hidden}
   .pb-t:hover .pb-dw,.pb-t.open .pb-dw{grid-template-rows:1fr}
-  .pb-dw-in{margin-top:14px;padding-top:13px;border-top:1px dashed var(--line-hi);
+  .pb-dw-in{margin-top:14px;padding-top:13px;border-top:1px dashed rgba(15,23,42,.15);
     display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .pb-dw-in a{
     position:relative;z-index:2;text-decoration:none;color:var(--ink);
-    font-size:12px;border:1px solid var(--line);border-radius:999px;padding:2.5px 12px;
-    background:var(--paper);transition:color .18s,border-color .18s;
+    font-size:12px;border:1px solid var(--line);border-radius:999px;padding:3px 13px;
+    background:#fff;transition:color .2s,border-color .2s,box-shadow .2s;
   }
-  .pb-dw-in a:hover{color:var(--cinnabar);border-color:var(--cinnabar)}
+  .pb-dw-in a:hover{color:var(--blue);border-color:var(--blue);box-shadow:0 4px 12px -6px rgba(37,99,235,.4)}
   .pb-dw-in .pb-k{font-size:12px;color:var(--ink3)}
-  .pb-dw-in .pb-k b{font-size:12.5px;color:var(--cinnabar);font-family:ui-monospace,Menlo,monospace}
+  .pb-dw-in .pb-k b{font-size:13px;color:var(--blue);font-family:ui-monospace,Menlo,monospace}
   .pb-dwt{
-    position:absolute;top:12px;right:14px;z-index:2;
-    border:none;background:rgba(244,240,230,.9);cursor:pointer;
-    font-size:11.5px;color:var(--ink3);padding:5px 13px;font-family:inherit;
-    border-radius:999px;transition:color .2s,border-color .2s;border:1px solid transparent;
+    position:absolute;top:14px;right:14px;z-index:2;
+    border:none;background:rgba(255,255,255,.9);cursor:pointer;
+    font-size:11.5px;color:var(--ink3);padding:4px 12px;font-family:inherit;
+    border-radius:999px;border:1px solid transparent;transition:color .2s,border-color .2s;
   }
-  .pb-dwt:hover{color:var(--ink);border-color:var(--line)}
-  .pb-t.open .pb-dwt{color:var(--cinnabar);border-color:var(--cinnabar)}
+  .pb-dwt:hover{color:var(--blue);border-color:var(--line)}
+  .pb-t.open .pb-dwt{color:var(--blue);border-color:var(--blue)}
 
   .pb-tags{margin-top:auto;padding-top:12px;display:flex;gap:6px;flex-wrap:wrap}
-  .pb-tags span{font-size:10.5px;color:var(--ink2);background:rgba(56,52,44,.045);
-    border:1px solid var(--line);border-radius:6px;padding:1px 8px}
+  .pb-tags span{font-size:10.5px;color:var(--ink2);background:rgba(37,99,235,.06);
+    border:1px solid rgba(37,99,235,.12);border-radius:6px;padding:1px 8px}
 
   /* 跨度 */
   .pb-hero{grid-column:span 4;grid-row:span 2}
@@ -146,149 +134,137 @@
   .pb-w2{grid-column:span 2}
   .pb-w3{grid-column:span 3}
 
-  .pb-hero b{font-size:21px;letter-spacing:1px}
+  .pb-hero b{font-size:19px}
   .pb-pill{
     display:inline-flex;align-items:center;gap:7px;font-size:12px;
     border:1px solid var(--line);border-radius:999px;padding:3px 12px;margin-bottom:14px;
-    color:var(--ink2);width:fit-content;background:rgba(56,52,44,.035);
+    color:var(--ink2);width:fit-content;background:#fff;
   }
-  .pb-pill b{font-size:12px;font-weight:600;color:var(--ink);letter-spacing:0}
+  .pb-pill b{font-size:12px;font-weight:600;color:var(--ink)}
   .pb-dot{width:7px;height:7px;border-radius:50%;background:var(--ink3);flex:none}
-  .pb-dot.on{background:var(--jade);animation:pb-pulse 2.2s ease-out infinite}
-  @keyframes pb-pulse{
-    0%{box-shadow:0 0 0 0 rgba(46,125,107,.4)}
-    70%{box-shadow:0 0 0 7px rgba(46,125,107,0)}
-    100%{box-shadow:0 0 0 0 rgba(46,125,107,0)}
+  .pb-dot.on{background:var(--cyan-hi);animation:pb-breath 3s ease-in-out infinite}
+  @keyframes pb-breath{0%,100%{opacity:1}50%{opacity:.35}}
+  /* 主卡底部装饰走势线（加载时描一次） */
+  .pb-spark{position:absolute;right:0;bottom:0;width:46%;height:88px;pointer-events:none;opacity:.9}
+  .pb-spark path.pb-ln{stroke-dasharray:600;stroke-dashoffset:600}
+  @media (prefers-reduced-motion: no-preference){
+    .pb-spark path.pb-ln{animation:pb-draw 1.3s .3s var(--ease) forwards}
+    @keyframes pb-draw{to{stroke-dashoffset:0}}
   }
-  .pb-stats{display:flex;gap:28px;flex-wrap:wrap;margin-top:auto;padding-top:14px}
+  .pb-stats{display:flex;gap:28px;flex-wrap:wrap;margin-top:auto;padding-top:14px;position:relative;z-index:1}
   .pb-stats div{display:flex;flex-direction:column}
   .pb-stats i{font-style:normal;font-size:11.5px;color:var(--ink3)}
-  .pb-stats b{font-size:20px;font-weight:900;font-family:"Palatino","Songti SC",serif;color:var(--cinnabar);letter-spacing:1px}
+  .pb-stats b{font-size:20px;font-weight:800;font-family:ui-monospace,"SF Mono",Menlo,monospace;color:var(--blue);letter-spacing:.5px;font-variant-numeric:tabular-nums}
   .pb-stats b small{font-size:11px;color:var(--ink3);font-weight:400;font-family:inherit;margin-left:2px}
-  .pb-stats b.pb-live{color:var(--jade)}
+  .pb-stats b.pb-live{color:var(--cyan)}
 
   /* 时钟卡 */
   .pb-clock{justify-content:space-between}
   .pb-nytime{
     font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:clamp(34px,4.2vw,44px);
-    font-weight:700;letter-spacing:1px;line-height:1.1;margin:12px 0 2px;color:var(--ink);
+    font-weight:700;letter-spacing:1px;line-height:1.1;margin:14px 0 2px;color:var(--ink);
     font-variant-numeric:tabular-nums;
   }
   .pb-nytime small{font-size:12px;color:var(--ink3);font-weight:400;letter-spacing:0;margin-left:8px}
   .pb-nas{margin-top:auto}
   .pb-nas .pb-pill{margin-bottom:0;margin-top:10px}
 
+  /* 雷达指针慢转：全页唯一的连续图形动效 */
+  .pb-radar-needle{transform-origin:12px 12px}
+  @media (prefers-reduced-motion: no-preference){
+    .pb-radar-needle{animation:pb-sweep 7s linear infinite}
+  }
+  @keyframes pb-sweep{to{transform:rotate(360deg)}}
+
   /* 关注卡 */
   .pb-follow{display:flex;flex-direction:row;gap:12px;margin-top:auto;padding-top:14px}
   .pf-btn{
     flex:1;min-width:150px;display:flex;flex-direction:column;gap:2px;
     border:1px solid var(--line);border-radius:12px;padding:12px 16px;
-    text-decoration:none;color:var(--ink);background:var(--paper);
-    font-family:inherit;font-size:14px;cursor:pointer;transition:border-color .2s,transform .2s;
+    text-decoration:none;color:var(--ink);background:#fff;
+    font-family:inherit;font-size:14px;cursor:pointer;transition:border-color .25s,transform .25s;
   }
-  .pf-btn:hover{border-color:var(--cinnabar);transform:translateY(-1px)}
+  .pf-btn:hover{border-color:var(--blue);transform:translateY(-1px)}
   .pf-btn span{font-size:11.5px;color:var(--ink2)}
   .pf-btn i{font-style:normal;float:right;color:var(--ink3);font-size:12px}
 
-  /* ============ 卷尾 ============ */
-  .pb-foot{margin-top:34px;text-align:center}
-  .pb-brush{height:2px;margin:0 auto 16px;max-width:520px;
-    background:linear-gradient(90deg,transparent,var(--ink3) 12%,var(--ink) 50%,var(--ink3) 88%,transparent);
-    opacity:.55;border-radius:2px}
-  .pb-foot p{font-size:11px;color:var(--ink3);line-height:2.1}
+  /* ============ 页脚 ============ */
+  .pb-foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);
+    font-size:11px;color:var(--ink3);text-align:center;line-height:2.1}
   .pb-foot a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--ink3);padding-bottom:1px}
   .pb-foot a:hover{color:var(--ink2);border-color:var(--ink2)}
 
-  /* 入场：墨点落纸，逐卡洇开 */
+  /* 入场：一次轻起，不模糊不晃 */
   @media (prefers-reduced-motion: no-preference){
-    .pb-t{animation:pb-in .6s cubic-bezier(.2,.7,.3,1) both;animation-delay:var(--d,0s)}
-    @keyframes pb-in{from{opacity:0;transform:translateY(14px);filter:blur(5px)}to{opacity:1;transform:none;filter:blur(0)}}
+    .pb-t{animation:pb-in .45s var(--ease) both;animation-delay:var(--d,0s)}
+    @keyframes pb-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
   }
 
   /* ============ 响应式 ============ */
   @media (max-width:880px){
     .pb-grid{grid-template-columns:1fr;grid-auto-rows:auto}
     .pb-hero,.pb-clock,.pb-w2,.pb-w3{grid-column:span 1;grid-row:auto}
-    .pb-scene{height:340px}
-    .pb-head{flex-direction:column}
-    .pb-icp{width:fit-content}
-    .pb-tk{display:none}
-    .pb-hero b{font-size:19px}
+    .pb-head{padding-top:38px;padding-bottom:30px}
+    .pb-const{display:none}
+    .pb-hero b{font-size:18px}
     .pb-nytime{margin-top:10px}
+    .pb-spark{width:60%;height:64px}
   }
 </style>
 </head>
 <body>
 <div class="pb-wrap">
 
-  <section class="pb-scene" aria-label="水墨远山">
-    <svg viewBox="0 0 1440 400" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <defs>
-        <filter id="inkEdge"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.05" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="16"/></filter>
-        <filter id="soft"><feGaussianBlur stdDeviation="16"/></filter>
-        <linearGradient id="gFar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9C988C"/><stop offset="1" stop-color="#B7B2A4"/></linearGradient>
-        <linearGradient id="gMid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#55534B"/><stop offset="1" stop-color="#7C786C"/></linearGradient>
-        <linearGradient id="gNear" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2B2A25"/><stop offset="1" stop-color="#45433B"/></linearGradient>
-      </defs>
-
-      <!-- 朱砂点日 -->
-      <circle cx="1156" cy="84" r="34" fill="#B03A2E" opacity=".88"/>
-
-      <!-- 飞鸟 -->
-      <g class="pb-birds" stroke="#4A4840" stroke-width="2.4" fill="none" stroke-linecap="round">
-        <path d="M356,96 q7,-7 14,0 M374,90 q6,-6 12,0"/>
-        <path d="M420,120 q5,-5 10,0"/>
+  <header class="pb-head">
+    <svg class="pb-const" viewBox="0 0 170 110" aria-hidden="true">
+      <g stroke="#2563EB" stroke-width="1" fill="none" opacity=".55">
+        <path d="M12,86 L58,54 L104,66 L146,24 M58,54 L66,14 M104,66 L118,96 M146,24 L156,60"/>
       </g>
-
-      <!-- 远山 -->
-      <g class="pb-far" filter="url(#inkEdge)">
-        <path fill="url(#gFar)" opacity=".5" d="M-40,268 C120,208 250,246 380,210 C510,174 620,236 760,204 C900,172 1010,240 1140,208 C1260,180 1370,232 1480,198 L1480,420 L-40,420 Z"/>
-      </g>
-      <!-- 云雾一 -->
-      <ellipse class="pb-mist1" cx="430" cy="268" rx="300" ry="34" fill="#F4F0E6" opacity=".8" filter="url(#soft)"/>
-      <!-- 中景 -->
-      <g class="pb-mid" filter="url(#inkEdge)">
-        <path fill="url(#gMid)" opacity=".72" d="M-40,318 C80,282 150,214 240,198 C330,182 380,252 460,276 C540,298 600,232 690,210 C780,188 840,258 920,278 C1000,296 1070,232 1160,212 C1250,192 1330,262 1420,282 C1460,290 1480,300 1480,300 L1480,420 L-40,420 Z"/>
-      </g>
-      <!-- 云雾二 -->
-      <ellipse class="pb-mist2" cx="1020" cy="316" rx="340" ry="30" fill="#F4F0E6" opacity=".85" filter="url(#soft)"/>
-      <!-- 近岸 + 孤舟 -->
-      <g class="pb-near">
-        <path fill="url(#gNear)" d="M-40,352 C160,330 300,348 470,340 C640,332 760,352 930,356 C1090,360 1220,342 1480,348 L1480,420 L-40,420 Z"/>
-        <g transform="translate(1032,332)" fill="#23221D">
-          <path d="M0,10 Q12,18 30,13 L34,20 Q14,28 -6,21 Z"/>
-          <path d="M15,11 L15,-12" stroke="#23221D" stroke-width="2" fill="none"/>
-          <path d="M15,-12 Q27,-2 15,4 Z"/>
-        </g>
+      <g fill="#2563EB">
+        <circle cx="12" cy="86" r="3"/><circle cx="58" cy="54" r="2.4"/>
+        <circle cx="104" cy="66" r="3"/><circle cx="146" cy="24" r="2.4"/>
+        <circle cx="66" cy="14" r="2" fill="#7C3AED"/><circle cx="118" cy="96" r="2" fill="#7C3AED"/>
+        <circle cx="156" cy="60" r="2" fill="#06B6D4"/>
       </g>
     </svg>
-
-    <header class="pb-head">
+    <div class="pb-head-in">
       <div class="pb-brand">
-        <h1>泽克的数据笔记</h1>
-        <div class="pb-chop" aria-hidden="true"><span>泽</span><span>笔</span><span>克</span><span>记</span></div>
+        <div class="pb-logo" aria-hidden="true">泽</div>
+        <div>
+          <h1>泽克的数据笔记</h1>
+          <p class="pb-tag">自建工具，口径公开，仅供参考</p>
+        </div>
       </div>
       <div class="pb-icp">
         皖ICP备<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">2026036657号</a><br>
         6 个工具在线
       </div>
-    </header>
-    <div class="pb-tk" aria-hidden="true">以数据为舟 · 渡市场之海</div>
-  </section>
+    </div>
+  </header>
 
   <main class="pb-grid">
 
     <article class="pb-t pb-hero" style="--d:.02s">
       <a class="pb-main" href="https://board.zekes.top/">
         <span class="pb-pill"><span class="pb-dot" id="pbAshareDot"></span><span id="pbAshareText">A 股</span></span>
-        <div class="pb-trow"><b>高股息看板</b><span class="pb-url">board.zekes.top</span></div>
+        <div class="pb-trow">
+          <span class="pb-ic hero-ic" style="background:linear-gradient(135deg,#60A5FA,#2563EB);--ic-sh:rgba(37,99,235,.55)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 16l4-6 3 3 5-8"/></svg>
+          </span>
+          <div><b>高股息看板</b><div class="pb-url">board.zekes.top</div></div>
+        </div>
         <p>A 股红利标的的分红数据账本：股息率看板、除权除息日历、历史股息率分位、布林技术位置，每个交易日盘后自动生成 AI 红利观察。</p>
         <div class="pb-stats">
-          <div><i>覆盖标的</i><b>128<small> 只</small></b></div>
-          <div><i>研究卡片</i><b>386<small> 张</small></b></div>
+          <div><i>覆盖标的</i><b><span data-cnt="128">128</span><small> 只</small></b></div>
+          <div><i>研究卡片</i><b><span data-cnt="386">386</span><small> 张</small></b></div>
           <div><i>更新频率</i><b class="pb-live">每交易日<small> 盘后</small></b></div>
         </div>
       </a>
+      <svg class="pb-spark" viewBox="0 0 300 88" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2563EB" stop-opacity=".22"/><stop offset="1" stop-color="#2563EB" stop-opacity="0"/></linearGradient></defs>
+        <path d="M0,70 C40,64 60,44 90,48 C120,52 140,30 175,34 C210,38 235,18 265,22 L300,14 L300,88 L0,88 Z" fill="url(#sg)"/>
+        <path class="pb-ln" d="M0,70 C40,64 60,44 90,48 C120,52 140,30 175,34 C210,38 235,18 265,22 L300,14" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
       <button class="pb-dwt" data-dw aria-expanded="false">详情 ▾</button>
       <div class="pb-dw"><div><div class="pb-dw-in">
         <a href="https://board.zekes.top/cards.html">研究卡片库</a>
@@ -299,7 +275,12 @@
 
     <article class="pb-t pb-clock" style="--d:.08s">
       <a class="pb-main" href="https://nasdaq.zekes.top/">
-        <div class="pb-trow"><b>美市时钟</b><span class="pb-url">nasdaq.zekes.top</span></div>
+        <div class="pb-trow">
+          <span class="pb-ic" style="background:linear-gradient(135deg,#22D3EE,#0891B2);--ic-sh:rgba(8,145,178,.5)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+          </span>
+          <div><b>美市时钟</b><div class="pb-url">nasdaq.zekes.top</div></div>
+        </div>
         <div>
           <div class="pb-nytime" id="pbNy" aria-hidden="true">--:--:--<small>美东</small></div>
           <p>纳斯达克开闭市时间查询，夏令时自动换算，附全年休市日历与热门纳指基金申购额度。</p>
@@ -316,7 +297,12 @@
 
     <article class="pb-t pb-w2" style="--d:.14s">
       <a class="pb-main" href="https://zekes.top/codex-price/">
-        <div class="pb-trow"><b>Codex 全球价格</b></div>
+        <div class="pb-trow">
+          <span class="pb-ic" style="background:linear-gradient(135deg,#A78BFA,#6D28D9);--ic-sh:rgba(109,40,217,.5)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>
+          </span>
+          <b>Codex 全球价格</b>
+        </div>
         <p>Codex 三档订阅在 32 个 App Store 地区的实测价格对比：每 1× 额度成本、汇率换算，哪个档位哪个区更划算一眼看清。</p>
         <div class="pb-tags"><span>档位对比</span><span>地区比价</span><span>单位成本</span></div>
       </a>
@@ -329,7 +315,12 @@
 
     <article class="pb-t pb-w2" style="--d:.2s">
       <a class="pb-main" href="https://zekes.top/fuye-radar/">
-        <div class="pb-trow"><b>副业雷达</b></div>
+        <div class="pb-trow">
+          <span class="pb-ic" style="background:linear-gradient(135deg,#2DD4BF,#0D9488);--ic-sh:rgba(13,148,136,.5)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9" opacity=".45"/><circle cx="12" cy="12" r="5" opacity=".65"/><path class="pb-radar-needle" d="M12 12 L18.5 5.8"/><circle cx="12" cy="12" r="1.4" fill="#fff" stroke="none"/></svg>
+          </span>
+          <b>副业雷达</b>
+        </div>
         <p>653 条副业项目案例线索库：按方向筛选、五题测评匹配，配原创实操指南与来源标注。</p>
         <div class="pb-tags"><span>案例检索</span><span>方向测评</span><span>实操指南</span></div>
       </a>
@@ -341,7 +332,12 @@
 
     <article class="pb-t pb-w2" style="--d:.26s">
       <a class="pb-main" href="https://zekes.top/life-guide/">
-        <div class="pb-trow"><b>高性价比人生指南</b></div>
+        <div class="pb-trow">
+          <span class="pb-ic" style="background:linear-gradient(135deg,#818CF8,#4F46E5);--ic-sh:rgba(79,70,229,.5)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 L13 13 L8.5 15.5 L11 11 Z" fill="#fff" stroke="none"/></svg>
+          </span>
+          <b>高性价比人生指南</b>
+        </div>
         <p>654 条按性价比排序的人生建议：长寿防病、急救、省钱、法律红线、失业兜底、婚育与出国。</p>
         <div class="pb-tags"><span>场景直达</span><span>关键词搜索</span><span>证据分级</span></div>
       </a>
@@ -353,7 +349,13 @@
 
     <article class="pb-t pb-w3" style="--d:.32s">
       <a class="pb-main" href="https://board.zekes.top/cards.html">
-        <div class="pb-trow"><b>研究卡片库</b><span class="pb-url">board.zekes.top/cards</span><span class="pb-go">进入 ▸</span></div>
+        <div class="pb-trow">
+          <span class="pb-ic" style="background:linear-gradient(135deg,#93C5FD,#4F46E5);--ic-sh:rgba(79,70,229,.45)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="6" width="13" height="14" rx="2"/><path d="M8 6V4.5A1.5 1.5 0 0 1 9.5 3H19a1.5 1.5 0 0 1 1.5 1.5V16"/><path d="M8 11h5M8 15h5"/></svg>
+          </span>
+          <div><b>研究卡片库</b><div class="pb-url">board.zekes.top/cards</div></div>
+          <span class="pb-go">进入 ▸</span>
+        </div>
         <p>386 张个股研究卡片存档，按标的聚合，覆盖银行、家电、白酒、能源等 12 个板块。</p>
       </a>
     </article>
@@ -376,41 +378,15 @@
   </main>
 
   <footer class="pb-foot">
-    <div class="pb-brush" aria-hidden="true"></div>
-    <p>
-      数据均来自公开行情接口，仅供参考，不构成任何投资建议 ·
-      <a href="https://board.zekes.top/ads.html">商务合作</a> ·
-      <a href="https://board.zekes.top/about.html">口径与免责</a><br>
-      © 2026 泽克的数据笔记 · 皖ICP备<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">2026036657号</a>
-    </p>
+    数据均来自公开行情接口，仅供参考，不构成任何投资建议 ·
+    <a href="https://board.zekes.top/ads.html">商务合作</a> ·
+    <a href="https://board.zekes.top/about.html">口径与免责</a><br>
+    © 2026 泽克的数据笔记 · 皖ICP备<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">2026036657号</a>
   </footer>
 </div>
 
 <script>
-/* 远山视差：指针左右轻推三层山（触屏与减弱动效跳过） */
-(function () {
-  if (!matchMedia('(hover:hover)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var scene = document.querySelector('.pb-scene');
-  var far = document.querySelector('.pb-far'), mid = document.querySelector('.pb-mid'),
-      near = document.querySelector('.pb-near'), birds = document.querySelector('.pb-birds');
-  var tx = 0, cx = 0, raf = null;
-  scene.addEventListener('pointermove', function (e) {
-    var r = scene.getBoundingClientRect();
-    tx = ((e.clientX - r.left) / r.width - 0.5) * 2;   /* -1 .. 1 */
-    if (!raf) raf = requestAnimationFrame(step);
-  });
-  scene.addEventListener('pointerleave', function () { tx = 0; if (!raf) raf = requestAnimationFrame(step); });
-  function step() {
-    cx += (tx - cx) * 0.08;
-    far.style.transform  = 'translateX(' + (-cx * 8)  + 'px)';
-    mid.style.transform  = 'translateX(' + ( cx * 5)  + 'px)';
-    near.style.transform = 'translateX(' + (-cx * 3)  + 'px)';
-    birds.style.transform = 'translateX(' + (cx * 14) + 'px)';
-    raf = (Math.abs(tx - cx) > 0.001) ? requestAnimationFrame(step) : null;
-  }
-})();
-
-/* 抽屉开关（触屏主用，桌面亦可点） */
+/* 抽屉开关 */
 document.querySelectorAll('.pb-dwt').forEach(function (btn) {
   btn.addEventListener('click', function (e) {
     e.preventDefault(); e.stopPropagation();
@@ -421,15 +397,20 @@ document.querySelectorAll('.pb-dwt').forEach(function (btn) {
   });
 });
 
-/* 墨晕跟随 */
+/* 数字轻跳：加载时从 0 数上来（一次，减弱动效直接落定） */
 (function () {
-  if (!matchMedia('(hover:hover)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  document.querySelectorAll('.pb-t').forEach(function (t) {
-    t.addEventListener('pointermove', function (e) {
-      var r = t.getBoundingClientRect();
-      t.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-      t.style.setProperty('--my', (e.clientY - r.top) + 'px');
-    });
+  var els = document.querySelectorAll('[data-cnt]');
+  if (!els.length) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  els.forEach(function (el) {
+    var end = +el.getAttribute('data-cnt'), t0 = null, dur = 900;
+    function step(ts) {
+      if (!t0) t0 = ts;
+      var p = Math.min((ts - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(end * e);
+      if (p < 1) requestAnimationFrame(step); else el.textContent = end;
+    }
+    requestAnimationFrame(step);
   });
 })();
 
@@ -459,7 +440,6 @@ document.querySelectorAll('.pb-dwt').forEach(function (btn) {
       nasText.textContent = usOpen ? '开市中' : '已闭市';
       nasDot.classList.toggle('on', usOpen);
 
-      /* 纳指倒计时：开市中显示距收盘，闭市显示距下一个交易日开盘 */
       if (usOpen) {
         var left = 960 - usMin;
         nasCd.innerHTML = '距收盘 <b>' + Math.floor(left / 60) + '</b> 小时 <b>' + (left % 60) + '</b> 分';
