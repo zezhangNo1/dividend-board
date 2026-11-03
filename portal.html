@@ -1,139 +1,301 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>泽克的数据笔记 · 个人工具集</title>
-<meta name="description" content="泽克的数据笔记：A股高股息数据看板、美市时钟（纳指开闭市查询）等自用数据工具集合。数据来自公开接口，仅供参考。">
-<link rel="stylesheet" href="ledger.css?v=20261029">
+<meta name="description" content="泽克的数据笔记：高股息看板、美市时钟、Codex 全球价格、副业雷达、高性价比人生指南等自建数据工具集合。数据来自公开接口，仅供参考。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="泽克的数据笔记 · 个人工具集">
+<meta property="og:description" content="自建数据工具集合：高股息看板、美市时钟、Codex 全球价格、副业雷达、高性价比人生指南。">
 <style>
   :root{
-    color-scheme: light;
-    --bg:#EFF1E9; --card:#FFFFFF; --card2:#F7F8F3;
-    --ink:#1C2430; --ink2:#5B6470; --ink3:#9AA2AE;
-    --brand:#14261E; --brand-hi:#1D362A; --gold:#C9A75A; --gold-ink:#8A6D2F;
-    --green:#1F9D55; --line:#E2E5DC; --line2:#EDEFE7;
-    --shadow:0 1px 2px rgba(28,36,48,.05), 0 2px 8px rgba(28,36,48,.05);
-  }
-  html[data-theme=dark]{
-    color-scheme: dark;
-    --bg:#101511; --card:#171F1A; --card2:#1B241E;
-    --ink:#E5E9E2; --ink2:#9AA8A0; --ink3:#5E6B63;
-    --brand:#C9A75A; --brand-hi:#E0C88A; --gold:#C9A75A; --gold-ink:#E0C88A;
-    --green:#5FBF8A; --line:#26302A; --line2:#1E2822;
-    --shadow:0 1px 2px rgba(0,0,0,.35);
+    --bg:#0A0F0C; --surface:#10171216; --raised:#121B15;
+    --line:rgba(233,241,236,.08); --line-hi:rgba(233,241,236,.16);
+    --ink:#E9F1EC; --ink2:#93A69B; --ink3:#5E7166;
+    --mint:#19A97B; --mint-soft:rgba(25,169,123,.14);
+    --gold:#E2B15C; --gold-soft:rgba(226,177,92,.12);
+    --r:18px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--ink);
+  html{color-scheme:dark}
+  body{
+    background:var(--bg);color:var(--ink);
     font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
-    font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:760px;margin:0 auto;padding:0 clamp(16px,4vw,32px) 64px}
+    font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;
+    min-height:100vh;position:relative;overflow-x:hidden;
+  }
+  /* 氛围光：左上薄荷、右下琥珀，各一点，静止 */
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(640px 480px at 8% -6%, rgba(25,169,123,.09), transparent 62%),
+      radial-gradient(560px 520px at 102% 104%, rgba(226,177,92,.07), transparent 60%);
+  }
+  /* 细颗粒噪点，压住渐变的塑料感 */
+  body::after{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+  .pb-wrap{position:relative;z-index:1;max-width:1060px;margin:0 auto;padding:0 clamp(16px,4vw,32px) 56px}
 
-  .masthead{background:var(--brand);color:#F2F4EA;border-radius:0 0 22px 22px;
-    padding:34px 30px 30px;position:relative;overflow:hidden}
-  html[data-theme=dark] .masthead{background:linear-gradient(160deg,#1B2620,#14201A)}
-  .masthead::after{content:'';position:absolute;left:30px;right:30px;bottom:22px;
-    border-top:1px solid rgba(201,167,90,.85);border-bottom:1px solid rgba(201,167,90,.45);height:4px}
-  .seal{display:inline-block;border:1.5px solid var(--gold);color:var(--gold);
-    border-radius:8px;padding:3px 12px;font-size:12px;letter-spacing:4px;font-weight:600;margin-bottom:14px}
-  .masthead h1{font-size:26px;font-weight:800;letter-spacing:1px;font-family:"Songti SC","STSong",serif}
-  .masthead p{color:rgba(242,244,234,.72);font-size:13px;margin-top:6px;padding-bottom:26px}
-  .masthead .meta{position:absolute;top:30px;right:28px;text-align:right;font-size:11px;
-    color:rgba(201,167,90,.9);line-height:1.9}
+  /* ============ 页眉 ============ */
+  .pb-head{padding:44px 4px 26px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .pb-seal{
+    display:inline-block;border:1px solid var(--gold);color:var(--gold);
+    border-radius:8px;padding:2px 12px;font-size:12px;letter-spacing:6px;text-indent:6px;
+    font-weight:600;margin-bottom:12px;
+  }
+  .pb-head h1{
+    font-size:clamp(26px,4.4vw,34px);font-weight:800;letter-spacing:1px;
+    font-family:"Songti SC","STSong","SimSun",serif;line-height:1.25;
+  }
+  .pb-head h1 em{font-style:normal;color:var(--gold)}
+  .pb-head .pb-tag{color:var(--ink2);font-size:13px;margin-top:6px}
+  .pb-head .pb-icp{font-size:11px;color:var(--ink3);text-align:right;line-height:1.9;padding-bottom:4px}
+  .pb-head .pb-icp a{color:inherit;text-decoration:none}
+  .pb-head .pb-icp a:hover{color:var(--ink2)}
 
-  h2.sec{font-size:13px;color:var(--ink3);letter-spacing:3px;margin:30px 2px 12px;font-weight:600}
-  .site{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;
-    padding:18px 20px;margin-bottom:12px;text-decoration:none;color:var(--ink);
-    box-shadow:var(--shadow);transition:border-color .15s,transform .15s;position:relative}
-  .site:hover{border-color:var(--gold);transform:translateY(-1px)}
-  .site .row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-  .site b{font-size:16.5px;font-weight:800}
-  .site .url{font-size:11.5px;color:var(--gold-ink);font-family:ui-monospace,Menlo,monospace}
-  .site .go{margin-left:auto;color:var(--ink3);font-size:12px}
-  .site p{color:var(--ink2);font-size:12.5px;margin-top:6px}
-  .site .tags{margin-top:9px;display:flex;gap:6px;flex-wrap:wrap}
-  .site .tags span{font-size:10.5px;color:var(--ink2);background:var(--card2);
-    border:1px solid var(--line2);border-radius:6px;padding:1px 8px}
+  /* ============ Bento 网格 ============ */
+  .pb-grid{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:minmax(112px,auto);gap:14px}
+  .pb-t{
+    position:relative;border:1px solid var(--line);border-radius:var(--r);
+    background:linear-gradient(180deg,rgba(233,241,236,.025),rgba(233,241,236,0) 46%),#10171280;
+    background-color:#101712;
+    padding:20px 22px;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;
+    transition:border-color .18s,transform .18s;
+    overflow:hidden;
+  }
+  .pb-t:hover{border-color:var(--line-hi);transform:translateY(-2px)}
+  .pb-t:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+  /* 聚光灯：卡片内跟随指针的一道微光 */
+  .pb-t::before{
+    content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:radial-gradient(300px circle at var(--mx,50%) var(--my,50%),rgba(233,241,236,.055),transparent 65%);
+    opacity:0;transition:opacity .25s;
+  }
+  .pb-t:hover::before{opacity:1}
 
-  .follow{display:flex;gap:12px;flex-wrap:wrap}
-  .fbtn{flex:1;min-width:200px;background:var(--card);border:1px solid var(--line);border-radius:14px;
-    padding:16px 20px;text-decoration:none;color:var(--ink);box-shadow:var(--shadow);cursor:pointer;font-family:inherit}
-  .fbtn:hover{border-color:var(--gold)}
-  .fbtn b{display:block;font-size:14.5px}
-  .fbtn span{font-size:12px;color:var(--ink2)}
-  .fbtn i{font-style:normal;float:right;color:var(--ink3);font-size:12px}
+  .pb-t .pb-trow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .pb-t b{font-size:16.5px;font-weight:800;letter-spacing:.3px}
+  .pb-t .pb-url{font-size:11.5px;color:var(--gold);opacity:.85;font-family:ui-monospace,"SF Mono",Menlo,monospace}
+  .pb-t .pb-go{margin-left:auto;color:var(--ink3);font-size:12px;transition:color .18s,transform .18s}
+  .pb-t:hover .pb-go{color:var(--mint);transform:translateX(2px)}
+  .pb-t p{color:var(--ink2);font-size:12.5px;margin-top:8px;max-width:52ch}
+  .pb-t .pb-tags{margin-top:auto;padding-top:12px;display:flex;gap:6px;flex-wrap:wrap}
+  .pb-t .pb-tags span{
+    font-size:10.5px;color:var(--ink2);background:rgba(233,241,236,.045);
+    border:1px solid var(--line);border-radius:6px;padding:1px 8px;
+  }
 
-  footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);
-    font-size:11px;color:var(--ink3);text-align:center;line-height:2}
-  footer a{color:inherit}
+  /* 跨度 */
+  .pb-hero{grid-column:span 4;grid-row:span 2}
+  .pb-clock{grid-column:span 2;grid-row:span 2}
+  .pb-w2{grid-column:span 2}
+  .pb-w3{grid-column:span 3}
+
+  /* 主卡：高股息看板 */
+  .pb-hero b{font-size:21px}
+  .pb-pill{
+    display:inline-flex;align-items:center;gap:7px;font-size:12px;
+    border:1px solid var(--line);border-radius:999px;padding:3px 12px;margin-bottom:14px;
+    color:var(--ink2);width:fit-content;background:rgba(233,241,236,.03);
+  }
+  .pb-pill b{font-size:12px;font-weight:600;color:var(--ink)}
+  .pb-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex:none}
+  .pb-dot.on{background:var(--mint);animation:pb-pulse 2.2s ease-out infinite}
+  @keyframes pb-pulse{
+    0%{box-shadow:0 0 0 0 rgba(25,169,123,.45)}
+    70%{box-shadow:0 0 0 7px rgba(25,169,123,0)}
+    100%{box-shadow:0 0 0 0 rgba(25,169,123,0)}
+  }
+  .pb-stats{display:flex;gap:26px;flex-wrap:wrap;margin-top:auto;padding-top:14px}
+  .pb-stats div{display:flex;flex-direction:column}
+  .pb-stats i{font-style:normal;font-size:11.5px;color:var(--ink3)}
+  .pb-stats b{font-size:19px;font-weight:800;font-family:ui-monospace,"SF Mono",Menlo,monospace;color:var(--gold);letter-spacing:.5px}
+  .pb-stats b small{font-size:11px;color:var(--ink3);font-weight:400;font-family:inherit;margin-left:3px}
+
+  /* 时钟卡：纽约时间 + 纳指盘况 */
+  .pb-clock{justify-content:space-between}
+  .pb-nytime{
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:clamp(34px,4.2vw,44px);
+    font-weight:700;letter-spacing:1px;line-height:1.1;margin:14px 0 2px;font-variant-numeric:tabular-nums;
+  }
+  .pb-nytime small{font-size:12px;color:var(--ink3);font-weight:400;letter-spacing:0;margin-left:8px}
+  .pb-nas{margin-top:auto}
+  .pb-nas .pb-pill{margin-bottom:0;margin-top:10px}
+
+  /* 关注卡 */
+  .pb-follow{display:flex;flex-direction:row;gap:12px;margin-top:auto;padding-top:14px}
+  .pf-btn{
+    flex:1;min-width:150px;display:flex;flex-direction:column;gap:2px;
+    border:1px solid var(--line);border-radius:12px;padding:12px 16px;
+    text-decoration:none;color:var(--ink);background:rgba(233,241,236,.03);
+    font-family:inherit;font-size:14px;cursor:pointer;transition:border-color .18s;
+  }
+  .pf-btn:hover{border-color:var(--gold)}
+  .pf-btn span{font-size:11.5px;color:var(--ink2)}
+  .pf-btn i{font-style:normal;float:right;color:var(--ink3);font-size:12px}
+
+  /* ============ 页脚 ============ */
+  .pb-foot{
+    margin-top:30px;padding-top:16px;border-top:1px solid var(--line);
+    font-size:11px;color:var(--ink3);text-align:center;line-height:2.1;
+  }
+  .pb-foot a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--ink3);padding-bottom:1px}
+  .pb-foot a:hover{color:var(--ink2);border-color:var(--ink2)}
+
+  /* 入场：一次性、克制 */
+  @media (prefers-reduced-motion: no-preference){
+    .pb-t{animation:pb-in .55s cubic-bezier(.2,.7,.3,1) both;animation-delay:var(--d,0s)}
+    @keyframes pb-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  }
+
+  /* ============ 响应式 ============ */
+  @media (max-width:880px){
+    .pb-grid{grid-template-columns:1fr;grid-auto-rows:auto}
+    .pb-hero,.pb-clock,.pb-w2,.pb-w3{grid-column:span 1;grid-row:auto}
+    .pb-head{padding-top:34px}
+    .pb-head .pb-icp{display:none}
+    .pb-hero b{font-size:19px}
+    .pb-nytime{margin-top:10px}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="pb-wrap">
 
-  <div class="masthead">
-    <span class="seal">数据笔记</span>
-    <h1>泽克的数据笔记</h1>
-    <p>用数据记账，用工具看盘 —— 全部自建，口径公开，仅供参考</p>
-    <div class="meta">皖ICP备<br>2026036657号</div>
-  </div>
+  <header class="pb-head">
+    <div>
+      <span class="pb-seal">数据笔记</span>
+      <h1>泽克的<em>数据笔记</em></h1>
+      <p class="pb-tag">自建工具，口径公开，仅供参考</p>
+    </div>
+    <div class="pb-icp">
+      皖ICP备<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">2026036657号</a><br>
+      6 个工具在线
+    </div>
+  </header>
 
-  <h2 class="sec">数 据 工 具</h2>
+  <main class="pb-grid">
 
-  <a class="site" href="https://board.zekes.top/">
-    <div class="row"><b>高股息看板</b><span class="url">board.zekes.top</span><span class="go">进入 ▸</span></div>
-    <p>A 股 128 只红利标的的分红数据账本：股息率看板、除权除息日历、历史股息率分位、布林技术位置，每个交易日盘后自动生成 AI 红利观察。</p>
-    <div class="tags"><span>股息率查询</span><span>除息日历</span><span>历史分位</span><span>自选提醒</span><span>AI 日报</span></div>
-  </a>
-
-  <a class="site" href="https://nasdaq.zekes.top/">
-    <div class="row"><b>美市时钟</b><span class="url">nasdaq.zekes.top</span><span class="go">进入 ▸</span></div>
-    <p>纳斯达克开闭市时间查询：开市倒计时、夏令时自动换算、全年休市日历、热门纳指基金申购额度状态与走势。</p>
-    <div class="tags"><span>开闭市倒计时</span><span>休市日历</span><span>纳指基金额度</span><span>走势图</span></div>
-  </a>
-
-  <h2 class="sec">更 多</h2>
-
-  <a class="site" href="https://zekes.top/codex-price/">
-    <div class="row"><b>Codex 全球价格</b><span class="url">zekes.top/codex-price</span><span class="go">进入 ▸</span></div>
-    <p>Codex 三档订阅在 32 个 App Store 地区的实测价格对比：每 1× 额度成本、汇率换算，一眼看出哪个档位哪个区更划算。</p>
-    <div class="tags"><span>档位对比</span><span>地区比价</span><span>单位成本</span></div>
-  </a>
-
-  <a class="site" href="https://zekes.top/fuye-radar/">
-    <div class="row"><b>副业雷达</b><span class="url">zekes.top/fuye-radar</span><span class="go">进入 ▸</span></div>
-    <p>653 条副业项目案例线索库：按方向筛选、五题测评匹配，配原创实操指南与来源标注，找到值得小步验证的方向。</p>
-    <div class="tags"><span>案例检索</span><span>方向测评</span><span>实操指南</span></div>
-  </a>
-
-  <a class="site" href="https://zekes.top/life-guide/">
-    <div class="row"><b>高性价比人生指南</b><span class="url">zekes.top/life-guide</span><span class="go">进入 ▸</span></div>
-    <p>654 条按性价比排序的人生建议：长寿防病、急救、省钱、法律红线、失业兜底、婚育与出国，每条注明成本、收益和证据等级。</p>
-    <div class="tags"><span>场景直达</span><span>关键词搜索</span><span>证据分级</span></div>
-  </a>
-
-  <a class="site" href="https://board.zekes.top/cards.html">
-    <div class="row"><b>研究卡片库</b><span class="url">board.zekes.top/cards</span><span class="go">进入 ▸</span></div>
-    <p>386 张个股研究卡片存档，按标的聚合，覆盖银行、家电、白酒、能源等 12 个板块。</p>
-  </a>
-
-  <h2 class="sec">关 注</h2>
-  <div class="follow">
-    <a class="fbtn" href="#" data-follow="xhs" style="display:none">
-      <b>小红书 <i>▸</i></b><span>Zzzzzzzzz分析高股息 · 每日红利笔记</span>
+    <a class="pb-t pb-hero" href="https://board.zekes.top/" style="--d:.02s">
+      <span class="pb-pill"><span class="pb-dot" id="pbAshareDot"></span><span id="pbAshareText">A 股</span></span>
+      <div class="pb-trow"><b>高股息看板</b><span class="pb-url">board.zekes.top</span><span class="pb-go">进入 ▸</span></div>
+      <p>A 股红利标的的分红数据账本：股息率看板、除权除息日历、历史股息率分位、布林技术位置，每个交易日盘后自动生成 AI 红利观察。</p>
+      <div class="pb-stats">
+        <div><i>覆盖标的</i><b>128<small>只</small></b></div>
+        <div><i>研究卡片</i><b>386<small>张</small></b></div>
+        <div><i>更新频率</i><b style="color:var(--mint)">每交易日<small>盘后</small></b></div>
+      </div>
     </a>
-    <a class="fbtn" href="#" data-follow="gzh" style="display:none">
-      <b>公众号 <i>▸</i></b><span>泽克的数据笔记 · 长文与工具更新</span>
-    </a>
-  </div>
 
-  <footer>
+    <a class="pb-t pb-clock" href="https://nasdaq.zekes.top/" style="--d:.08s">
+      <div class="pb-trow"><b>美市时钟</b><span class="pb-url">nasdaq.zekes.top</span><span class="pb-go">进入 ▸</span></div>
+      <div>
+        <div class="pb-nytime" id="pbNy" aria-hidden="true">--:--:--<small>美东</small></div>
+        <p>纳斯达克开闭市时间查询，夏令时自动换算，附全年休市日历与热门纳指基金申购额度。</p>
+      </div>
+      <div class="pb-nas">
+        <span class="pb-pill"><span class="pb-dot" id="pbNasDot"></span><span>纳斯达克</span><b id="pbNasText">读取中</b></span>
+      </div>
+    </a>
+
+    <a class="pb-t pb-w2" href="https://zekes.top/codex-price/" style="--d:.14s">
+      <div class="pb-trow"><b>Codex 全球价格</b><span class="pb-go">进入 ▸</span></div>
+      <p>Codex 三档订阅在 32 个 App Store 地区的实测价格对比：每 1× 额度成本、汇率换算，哪个档位哪个区更划算一眼看清。</p>
+      <div class="pb-tags"><span>档位对比</span><span>地区比价</span><span>单位成本</span></div>
+    </a>
+
+    <a class="pb-t pb-w2" href="https://zekes.top/fuye-radar/" style="--d:.2s">
+      <div class="pb-trow"><b>副业雷达</b><span class="pb-go">进入 ▸</span></div>
+      <p>653 条副业项目案例线索库：按方向筛选、五题测评匹配，配原创实操指南与来源标注。</p>
+      <div class="pb-tags"><span>案例检索</span><span>方向测评</span><span>实操指南</span></div>
+    </a>
+
+    <a class="pb-t pb-w2" href="https://zekes.top/life-guide/" style="--d:.26s">
+      <div class="pb-trow"><b>高性价比人生指南</b><span class="pb-go">进入 ▸</span></div>
+      <p>654 条按性价比排序的人生建议：长寿防病、急救、省钱、法律红线、失业兜底、婚育与出国。</p>
+      <div class="pb-tags"><span>场景直达</span><span>关键词搜索</span><span>证据分级</span></div>
+    </a>
+
+    <a class="pb-t pb-w3" href="https://board.zekes.top/cards.html" style="--d:.32s">
+      <div class="pb-trow"><b>研究卡片库</b><span class="pb-url">board.zekes.top/cards</span><span class="pb-go">进入 ▸</span></div>
+      <p>386 张个股研究卡片存档，按标的聚合，覆盖银行、家电、白酒、能源等 12 个板块。</p>
+    </a>
+
+    <div class="pb-t pb-w3" style="--d:.38s">
+      <div class="pb-trow"><b>关注更新</b></div>
+      <p>新的工具和数据观察会第一时间在这两个地方发布。</p>
+      <div class="pb-follow">
+        <a class="pf-btn" href="#" data-follow="xhs" style="display:none">
+          <span><b>小红书</b> <i>▸</i></span><span>每日红利笔记</span>
+        </a>
+        <a class="pf-btn" href="#" data-follow="gzh" style="display:none">
+          <span><b>公众号</b> <i>▸</i></span><span>泽克的数据笔记</span>
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="pb-foot">
     数据均来自公开行情接口，仅供参考，不构成任何投资建议 ·
     <a href="https://board.zekes.top/ads.html">商务合作</a> ·
     <a href="https://board.zekes.top/about.html">口径与免责</a><br>
     © 2026 泽克的数据笔记 · 皖ICP备<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">2026036657号</a>
   </footer>
 </div>
+
+<script>
+/* 聚光灯：指针在卡片内移动时更新微光圆心（触屏与减弱动效时跳过） */
+(function () {
+  if (!matchMedia('(hover:hover)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.pb-t').forEach(function (t) {
+    t.addEventListener('pointermove', function (e) {
+      var r = t.getBoundingClientRect();
+      t.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      t.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+})();
+
+/* 双时钟：纽约时间（Intl 处理夏令时）+ 两地盘况，全部本地计算 */
+(function () {
+  function parts(tz) {
+    var p = new Intl.DateTimeFormat('en-US', {
+      timeZone: tz, hour12: false, weekday: 'short',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    }).formatToParts(new Date()).reduce(function (a, x) { a[x.type] = x.value; return a; }, {});
+    p.hour = p.hour === '24' ? 0 : +p.hour; p.minute = +p.minute; p.second = +p.second;
+    return p;
+  }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  var weekend = { Sat: 1, Sun: 1 };
+
+  var ny = document.getElementById('pbNy'), nasDot = document.getElementById('pbNasDot'),
+      nasText = document.getElementById('pbNasText'),
+      aDot = document.getElementById('pbAshareDot'), aText = document.getElementById('pbAshareText');
+
+  function tick() {
+    try {
+      var us = parts('America/New_York');
+      ny.innerHTML = pad(us.hour) + ':' + pad(us.minute) + ':' + pad(us.second) + '<small>美东</small>';
+      var usMin = us.hour * 60 + us.minute, usOpen = !weekend[us.weekday] && usMin >= 570 && usMin < 960;
+      nasText.textContent = usOpen ? '开市中' : '已闭市';
+      nasDot.classList.toggle('on', usOpen);
+
+      var cn = parts('Asia/Shanghai');
+      var cnMin = cn.hour * 60 + cn.minute, wd = !weekend[cn.weekday];
+      var st = wd ? (cnMin >= 570 && cnMin < 690) || (cnMin >= 780 && cnMin < 900) ? '开市中'
+             : cnMin >= 690 && cnMin < 780 ? '午间休市' : '已闭市' : '周末休市';
+      aText.textContent = 'A 股 · ' + st;
+      aDot.classList.toggle('on', st === '开市中');
+    } catch (e) { /* 时钟失败不影响页面 */ }
+  }
+  tick(); setInterval(tick, 1000);
+})();
+</script>
 <script src="follow.js?v=1" defer></script>
 <script src="track.js?v=1" defer></script>
 </body>
