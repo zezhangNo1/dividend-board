@@ -9,49 +9,64 @@
 <meta property="og:title" content="泽克的数据笔记 · 个人工具集">
 <meta property="og:description" content="自建数据工具集合：高股息看板、美市时钟、Codex 全球价格、副业雷达、高性价比人生指南。">
 <style>
+  /* ============ 「香槟金 × 午夜蓝」轻奢令牌 ============ */
   :root{
-    --bg:#0A0F0C; --surface:#10171216; --raised:#121B15;
-    --line:rgba(233,241,236,.08); --line-hi:rgba(233,241,236,.16);
-    --ink:#E9F1EC; --ink2:#93A69B; --ink3:#5E7166;
-    --mint:#19A97B; --mint-soft:rgba(25,169,123,.14);
-    --gold:#E2B15C; --gold-soft:rgba(226,177,92,.12);
+    --bg:#06080F;
+    --ink:#F2F5FA; --ink2:#ADB8CC; --ink3:#6D7890;
+    --line:rgba(255,255,255,.10); --line-hi:rgba(255,255,255,.24);
+    --mint:#3DDDA0;
+    --gold:#E9CE93; --gold-dim:#C7A55E;
+    --glass:rgba(14,19,34,.52);
     --r:18px;
+    --gold-grad:linear-gradient(104deg,#F8E7B8 0%,#DDB76B 34%,#F6E2A8 58%,#C09648 100%);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{color-scheme:dark}
   body{
-    background:var(--bg);color:var(--ink);
+    background:linear-gradient(180deg,#070A14 0%,#06080F 46%,#080B16 100%);
+    color:var(--ink);
     font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
     font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;
     min-height:100vh;position:relative;overflow-x:hidden;
   }
-  /* 氛围光：左上薄荷、右下琥珀，各一点，静止 */
+  /* 极光幕：紫罗兰 / 青翡 / 香槟，柔和大面积铺开 */
   body::before{
     content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     background:
-      radial-gradient(640px 480px at 8% -6%, rgba(25,169,123,.09), transparent 62%),
-      radial-gradient(560px 520px at 102% 104%, rgba(226,177,92,.07), transparent 60%);
+      radial-gradient(54% 44% at 11% -6%, rgba(116,104,255,.21), transparent 70%),
+      radial-gradient(46% 38% at 89% 4%, rgba(45,212,191,.16), transparent 68%),
+      radial-gradient(52% 46% at 80% 104%, rgba(233,206,147,.13), transparent 66%),
+      radial-gradient(40% 36% at 1% 94%, rgba(150,92,255,.11), transparent 72%);
   }
-  /* 细颗粒噪点，压住渐变的塑料感 */
+  /* 颗粒：压住渐变的塑料感，提一层胶片质感 */
   body::after{
     content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
   }
   .pb-wrap{position:relative;z-index:1;max-width:1060px;margin:0 auto;padding:0 clamp(16px,4vw,32px) 56px}
 
+  /* 香槟金渐变字（标题 / 印章 / 数字共用） */
+  .pb-gold{
+    background:var(--gold-grad);
+    -webkit-background-clip:text;background-clip:text;
+    color:transparent;-webkit-text-fill-color:transparent;
+  }
+
   /* ============ 页眉 ============ */
-  .pb-head{padding:44px 4px 26px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .pb-head{padding:46px 4px 28px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
   .pb-seal{
-    display:inline-block;border:1px solid var(--gold);color:var(--gold);
+    display:inline-block;
+    border:1px solid rgba(233,206,147,.55);
+    background:linear-gradient(180deg,rgba(233,206,147,.10),rgba(233,206,147,.03));
     border-radius:8px;padding:2px 12px;font-size:12px;letter-spacing:6px;text-indent:6px;
     font-weight:600;margin-bottom:12px;
+    box-shadow:0 0 0 1px rgba(255,255,255,.03) inset, 0 8px 24px -14px rgba(233,206,147,.5);
   }
   .pb-head h1{
-    font-size:clamp(26px,4.4vw,34px);font-weight:800;letter-spacing:1px;
+    font-size:clamp(27px,4.6vw,36px);font-weight:800;letter-spacing:1.5px;
     font-family:"Songti SC","STSong","SimSun",serif;line-height:1.25;
   }
-  .pb-head h1 em{font-style:normal;color:var(--gold)}
-  .pb-head .pb-tag{color:var(--ink2);font-size:13px;margin-top:6px}
+  .pb-head .pb-tag{color:var(--ink2);font-size:13px;margin-top:7px}
   .pb-head .pb-icp{font-size:11px;color:var(--ink3);text-align:right;line-height:1.9;padding-bottom:4px}
   .pb-head .pb-icp a{color:inherit;text-decoration:none}
   .pb-head .pb-icp a:hover{color:var(--ink2)}
@@ -60,31 +75,37 @@
   .pb-grid{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:minmax(112px,auto);gap:14px}
   .pb-t{
     position:relative;border:1px solid var(--line);border-radius:var(--r);
-    background:linear-gradient(180deg,rgba(233,241,236,.025),rgba(233,241,236,0) 46%),#10171280;
-    background-color:#101712;
+    background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.012) 42%),var(--glass);
+    -webkit-backdrop-filter:blur(18px) saturate(150%);
+    backdrop-filter:blur(18px) saturate(150%);
+    box-shadow:0 1px 0 rgba(255,255,255,.05) inset, 0 22px 44px -28px rgba(0,0,0,.85);
     padding:20px 22px;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;
-    transition:border-color .18s,transform .18s;
+    transition:border-color .18s,transform .18s,box-shadow .18s;
     overflow:hidden;
   }
-  .pb-t:hover{border-color:var(--line-hi);transform:translateY(-2px)}
+  .pb-t:hover{
+    border-color:var(--line-hi);transform:translateY(-2px);
+    box-shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 26px 50px -26px rgba(0,0,0,.9);
+  }
   .pb-t:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
   /* 聚光灯：卡片内跟随指针的一道微光 */
   .pb-t::before{
-    content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-    background:radial-gradient(300px circle at var(--mx,50%) var(--my,50%),rgba(233,241,236,.055),transparent 65%);
+    content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+    background:radial-gradient(320px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.07),transparent 65%);
     opacity:0;transition:opacity .25s;
   }
   .pb-t:hover::before{opacity:1}
+  .pb-t > *{position:relative;z-index:1}
 
   .pb-t .pb-trow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
   .pb-t b{font-size:16.5px;font-weight:800;letter-spacing:.3px}
-  .pb-t .pb-url{font-size:11.5px;color:var(--gold);opacity:.85;font-family:ui-monospace,"SF Mono",Menlo,monospace}
+  .pb-t .pb-url{font-size:11.5px;color:var(--gold);opacity:.9;font-family:ui-monospace,"SF Mono",Menlo,monospace}
   .pb-t .pb-go{margin-left:auto;color:var(--ink3);font-size:12px;transition:color .18s,transform .18s}
-  .pb-t:hover .pb-go{color:var(--mint);transform:translateX(2px)}
+  .pb-t:hover .pb-go{color:var(--gold);transform:translateX(2px)}
   .pb-t p{color:var(--ink2);font-size:12.5px;margin-top:8px;max-width:52ch}
   .pb-t .pb-tags{margin-top:auto;padding-top:12px;display:flex;gap:6px;flex-wrap:wrap}
   .pb-t .pb-tags span{
-    font-size:10.5px;color:var(--ink2);background:rgba(233,241,236,.045);
+    font-size:10.5px;color:var(--ink2);background:rgba(255,255,255,.05);
     border:1px solid var(--line);border-radius:6px;padding:1px 8px;
   }
 
@@ -94,34 +115,59 @@
   .pb-w2{grid-column:span 2}
   .pb-w3{grid-column:span 3}
 
-  /* 主卡：高股息看板 */
+  /* 主卡：流光描边（一圈缓慢巡游的金青光带） */
+  .pb-hero::after{
+    content:'';position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;
+    background:conic-gradient(from var(--ba,40deg),
+      transparent 0deg, transparent 55deg,
+      rgba(246,226,168,.95) 85deg, rgba(233,206,147,.35) 105deg, transparent 135deg,
+      transparent 215deg, rgba(61,221,160,.75) 250deg, transparent 285deg);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+  }
+  @property --ba{syntax:'<angle>';initial-value:40deg;inherits:false}
+  @media (prefers-reduced-motion: no-preference){
+    .pb-hero::after{animation:pb-beam 10s linear infinite}
+    @keyframes pb-beam{to{--ba:400deg}}
+  }
+
   .pb-hero b{font-size:21px}
   .pb-pill{
     display:inline-flex;align-items:center;gap:7px;font-size:12px;
     border:1px solid var(--line);border-radius:999px;padding:3px 12px;margin-bottom:14px;
-    color:var(--ink2);width:fit-content;background:rgba(233,241,236,.03);
+    color:var(--ink2);width:fit-content;background:rgba(255,255,255,.045);
   }
   .pb-pill b{font-size:12px;font-weight:600;color:var(--ink)}
   .pb-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex:none}
   .pb-dot.on{background:var(--mint);animation:pb-pulse 2.2s ease-out infinite}
   @keyframes pb-pulse{
-    0%{box-shadow:0 0 0 0 rgba(25,169,123,.45)}
-    70%{box-shadow:0 0 0 7px rgba(25,169,123,0)}
-    100%{box-shadow:0 0 0 0 rgba(25,169,123,0)}
+    0%{box-shadow:0 0 0 0 rgba(61,221,160,.45)}
+    70%{box-shadow:0 0 0 7px rgba(61,221,160,0)}
+    100%{box-shadow:0 0 0 0 rgba(61,221,160,0)}
   }
   .pb-stats{display:flex;gap:26px;flex-wrap:wrap;margin-top:auto;padding-top:14px}
   .pb-stats div{display:flex;flex-direction:column}
   .pb-stats i{font-style:normal;font-size:11.5px;color:var(--ink3)}
-  .pb-stats b{font-size:19px;font-weight:800;font-family:ui-monospace,"SF Mono",Menlo,monospace;color:var(--gold);letter-spacing:.5px}
-  .pb-stats b small{font-size:11px;color:var(--ink3);font-weight:400;font-family:inherit;margin-left:3px}
+  .pb-stats b{
+    font-size:19px;font-weight:800;font-family:ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:.5px;
+    background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;
+    color:transparent;-webkit-text-fill-color:transparent;
+  }
+  .pb-stats b small{font-size:11px;color:var(--ink3);font-weight:400;font-family:inherit;
+    -webkit-text-fill-color:var(--ink3);margin-left:3px}
+  .pb-stats b.pb-live{-webkit-text-fill-color:transparent;background:linear-gradient(104deg,#7FEFC4,#3DDDA0);
+    -webkit-background-clip:text;background-clip:text}
 
   /* 时钟卡：纽约时间 + 纳指盘况 */
   .pb-clock{justify-content:space-between}
   .pb-nytime{
     font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:clamp(34px,4.2vw,44px);
     font-weight:700;letter-spacing:1px;line-height:1.1;margin:14px 0 2px;font-variant-numeric:tabular-nums;
+    background:linear-gradient(104deg,#FFFFFF 30%,#D9E4F5 70%,#E9CE93 105%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
   }
-  .pb-nytime small{font-size:12px;color:var(--ink3);font-weight:400;letter-spacing:0;margin-left:8px}
+  .pb-nytime small{font-size:12px;color:var(--ink3);font-weight:400;letter-spacing:0;margin-left:8px;
+    -webkit-text-fill-color:var(--ink3)}
   .pb-nas{margin-top:auto}
   .pb-nas .pb-pill{margin-bottom:0;margin-top:10px}
 
@@ -130,10 +176,10 @@
   .pf-btn{
     flex:1;min-width:150px;display:flex;flex-direction:column;gap:2px;
     border:1px solid var(--line);border-radius:12px;padding:12px 16px;
-    text-decoration:none;color:var(--ink);background:rgba(233,241,236,.03);
+    text-decoration:none;color:var(--ink);background:rgba(255,255,255,.045);
     font-family:inherit;font-size:14px;cursor:pointer;transition:border-color .18s;
   }
-  .pf-btn:hover{border-color:var(--gold)}
+  .pf-btn:hover{border-color:rgba(233,206,147,.55)}
   .pf-btn span{font-size:11.5px;color:var(--ink2)}
   .pf-btn i{font-style:normal;float:right;color:var(--ink3);font-size:12px}
 
@@ -155,7 +201,7 @@
   @media (max-width:880px){
     .pb-grid{grid-template-columns:1fr;grid-auto-rows:auto}
     .pb-hero,.pb-clock,.pb-w2,.pb-w3{grid-column:span 1;grid-row:auto}
-    .pb-head{padding-top:34px}
+    .pb-head{padding-top:36px}
     .pb-head .pb-icp{display:none}
     .pb-hero b{font-size:19px}
     .pb-nytime{margin-top:10px}
@@ -167,8 +213,8 @@
 
   <header class="pb-head">
     <div>
-      <span class="pb-seal">数据笔记</span>
-      <h1>泽克的<em>数据笔记</em></h1>
+      <span class="pb-seal pb-gold">数据笔记</span>
+      <h1 class="pb-gold">泽克的数据笔记</h1>
       <p class="pb-tag">自建工具，口径公开，仅供参考</p>
     </div>
     <div class="pb-icp">
@@ -186,7 +232,7 @@
       <div class="pb-stats">
         <div><i>覆盖标的</i><b>128<small>只</small></b></div>
         <div><i>研究卡片</i><b>386<small>张</small></b></div>
-        <div><i>更新频率</i><b style="color:var(--mint)">每交易日<small>盘后</small></b></div>
+        <div><i>更新频率</i><b class="pb-live">每交易日<small>盘后</small></b></div>
       </div>
     </a>
 
