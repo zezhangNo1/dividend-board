@@ -10,12 +10,13 @@
 <meta property="og:title" content="泽克的数据笔记 · 个人工具集">
 <meta property="og:description" content="自建数据工具集合：高股息看板、美市时钟、Codex 全球价格、副业雷达、高性价比人生指南。">
 <style>
-  /* ============ 「浅色科技」令牌：晨雾白 / 石板墨 / 电光蓝紫 ============ */
+  /* ============ 「浅色科技」令牌 ============ */
   :root{
     --bg:#F5F7FB; --card:rgba(255,255,255,.78);
     --ink:#0F172A; --ink2:#5B6B82; --ink3:#93A1B5;
     --line:rgba(15,23,42,.09); --line-hi:rgba(37,99,235,.35);
     --blue:#2563EB; --violet:#7C3AED; --cyan:#0891B2; --cyan-hi:#06B6D4;
+    --xhs:#FF2442; --wx:#07C160;
     --ease:cubic-bezier(.25,.8,.25,1);
     --r:18px;
   }
@@ -38,7 +39,7 @@
       radial-gradient(520px 340px at 8% -10%, rgba(37,99,235,.12), transparent 72%),
       linear-gradient(180deg,#F7F9FD 0%, rgba(245,247,251,0) 100%);
   }
-  .pb-head::before{  /* 细蓝图网格 */
+  .pb-head::before{
     content:'';position:absolute;inset:0;pointer-events:none;
     background:
       repeating-linear-gradient(0deg, rgba(37,99,235,.045) 0 1px, transparent 1px 44px),
@@ -67,14 +68,14 @@
   .pb-icp a{color:inherit;text-decoration:none}
   .pb-icp a:hover{color:var(--ink2)}
 
-  /* ============ Bento：玻璃白卡 + 图标配图 ============ */
+  /* ============ Bento 网格 ============ */
   .pb-grid{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:minmax(112px,auto);gap:14px;margin-top:6px}
   .pb-t{
     position:relative;border:1px solid var(--line);border-radius:var(--r);
     background:var(--card);
     -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
     box-shadow:0 1px 2px rgba(15,23,42,.04), 0 16px 34px -24px rgba(15,23,42,.28);
-    padding:20px 22px;display:flex;flex-direction:column;
+    padding:18px 20px;display:flex;flex-direction:column;
     transition:transform .32s var(--ease), box-shadow .32s var(--ease), border-color .32s var(--ease);
     overflow:hidden;
   }
@@ -83,29 +84,32 @@
     box-shadow:0 2px 4px rgba(15,23,42,.05), 0 22px 44px -24px rgba(37,99,235,.35);
   }
   .pb-main{position:relative;z-index:1;color:inherit;text-decoration:none;display:flex;flex-direction:column;flex:1}
-  .pb-main::after{content:'';position:absolute;inset:-20px;z-index:0}
+  .pb-main::after{content:'';position:absolute;inset:0;z-index:0}
   .pb-main:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:10px}
-  .pb-trow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .pb-ic{
-    width:42px;height:42px;border-radius:12px;flex:none;display:grid;place-items:center;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.3), 0 8px 16px -10px var(--ic-sh,rgba(37,99,235,.6));
-    transition:transform .32s var(--ease);
-  }
-  .pb-t:hover .pb-ic{transform:scale(1.06)}
-  .pb-ic svg{width:22px;height:22px;display:block}
-  .hero-ic{width:48px;height:48px;border-radius:14px}
-  .hero-ic svg{width:26px;height:26px}
   .pb-t b{font-size:16px;font-weight:800;letter-spacing:.2px}
-  .pb-t .pb-url{font-size:11.5px;color:var(--ink3);font-family:ui-monospace,"SF Mono",Menlo,monospace}
-  .pb-t .pb-go{margin-left:auto;color:var(--ink3);font-size:12px;transition:color .25s,transform .25s;white-space:nowrap}
-  .pb-t:hover .pb-go{color:var(--blue);transform:translateX(2px)}
-  .pb-t p{color:var(--ink2);font-size:12.5px;margin-top:10px;max-width:52ch}
+  .pb-t p{color:var(--ink2);font-size:12.5px;margin-top:8px;max-width:56ch}
 
-  /* 抽屉：悬停 / 点开向下抽出 */
+  /* ============ 浏览器窗配图：地址栏 + 站点缩影 ============ */
+  .pb-shot{margin:0 0 14px;flex:none;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;
+    transition:transform .32s var(--ease)}
+  .pb-t:hover .pb-shot{transform:translateY(-1px)}
+  .pb-bar{height:25px;background:#F1F4F9;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:5px;padding:0 10px}
+  .pb-bar i{width:7px;height:7px;border-radius:50%;flex:none}
+  .pb-bar i:nth-child(1){background:#FF5F57}
+  .pb-bar i:nth-child(2){background:#FEBC2E}
+  .pb-bar i:nth-child(3){background:#28C840}
+  .pb-addr-w{flex:1;display:flex;justify-content:center;min-width:0}
+  .pb-addr{font:500 10px/1 ui-monospace,"SF Mono",Menlo,monospace;background:#fff;border:1px solid var(--line);
+    border-radius:6px;padding:3px 10px;color:var(--ink3);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pb-view{height:62px;background:linear-gradient(180deg,#FBFCFE,#F3F6FB);overflow:hidden}
+  .pb-view svg{width:100%;height:100%;display:block}
+  .pb-hero .pb-view{height:82px}
+
+  /* 抽屉 */
   .pb-dw{display:grid;grid-template-rows:0fr;transition:grid-template-rows .38s var(--ease);z-index:2;position:relative}
   .pb-dw > div{overflow:hidden}
   .pb-t:hover .pb-dw,.pb-t.open .pb-dw{grid-template-rows:1fr}
-  .pb-dw-in{margin-top:14px;padding-top:13px;border-top:1px dashed rgba(15,23,42,.15);
+  .pb-dw-in{margin-top:12px;padding-top:12px;border-top:1px dashed rgba(15,23,42,.15);
     display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .pb-dw-in a{
     position:relative;z-index:2;text-decoration:none;color:var(--ink);
@@ -116,12 +120,11 @@
   .pb-dw-in .pb-k{font-size:12px;color:var(--ink3)}
   .pb-dw-in .pb-k b{font-size:13px;color:var(--blue);font-family:ui-monospace,Menlo,monospace}
   .pb-dwt{
-    position:absolute;top:14px;right:14px;z-index:2;
-    border:none;background:rgba(255,255,255,.9);cursor:pointer;
-    font-size:11.5px;color:var(--ink3);padding:4px 12px;font-family:inherit;
-    border-radius:999px;border:1px solid transparent;transition:color .2s,border-color .2s;
+    flex:none;border:none;background:#fff;cursor:pointer;
+    font-size:10.5px;color:var(--ink3);padding:2px 9px;font-family:inherit;
+    border-radius:999px;border:1px solid var(--line);transition:color .2s,border-color .2s;
   }
-  .pb-dwt:hover{color:var(--blue);border-color:var(--line)}
+  .pb-dwt:hover{color:var(--blue);border-color:var(--blue)}
   .pb-t.open .pb-dwt{color:var(--blue);border-color:var(--blue)}
 
   .pb-tags{margin-top:auto;padding-top:12px;display:flex;gap:6px;flex-wrap:wrap}
@@ -137,21 +140,14 @@
   .pb-hero b{font-size:19px}
   .pb-pill{
     display:inline-flex;align-items:center;gap:7px;font-size:12px;
-    border:1px solid var(--line);border-radius:999px;padding:3px 12px;margin-bottom:14px;
+    border:1px solid var(--line);border-radius:999px;padding:3px 12px;margin-bottom:12px;
     color:var(--ink2);width:fit-content;background:#fff;
   }
   .pb-pill b{font-size:12px;font-weight:600;color:var(--ink)}
   .pb-dot{width:7px;height:7px;border-radius:50%;background:var(--ink3);flex:none}
   .pb-dot.on{background:var(--cyan-hi);animation:pb-breath 3s ease-in-out infinite}
   @keyframes pb-breath{0%,100%{opacity:1}50%{opacity:.35}}
-  /* 主卡底部装饰走势线（加载时描一次） */
-  .pb-spark{position:absolute;right:0;bottom:0;width:46%;height:88px;pointer-events:none;opacity:.9}
-  .pb-spark path.pb-ln{stroke-dasharray:600;stroke-dashoffset:600}
-  @media (prefers-reduced-motion: no-preference){
-    .pb-spark path.pb-ln{animation:pb-draw 1.3s .3s var(--ease) forwards}
-    @keyframes pb-draw{to{stroke-dashoffset:0}}
-  }
-  .pb-stats{display:flex;gap:28px;flex-wrap:wrap;margin-top:auto;padding-top:14px;position:relative;z-index:1}
+  .pb-stats{display:flex;gap:28px;flex-wrap:wrap;margin-top:auto;padding-top:12px}
   .pb-stats div{display:flex;flex-direction:column}
   .pb-stats i{font-style:normal;font-size:11.5px;color:var(--ink3)}
   .pb-stats b{font-size:20px;font-weight:800;font-family:ui-monospace,"SF Mono",Menlo,monospace;color:var(--blue);letter-spacing:.5px;font-variant-numeric:tabular-nums}
@@ -159,34 +155,43 @@
   .pb-stats b.pb-live{color:var(--cyan)}
 
   /* 时钟卡 */
-  .pb-clock{justify-content:space-between}
+  .pb-clock .pb-main{justify-content:space-between}
   .pb-nytime{
-    font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:clamp(34px,4.2vw,44px);
-    font-weight:700;letter-spacing:1px;line-height:1.1;margin:14px 0 2px;color:var(--ink);
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:clamp(32px,4vw,42px);
+    font-weight:700;letter-spacing:1px;line-height:1.1;margin:12px 0 2px;color:var(--ink);
     font-variant-numeric:tabular-nums;
   }
   .pb-nytime small{font-size:12px;color:var(--ink3);font-weight:400;letter-spacing:0;margin-left:8px}
-  .pb-nas{margin-top:auto}
-  .pb-nas .pb-pill{margin-bottom:0;margin-top:10px}
 
-  /* 雷达指针慢转：全页唯一的连续图形动效 */
-  .pb-radar-needle{transform-origin:12px 12px}
+  /* 雷达指针慢转：全页唯一连续图形动效 */
+  .pb-radar-needle{transform-origin:262px 32px}
   @media (prefers-reduced-motion: no-preference){
     .pb-radar-needle{animation:pb-sweep 7s linear infinite}
   }
   @keyframes pb-sweep{to{transform:rotate(360deg)}}
 
-  /* 关注卡 */
-  .pb-follow{display:flex;flex-direction:row;gap:12px;margin-top:auto;padding-top:14px}
+  /* ============ 关注卡：品牌色强调 + App logo ============ */
+  .pb-follow{display:flex;flex-direction:row;gap:12px;margin-top:auto;padding-top:16px}
   .pf-btn{
-    flex:1;min-width:150px;display:flex;flex-direction:column;gap:2px;
-    border:1px solid var(--line);border-radius:12px;padding:12px 16px;
-    text-decoration:none;color:var(--ink);background:#fff;
-    font-family:inherit;font-size:14px;cursor:pointer;transition:border-color .25s,transform .25s;
+    flex:1;min-width:160px;display:flex;align-items:center;gap:12px;
+    border:none;border-radius:14px;padding:13px 16px;
+    text-decoration:none;font-family:inherit;font-size:14px;cursor:pointer;
+    transition:transform .28s var(--ease), box-shadow .28s var(--ease);
   }
-  .pf-btn:hover{border-color:var(--blue);transform:translateY(-1px)}
-  .pf-btn span{font-size:11.5px;color:var(--ink2)}
-  .pf-btn i{font-style:normal;float:right;color:var(--ink3);font-size:12px}
+  .pf-btn:hover{transform:translateY(-2px)}
+  .pf-xhs{background:linear-gradient(135deg,#FF2442 0%,#FF5C7A 100%);color:#fff;
+    box-shadow:0 10px 24px -10px rgba(255,36,66,.55), inset 0 1px 0 rgba(255,255,255,.25)}
+  .pf-gzh{background:linear-gradient(135deg,#07C160 0%,#2BC77C 100%);color:#fff;
+    box-shadow:0 10px 24px -10px rgba(7,193,96,.5), inset 0 1px 0 rgba(255,255,255,.25)}
+  .pf-xhs:hover{box-shadow:0 14px 30px -10px rgba(255,36,66,.65), inset 0 1px 0 rgba(255,255,255,.25)}
+  .pf-gzh:hover{box-shadow:0 14px 30px -10px rgba(7,193,96,.6), inset 0 1px 0 rgba(255,255,255,.25)}
+  .pf-logo{flex:none;display:grid;place-items:center;background:#fff;border-radius:9px}
+  .pf-logo-xhs{color:var(--xhs);font-weight:800;font-size:11px;padding:6px 9px;letter-spacing:1px}
+  .pf-logo-gzh{width:36px;height:36px;padding:6px}
+  .pf-logo-gzh svg{width:100%;height:100%;display:block}
+  .pf-tx{display:flex;flex-direction:column;line-height:1.4;text-align:left;min-width:0}
+  .pf-tx b{font-size:14.5px}
+  .pf-tx em{font-style:normal;font-size:11px;opacity:.88}
 
   /* ============ 页脚 ============ */
   .pb-foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);
@@ -194,7 +199,7 @@
   .pb-foot a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--ink3);padding-bottom:1px}
   .pb-foot a:hover{color:var(--ink2);border-color:var(--ink2)}
 
-  /* 入场：一次轻起，不模糊不晃 */
+  /* 入场：一次轻起 */
   @media (prefers-reduced-motion: no-preference){
     .pb-t{animation:pb-in .45s var(--ease) both;animation-delay:var(--d,0s)}
     @keyframes pb-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -207,8 +212,8 @@
     .pb-head{padding-top:38px;padding-bottom:30px}
     .pb-const{display:none}
     .pb-hero b{font-size:18px}
-    .pb-nytime{margin-top:10px}
-    .pb-spark{width:60%;height:64px}
+    .pb-nytime{margin-top:8px}
+    .pb-follow{flex-direction:column}
   }
 </style>
 </head>
@@ -245,14 +250,31 @@
   <main class="pb-grid">
 
     <article class="pb-t pb-hero" style="--d:.02s">
+      <figure class="pb-shot">
+        <figcaption class="pb-bar"><i></i><i></i><i></i>
+          <span class="pb-addr-w"><span class="pb-addr">board.zekes.top</span></span>
+          <button class="pb-dwt" data-dw aria-expanded="false">详情 ▾</button>
+        </figcaption>
+        <div class="pb-view">
+          <svg viewBox="0 0 420 82" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs><linearGradient id="sgA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2563EB" stop-opacity=".18"/><stop offset="1" stop-color="#2563EB" stop-opacity="0"/></linearGradient></defs>
+            <g fill="#E8EDF5">
+              <rect x="14" y="12" width="150" height="10" rx="5"/>
+              <rect x="14" y="30" width="122" height="10" rx="5"/>
+              <rect x="14" y="48" width="138" height="10" rx="5"/>
+              <rect x="14" y="66" width="96" height="10" rx="5"/>
+            </g>
+            <circle cx="20" cy="17" r="2.5" fill="#2563EB"/><circle cx="20" cy="35" r="2.5" fill="#93A1B5"/>
+            <circle cx="20" cy="53" r="2.5" fill="#93A1B5"/><circle cx="20" cy="71" r="2.5" fill="#93A1B5"/>
+            <path d="M185,64 C215,58 230,40 258,44 C286,48 300,30 330,34 C360,38 382,20 406,24 L406,80 L185,80 Z" fill="url(#sgA)"/>
+            <path d="M185,64 C215,58 230,40 258,44 C286,48 300,30 330,34 C360,38 382,20 406,24" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="258" cy="44" r="3" fill="#2563EB"/><circle cx="330" cy="34" r="3" fill="#2563EB"/><circle cx="406" cy="24" r="3" fill="#2563EB"/>
+          </svg>
+        </div>
+      </figure>
       <a class="pb-main" href="https://board.zekes.top/">
         <span class="pb-pill"><span class="pb-dot" id="pbAshareDot"></span><span id="pbAshareText">A 股</span></span>
-        <div class="pb-trow">
-          <span class="pb-ic hero-ic" style="background:linear-gradient(135deg,#60A5FA,#2563EB);--ic-sh:rgba(37,99,235,.55)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 16l4-6 3 3 5-8"/></svg>
-          </span>
-          <div><b>高股息看板</b><div class="pb-url">board.zekes.top</div></div>
-        </div>
+        <div><b>高股息看板</b></div>
         <p>A 股红利标的的分红数据账本：股息率看板、除权除息日历、历史股息率分位、布林技术位置，每个交易日盘后自动生成 AI 红利观察。</p>
         <div class="pb-stats">
           <div><i>覆盖标的</i><b><span data-cnt="128">128</span><small> 只</small></b></div>
@@ -260,12 +282,6 @@
           <div><i>更新频率</i><b class="pb-live">每交易日<small> 盘后</small></b></div>
         </div>
       </a>
-      <svg class="pb-spark" viewBox="0 0 300 88" preserveAspectRatio="none" aria-hidden="true">
-        <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2563EB" stop-opacity=".22"/><stop offset="1" stop-color="#2563EB" stop-opacity="0"/></linearGradient></defs>
-        <path d="M0,70 C40,64 60,44 90,48 C120,52 140,30 175,34 C210,38 235,18 265,22 L300,14 L300,88 L0,88 Z" fill="url(#sg)"/>
-        <path class="pb-ln" d="M0,70 C40,64 60,44 90,48 C120,52 140,30 175,34 C210,38 235,18 265,22 L300,14" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/>
-      </svg>
-      <button class="pb-dwt" data-dw aria-expanded="false">详情 ▾</button>
       <div class="pb-dw"><div><div class="pb-dw-in">
         <a href="https://board.zekes.top/cards.html">研究卡片库</a>
         <a href="https://board.zekes.top/checkup.html">持仓体检</a>
@@ -274,39 +290,65 @@
     </article>
 
     <article class="pb-t pb-clock" style="--d:.08s">
+      <figure class="pb-shot">
+        <figcaption class="pb-bar"><i></i><i></i><i></i>
+          <span class="pb-addr-w"><span class="pb-addr">nasdaq.zekes.top</span></span>
+          <button class="pb-dwt" data-dw aria-expanded="false">详情 ▾</button>
+        </figcaption>
+        <div class="pb-view">
+          <svg viewBox="0 0 320 62" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <circle cx="160" cy="31" r="21" fill="#fff" stroke="#CBD5E1" stroke-width="2"/>
+            <g stroke="#E2E8F0" stroke-width="1.6" stroke-linecap="round">
+              <path d="M160 13v4M160 45v4M142 31h4M174 31h4M147.3 18.3l2.8 2.8M170 41l2.8 2.8M147.3 43.7l2.8-2.8M170 21l2.8-2.8"/>
+            </g>
+            <path d="M160 31V19" stroke="#0F172A" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M160 31l8.5 6" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="160" cy="31" r="2.4" fill="#2563EB"/>
+          </svg>
+        </div>
+      </figure>
       <a class="pb-main" href="https://nasdaq.zekes.top/">
-        <div class="pb-trow">
-          <span class="pb-ic" style="background:linear-gradient(135deg,#22D3EE,#0891B2);--ic-sh:rgba(8,145,178,.5)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-          </span>
-          <div><b>美市时钟</b><div class="pb-url">nasdaq.zekes.top</div></div>
-        </div>
-        <div>
-          <div class="pb-nytime" id="pbNy" aria-hidden="true">--:--:--<small>美东</small></div>
-          <p>纳斯达克开闭市时间查询，夏令时自动换算，附全年休市日历与热门纳指基金申购额度。</p>
-        </div>
-        <div class="pb-nas">
-          <span class="pb-pill"><span class="pb-dot" id="pbNasDot"></span><span>纳斯达克</span><b id="pbNasText">读取中</b></span>
-        </div>
+        <div><b>美市时钟</b></div>
+        <div class="pb-nytime" id="pbNy" aria-hidden="true">--:--:--<small>美东</small></div>
+        <p>纳斯达克开闭市时间查询，夏令时自动换算，附全年休市日历与热门纳指基金申购额度。</p>
+        <span class="pb-pill"><span class="pb-dot" id="pbNasDot"></span><span>纳斯达克</span><b id="pbNasText">读取中</b></span>
       </a>
-      <button class="pb-dwt" data-dw aria-expanded="false">详情 ▾</button>
       <div class="pb-dw"><div><div class="pb-dw-in">
         <span class="pb-k" id="pbNasCd">盘况计算中</span>
       </div></div></div>
     </article>
 
     <article class="pb-t pb-w2" style="--d:.14s">
-      <a class="pb-main" href="https://zekes.top/codex-price/">
-        <div class="pb-trow">
-          <span class="pb-ic" style="background:linear-gradient(135deg,#A78BFA,#6D28D9);--ic-sh:rgba(109,40,217,.5)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>
-          </span>
-          <b>Codex 全球价格</b>
+      <figure class="pb-shot">
+        <figcaption class="pb-bar"><i></i><i></i><i></i>
+          <span class="pb-addr-w"><span class="pb-addr">zekes.top/codex-price</span></span>
+          <button class="pb-dwt" data-dw aria-expanded="false">详情 ▾</button>
+        </figcaption>
+        <div class="pb-view">
+          <svg viewBox="0 0 320 62" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g>
+              <rect x="16" y="11" width="26" height="11" rx="5.5" fill="#EDE9FE"/>
+              <rect x="52" y="14" width="150" height="6" rx="3" fill="#E2E8F0"/>
+              <rect x="276" y="11" width="30" height="11" rx="5.5" fill="#F1F5F9"/>
+            </g>
+            <g>
+              <rect x="16" y="27" width="26" height="11" rx="5.5" fill="#DDD6FE"/>
+              <rect x="52" y="30" width="196" height="6" rx="3" fill="#7C3AED" opacity=".75"/>
+              <rect x="276" y="27" width="30" height="11" rx="5.5" fill="#EDE9FE"/>
+            </g>
+            <g>
+              <rect x="16" y="43" width="26" height="11" rx="5.5" fill="#EDE9FE"/>
+              <rect x="52" y="46" width="122" height="6" rx="3" fill="#E2E8F0"/>
+              <rect x="276" y="43" width="30" height="11" rx="5.5" fill="#F1F5F9"/>
+            </g>
+          </svg>
         </div>
+      </figure>
+      <a class="pb-main" href="https://zekes.top/codex-price/">
+        <div><b>Codex 全球价格</b></div>
         <p>Codex 三档订阅在 32 个 App Store 地区的实测价格对比：每 1× 额度成本、汇率换算，哪个档位哪个区更划算一眼看清。</p>
         <div class="pb-tags"><span>档位对比</span><span>地区比价</span><span>单位成本</span></div>
       </a>
-      <button class="pb-dwt" data-dw aria-expanded="false">详情 ▾</button>
       <div class="pb-dw"><div><div class="pb-dw-in">
         <a href="https://zekes.top/codex-price/compare.html">地区对比</a>
         <a href="https://zekes.top/codex-price/method.html">口径与方法</a>
@@ -314,62 +356,111 @@
     </article>
 
     <article class="pb-t pb-w2" style="--d:.2s">
-      <a class="pb-main" href="https://zekes.top/fuye-radar/">
-        <div class="pb-trow">
-          <span class="pb-ic" style="background:linear-gradient(135deg,#2DD4BF,#0D9488);--ic-sh:rgba(13,148,136,.5)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9" opacity=".45"/><circle cx="12" cy="12" r="5" opacity=".65"/><path class="pb-radar-needle" d="M12 12 L18.5 5.8"/><circle cx="12" cy="12" r="1.4" fill="#fff" stroke="none"/></svg>
-          </span>
-          <b>副业雷达</b>
+      <figure class="pb-shot">
+        <figcaption class="pb-bar"><i></i><i></i><i></i>
+          <span class="pb-addr-w"><span class="pb-addr">zekes.top/fuye-radar</span></span>
+          <button class="pb-dwt" data-dw aria-expanded="false">详情 ▾</button>
+        </figcaption>
+        <div class="pb-view">
+          <svg viewBox="0 0 320 62" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g fill="#E8EDF5">
+              <rect x="16" y="13" width="118" height="8" rx="4"/>
+              <rect x="16" y="28" width="92" height="8" rx="4"/>
+              <rect x="16" y="43" width="106" height="8" rx="4"/>
+            </g>
+            <circle cx="262" cy="31" r="19" fill="none" stroke="#99F6E4" stroke-width="2"/>
+            <circle cx="262" cy="31" r="12" fill="none" stroke="#5EEAD4" stroke-width="2"/>
+            <path class="pb-radar-needle" d="M262 31 L275 18" stroke="#0D9488" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="262" cy="31" r="2.4" fill="#0D9488"/>
+          </svg>
         </div>
+      </figure>
+      <a class="pb-main" href="https://zekes.top/fuye-radar/">
+        <div><b>副业雷达</b></div>
         <p>653 条副业项目案例线索库：按方向筛选、五题测评匹配，配原创实操指南与来源标注。</p>
         <div class="pb-tags"><span>案例检索</span><span>方向测评</span><span>实操指南</span></div>
       </a>
-      <button class="pb-dwt" data-dw aria-expanded="false">详情 ▾</button>
       <div class="pb-dw"><div><div class="pb-dw-in">
         <span class="pb-k">免费指南 <b>3</b> 篇 · 待整理 <b>649</b> 条 · 五题方向测评</span>
       </div></div></div>
     </article>
 
     <article class="pb-t pb-w2" style="--d:.26s">
-      <a class="pb-main" href="https://zekes.top/life-guide/">
-        <div class="pb-trow">
-          <span class="pb-ic" style="background:linear-gradient(135deg,#818CF8,#4F46E5);--ic-sh:rgba(79,70,229,.5)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 L13 13 L8.5 15.5 L11 11 Z" fill="#fff" stroke="none"/></svg>
-          </span>
-          <b>高性价比人生指南</b>
+      <figure class="pb-shot">
+        <figcaption class="pb-bar"><i></i><i></i><i></i>
+          <span class="pb-addr-w"><span class="pb-addr">zekes.top/life-guide</span></span>
+          <button class="pb-dwt" data-dw aria-expanded="false">详情 ▾</button>
+        </figcaption>
+        <div class="pb-view">
+          <svg viewBox="0 0 320 62" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g>
+              <circle cx="26" cy="17" r="7" fill="none" stroke="#A5B4FC" stroke-width="1.8"/>
+              <path d="M23 17l2.2 2.2L29.5 14.6" fill="none" stroke="#4F46E5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="42" y="13" width="140" height="8" rx="4" fill="#E8EDF5"/>
+              <circle cx="26" cy="36" r="7" fill="none" stroke="#A5B4FC" stroke-width="1.8"/>
+              <path d="M23 36l2.2 2.2L29.5 33.6" fill="none" stroke="#4F46E5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="42" y="32" width="106" height="8" rx="4" fill="#E8EDF5"/>
+              <circle cx="26" cy="55" r="7" fill="none" stroke="#A5B4FC" stroke-width="1.8"/>
+              <path d="M23 55l2.2 2.2L29.5 52.6" fill="none" stroke="#4F46E5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="42" y="51" width="124" height="8" rx="4" fill="#E8EDF5"/>
+              <rect x="214" y="14" width="82" height="34" rx="7" fill="none" stroke="#C7D2FE" stroke-width="1.6"/>
+              <path d="M224 26h62M224 34h44" stroke="#C7D2FE" stroke-width="2.4" stroke-linecap="round"/>
+            </g>
+          </svg>
         </div>
+      </figure>
+      <a class="pb-main" href="https://zekes.top/life-guide/">
+        <div><b>高性价比人生指南</b></div>
         <p>654 条按性价比排序的人生建议：长寿防病、急救、省钱、法律红线、失业兜底、婚育与出国。</p>
         <div class="pb-tags"><span>场景直达</span><span>关键词搜索</span><span>证据分级</span></div>
       </a>
-      <button class="pb-dwt" data-dw aria-expanded="false">详情 ▾</button>
       <div class="pb-dw"><div><div class="pb-dw-in">
         <span class="pb-k">场景：急救 · 被裁 · 孩子出生 · 慢性病 · 老人 · 被骗</span>
       </div></div></div>
     </article>
 
     <article class="pb-t pb-w3" style="--d:.32s">
-      <a class="pb-main" href="https://board.zekes.top/cards.html">
-        <div class="pb-trow">
-          <span class="pb-ic" style="background:linear-gradient(135deg,#93C5FD,#4F46E5);--ic-sh:rgba(79,70,229,.45)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="6" width="13" height="14" rx="2"/><path d="M8 6V4.5A1.5 1.5 0 0 1 9.5 3H19a1.5 1.5 0 0 1 1.5 1.5V16"/><path d="M8 11h5M8 15h5"/></svg>
-          </span>
-          <div><b>研究卡片库</b><div class="pb-url">board.zekes.top/cards</div></div>
-          <span class="pb-go">进入 ▸</span>
+      <figure class="pb-shot">
+        <figcaption class="pb-bar"><i></i><i></i><i></i>
+          <span class="pb-addr-w"><span class="pb-addr">board.zekes.top/cards</span></span>
+        </figcaption>
+        <div class="pb-view">
+          <svg viewBox="0 0 320 62" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g fill="#EDF1F8" stroke="#DCE3F0" stroke-width="1">
+              <rect x="18" y="12" width="86" height="18" rx="6"/>
+              <rect x="116" y="12" width="86" height="18" rx="6"/>
+              <rect x="214" y="12" width="86" height="18" rx="6"/>
+              <rect x="18" y="36" width="86" height="18" rx="6"/>
+              <rect x="116" y="36" width="86" height="18" rx="6"/>
+              <rect x="214" y="36" width="86" height="18" rx="6"/>
+            </g>
+            <g stroke="#B9C6DC" stroke-width="1.6" stroke-linecap="round">
+              <path d="M26 19h34M26 23h24M124 19h34M124 23h24M222 19h34M222 23h24M26 43h34M26 47h24M124 43h34M124 47h24M222 43h34M222 47h24"/>
+            </g>
+            <circle cx="292" cy="21" r="2" fill="#2563EB"/><circle cx="98" cy="45" r="2" fill="#7C3AED"/>
+          </svg>
         </div>
+      </figure>
+      <a class="pb-main" href="https://board.zekes.top/cards.html">
+        <div><b>研究卡片库</b></div>
         <p>386 张个股研究卡片存档，按标的聚合，覆盖银行、家电、白酒、能源等 12 个板块。</p>
       </a>
     </article>
 
     <article class="pb-t pb-w3" style="--d:.38s">
       <div class="pb-main">
-        <div class="pb-trow"><b>关注更新</b></div>
+        <div><b>关注更新</b></div>
         <p>新的工具和数据观察会第一时间在这两个地方发布。</p>
         <div class="pb-follow">
-          <a class="pf-btn" href="#" data-follow="xhs" style="display:none">
-            <span><b>小红书</b> <i>▸</i></span><span>每日红利笔记</span>
+          <a class="pf-btn pf-xhs" href="#" data-follow="xhs" style="display:none">
+            <span class="pf-logo pf-logo-xhs">小红书</span>
+            <span class="pf-tx"><b>小红书</b><em>每日红利笔记</em></span>
           </a>
-          <a class="pf-btn" href="#" data-follow="gzh" style="display:none">
-            <span><b>公众号</b> <i>▸</i></span><span>泽克的数据笔记</span>
+          <a class="pf-btn pf-gzh" href="#" data-follow="gzh" style="display:none">
+            <span class="pf-logo pf-logo-gzh">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#07C160" d="M9.5 4C5.9 4 3 6.5 3 9.6c0 1.8 1 3.4 2.5 4.4L5 16.5l2.4-1.2c.7.2 1.4.3 2.1.3.1 0 .2 0 .3-.1-.1-.4-.1-.8-.1-1.2 0-2.9 2.7-5.2 6-5.2.2 0 .5.0.7.1C15.8 6.4 12.9 4 9.5 4zM7.3 8.1c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zm4.4 0c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zm4 3.1c-3.1 0-5.6 2.1-5.6 4.6s2.5 4.6 5.6 4.6c.6 0 1.2-.1 1.8-.3l2.1 1.1-.6-1.9c1.4-.9 2.2-2.1 2.2-3.5 0-2.5-2.5-4.6-5.5-4.6zm-1.8 3.3c.4 0 .7.3.7.7s-.3.7-.7.7-.7-.3-.7-.7.3-.7.7-.7zm3.5 0c.4 0 .7.3.7.7s-.3.7-.7.7-.7-.3-.7-.7.3-.7.7-.7z"/></svg>
+            </span>
+            <span class="pf-tx"><b>公众号</b><em>泽克的数据笔记</em></span>
           </a>
         </div>
       </div>
@@ -397,7 +488,7 @@ document.querySelectorAll('.pb-dwt').forEach(function (btn) {
   });
 });
 
-/* 数字轻跳：加载时从 0 数上来（一次，减弱动效直接落定） */
+/* 数字轻跳 */
 (function () {
   var els = document.querySelectorAll('[data-cnt]');
   if (!els.length) return;
@@ -414,7 +505,7 @@ document.querySelectorAll('.pb-dwt').forEach(function (btn) {
   });
 })();
 
-/* 双时钟：纽约时间 + 两地盘况 + 纳指倒计时，全部本地计算 */
+/* 双时钟：纽约时间 + 两地盘况 + 纳指倒计时 */
 (function () {
   function parts(tz) {
     var p = new Intl.DateTimeFormat('en-US', {
