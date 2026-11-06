@@ -86,6 +86,11 @@
       <table id="daily" style="margin-top:24px"></table>
     </div>
 
+    <div class="card">
+      <h2>站点分布（个人主页旗下）</h2>
+      <table id="sites"></table>
+    </div>
+
     <div class="grid2">
       <div class="card"><h2>热门页面</h2><table id="pages"></table></div>
       <div class="card"><h2>热门个股页</h2><table id="stocks"></table></div>
@@ -139,6 +144,15 @@ async function load(){
     d.refs.map(x => [x.ref || 'direct', [x.pv,'num']]));
   tbl($('#devs'), [['设备'],['PV','num']],
     d.devices.map(x => [x.device, [x.pv,'num']]));
+
+  const sites = d.sites || [];
+  const siteTotal = sites.reduce((a, s) => a + s.pv, 0) || 1;
+  tbl($('#sites'), [['站点'],['PV','num'],['UV','num'],['占比','num']],
+    sites.map(s => [
+      s.label + ' <span style="color:var(--t3);font-size:11px">' + s.site + '</span>',
+      [s.pv,'num'], [s.uv,'num'],
+      ['<span style="display:inline-block;vertical-align:middle;margin-right:6px;height:6px;border-radius:3px;background:var(--brand);width:' + Math.max(2, Math.round(s.pv / siteTotal * 120)) + 'px"></span>' + (s.pv / siteTotal * 100).toFixed(1) + '%','num'],
+    ]));
 }
 load();
 </script>

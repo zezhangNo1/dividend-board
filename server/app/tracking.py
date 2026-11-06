@@ -14,7 +14,7 @@ from urllib.parse import urlsplit
 
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
 
 from .db import get_db
@@ -25,6 +25,30 @@ router = APIRouter(prefix="/api", tags=["tracking"])
 
 SALT = os.environ.get("JWT_SECRET", "board")
 PATH_RE = re.compile(r"^/[A-Za-z0-9._\-/]*$")
+
+# 站点归属：门户旗下各站按路径前缀归类（nasdaq 独立域名，埋点固定上报 /nasdaq/）
+SITES = {
+    "board": "高股息看板",
+    "portal": "个人主页",
+    "codex-price": "Codex 全球价格",
+    "fuye-radar": "副业雷达",
+    "life-guide": "高性价比人生指南",
+    "nasdaq": "美市时钟",
+}
+
+
+def _site_of(path: str) -> str:
+    if path.startswith("/codex-price"):
+        return "codex-price"
+    if path.startswith("/fuye-radar"):
+        return "fuye-radar"
+    if path.startswith("/life-guide"):
+        return "life-guide"
+    if path.startswith("/nasdaq"):
+        return "nasdaq"
+    if path == "/portal.html":
+        return "portal"
+    return "board"
 
 
 class ViewReq(BaseModel):
@@ -80,6 +104,20 @@ def stats_summary(days: int = 30, user: User | None = Depends(require_feature("s
     days = max(1, min(days, 365))
     since = (date.today() - timedelta(days=days - 1)).isoformat()
 
+    site_expr = case(
+        (PageView.path.like("/codex-price%"), "codex-price"),
+        (PageView.path.like("/fuye-radar%"), "fuye-radar"),
+        (PageView.path.like("/life-guide%"), "life-guide"),
+        (PageView.path.like("/nasdaq%"), "nasdaq"),
+        (PageView.path == "/portal.html", "portal"),
+        else_="board",
+    )
+    sites = db.execute(
+        select(site_expr.label("site"), func.count().label("pv"),
+               func.count(func.distinct(PageView.visitor_hash)).label("uv"))
+        .where(PageView.day >= since).group_by(site_expr)
+        .order_by(func.count().desc())).all()
+
     daily = db.execute(
         select(PageView.day, func.count().label("pv"),
                func.count(func.distinct(PageView.visitor_hash)).label("uv"))
@@ -115,6 +153,7 @@ def stats_summary(days: int = 30, user: User | None = Depends(require_feature("s
         "total_pv": total_pv,
         "total_uv": sum(d.uv for d in daily),
         "logged_in_pv": logged_in,
+        "sites": [{"site": s.site, "label": SITES.get(s.site, s.site), "pv": s.pv, "uv": s.uv} for s in sites],
         "daily": [{"day": d.day, "pv": d.pv, "uv": d.uv} for d in daily],
         "top_pages": [{"path": p.path, "pv": p.pv, "uv": p.uv} for p in top_pages],
         "top_stocks": [{"code": s.q.replace("code=", "")[:6], "pv": s.pv} for s in top_stocks],
