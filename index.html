@@ -116,6 +116,9 @@
   .zone.z-watch{background:var(--bluebg);color:var(--blue)}
   .zone.z-obs{background:var(--card2);color:var(--t2);border:1px solid var(--line)}
   .zone.z-mid{color:var(--t3)}
+  .basis-switch{display:inline-flex;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--card)}
+  .basis-switch .bs{border:none;background:transparent;color:var(--t3);font-size:11.5px;padding:6px 11px;cursor:pointer;font-family:inherit}
+  .basis-switch .bs.on{background:var(--brand);color:#fff;font-weight:600}
   .sm{color:var(--t2);font-size:12px}
   .sm b{color:var(--t1);font-weight:600}
   .tgt{line-height:1.35}
@@ -305,6 +308,9 @@
     </div>
     <div class="spacer"></div>
     <input id="q" placeholder="搜名称 / 代码" autocomplete="off">
+    <span class="basis-switch" title="分红基数口径：FY=最近已实施完整财年（稳定）；TTM=近12个月实际除息（滚动）">
+      <button class="bs on" id="bsFy">FY静态</button><button class="bs" id="bsTtm">TTM滚动</button>
+    </span>
     <button class="act" id="refresh">刷新行情</button>
     <a class="act" href="ai.html">AI 观察</a>
     <a class="act" href="calendar.html">除息日历</a>
@@ -464,7 +470,7 @@
   </div>
 </div>
 
-<script src="site_data.js?v=20261017d"></script>
+<script src="site_data.js?v=20261029a"></script>
 <script src="stock_card.js?v=20261029j"></script>
 <script>
 'use strict';
@@ -949,12 +955,18 @@ const $ = s => document.querySelector(s);
 const num = v => (v === null || v === undefined || v === '-' || isNaN(v)) ? null : Number(v);
 const fmt = (v, d=2) => (v === null || v === undefined) ? '—' : Number(v).toFixed(d);
 
+let BASIS = 'fy';  // fy=最近已实施完整财年静态 | ttm=近12个月除息滚动
+function dpsOf(r){
+  const t = num(r.ttm_dps);
+  return (BASIS === 'ttm' && t && t > 0) ? t : num(r.dps);
+}
 function targetPrice(r, rate){
-  return (r.dps && r.dps > 0) ? r.dps / (rate / 100) : null;
+  const d = dpsOf(r);
+  return (d && d > 0) ? d / (rate / 100) : null;
 }
 function dyOf(r){
-  const p = num(r.price);
-  return (r.dps && p) ? r.dps / p * 100 : null;
+  const p = num(r.price), d = dpsOf(r);
+  return (d && p) ? d / p * 100 : null;
 }
 function tierClass(dy){
   if (dy === null) return 'low';
@@ -1035,6 +1047,15 @@ function renderStats(rows){
       <div class="v">${ge50}<i>只</i></div><div class="s">进入关注区间</div></div>`;
 }
 
+function setBasis(b){
+  BASIS = b;
+  $('#bsFy').classList.toggle('on', b === 'fy');
+  $('#bsTtm').classList.toggle('on', b === 'ttm');
+  render();
+}
+$('#bsFy').addEventListener('click', () => setBasis('fy'));
+$('#bsTtm').addEventListener('click', () => setBasis('ttm'));
+
 function render(){
   const rows = sortedRows();
   $('#cnt').textContent = rows.length;
@@ -1070,7 +1091,7 @@ function renderDesktop(rows){
       <td class="${cls}">${r.chg === null ? '—' : sign + fmt(r.chg) + '%'}</td>
       <td><span class="dy ${tierClass(dy)}">${dy === null ? '—' : fmt(dy) + '%'}</span></td>
       <td>${zoneHtml(dy)}</td>
-      <td class="sm"><b>${fmt(r.dps, 3)}</b><br>${r.fy ? 'FY' + r.fy : '—'}</td>
+      <td class="sm"><b>${fmt(dpsOf(r), 3)}</b><br>${BASIS === 'ttm' ? 'TTM滚动' : (r.fy ? 'FY' + r.fy : '—')}</td>
       <td class="sm"><b>${r.times ? r.times + ' 次' : '—'}</b><br><span style="font-size:11px;color:var(--t3)">近12月</span></td>
       ${tgts}
       <td><div class="pos"><div class="bar"><i class="${pcCls}" style="width:${pc === null ? 0 : Math.max(2, Math.min(100, pc))}%"></i></div><em>${pc === null ? '—' : pc.toFixed(0) + '%'}</em></div></td>

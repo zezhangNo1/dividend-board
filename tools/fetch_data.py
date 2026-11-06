@@ -257,6 +257,26 @@ def calc_times12(rows):
     return len(exds)
 
 
+def calc_ttm_dps(rows):
+    """TTM 每股分红：近 365 天已实施派息合计（按除息日聚合去重，与年派息次数同口径）。"""
+    lo = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
+    agg = {}
+    for r in rows:
+        if '实施' not in (r.get('ASSIGN_PROGRESS') or ''):
+            continue
+        exd = (r.get('EX_DIVIDEND_DATE') or '')[:10]
+        amt = r.get('PRETAX_BONUS_RMB')
+        if not exd or amt in (None, '') or exd < lo:
+            continue
+        try:
+            per = float(amt) / 10
+        except Exception:
+            continue
+        if per > 0:
+            agg[exd] = agg.get(exd, 0) + per
+    return round(sum(agg.values()), 6) if agg else None
+
+
 # ---------------------------------------------------------------- 主流程
 def main():
     universe = load_universe()
@@ -293,6 +313,7 @@ def main():
             'code': c, 'name': q['name'], 'sector': sector_of(c, universe, board_map),
             'price': price, 'chg': q['chg'], 'pe': q['pe'], 'pb': pb,
             'mktcap': q['mktcap'], 'dps': dps, 'fy': fy, 'dy': dy,
+            'ttm_dps': calc_ttm_dps(divs.get(c) or []),
             'divs': items, 'lo': lo, 'hi': hi, 'pct': pct, 'times12': times12,
         })
 

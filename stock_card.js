@@ -63,7 +63,11 @@ window.renderStockCard = function(el, r, q, generated){
     '<div class="dmeta"><i>' + r.code + '</i><i>' + r.sector + '</i>市值 ' + (r.mktcap ? r.mktcap.toFixed(0) + ' 亿' : '—') + '</div>' +
     '<div class="dybox"><div class="k">股息率（现价 × FY' + (r.fy || '—') + ' 分红）</div>' +
     '<div class="v">' + (dy === null ? '—' : dy.toFixed(2) + '%') + '</div>' +
-    '<span class="tier ' + tc[0] + '">' + tc[1] + '</span></div></div>' +
+    '<span class="tier ' + tc[0] + '">' + tc[1] + '</span>' +
+    (function(){ var t = r.ttm_dps; if (!t || !price) return '';
+      var d2 = t / price * 100;
+      return '<div style="font-size:10.5px;color:var(--cream3);margin-top:5px">TTM口径 ' + d2.toFixed(2) + '%（近12个月除息 ' + t.toFixed(3) + ' 元/股）</div>'; })() +
+    '</div></div>' +
     '<div class="dsec"><h5>行情速览</h5><div class="qgrid">' +
     '<div class="q"><div class="k">现价</div><div class="v">' + fmt(price) + '<small>' + (chg === null || chg === undefined ? '' : sign + fmt(chg) + '%') + '</small></div></div>' +
     '<div class="q"><div class="k">每股分红</div><div class="v">' + fmt(dps, 3) + '<small>FY' + (r.fy || '—') + '</small></div></div>' +
