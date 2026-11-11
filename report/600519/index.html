@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>贵州茅台 · AI 多空数据报告 · 月度焦点</title>
+<meta name="description" content="贵州茅台（600519）AI 多空数据报告：四维规则评分、估值分位、资金分层与多空证据对照，全部数字可溯源。AI 生成内容，仅供参考，不构成投资建议。">
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem('gx-theme');
+    if(!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    var q = new URLSearchParams(location.search).get('theme');
+    if(q === 'dark' || q === 'light') t = q;
+    document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--t1);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:13px;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:0 clamp(14px,3vw,28px) 64px}
+
+  .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;
+    flex-wrap:wrap;padding:14px 0 12px;margin-bottom:18px;
+    background:var(--sticky);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line)}
+  .logo{width:38px;height:38px;border-radius:11px;flex:none;
+    background:linear-gradient(135deg,#10b981,#0d8a6c);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:19px;font-weight:700;box-shadow:0 3px 10px rgba(16,185,129,.35)}
+  h1{font-size:18px;font-weight:700;letter-spacing:.4px}
+  .sub{color:var(--t2);font-size:11.5px;margin-top:1px}
+  .spacer{flex:1}
+  button.act,a.act{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:8px 14px;font-size:13px;color:var(--t2);cursor:pointer;font-family:inherit;
+    text-decoration:none}
+  button.act:hover,a.act:hover{border-color:var(--brand);color:var(--t1)}
+
+  .aigc{display:flex;align-items:flex-start;gap:9px;
+    background:var(--goldbg);border:1px solid var(--goldline);
+    color:var(--gold);border-radius:12px;padding:10px 14px;margin-bottom:14px;
+    font-size:12px;line-height:1.7}
+  .aigc .tag{flex:none;background:var(--gold);color:#fff;border-radius:6px;
+    padding:1px 8px;font-size:11px;font-weight:700;letter-spacing:1px;margin-top:1px}
+
+  /* ---------- 报告头 R0 ---------- */
+  .rep-head{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);padding:clamp(18px,3.5vw,30px) clamp(16px,4vw,34px);margin-bottom:14px}
+  .rep-head .kicker{font-size:11px;letter-spacing:.24em;color:var(--t3);margin-bottom:8px}
+  .rep-head h2{font-family:var(--serif);font-size:24px;letter-spacing:.04em;
+    display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .rep-head h2 .code{font-size:13px;color:var(--t3);font-family:var(--sans);letter-spacing:.06em}
+  .rep-head .meta{color:var(--t2);font-size:12.5px;margin-top:6px;line-height:1.8}
+  .rep-head .meta b{color:var(--t1);font-variant-numeric:tabular-nums}
+  .rep-scores{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+  .rep-sc{border:1px solid var(--line);border-radius:10px;padding:10px 8px;text-align:center;
+    background:var(--paper-deep,var(--card2))}
+  .rep-sc .k{font-size:11px;color:var(--t3);letter-spacing:.1em}
+  .rep-sc .v{font-family:var(--serif);font-size:22px;margin-top:2px;font-variant-numeric:tabular-nums}
+  .rep-sc .v i{font-size:11px;color:var(--t3);font-style:normal;font-family:var(--sans)}
+  .rep-sc.dim-a .v{color:var(--yield)}
+  .rep-sc.dim-b .v{color:var(--yield)}
+  .rep-sc.dim-c .v{color:var(--gold)}
+  .rep-sc.dim-d .v{color:var(--seal)}
+  .rep-note{font-size:11.5px;color:var(--t3);margin-top:10px;line-height:1.7}
+
+  /* ---------- 章节锚点导航 ---------- */
+  .rep-toc{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+  .rep-toc a{background:var(--card);border:1px solid var(--line);border-radius:18px;
+    padding:4px 12px;font-size:11.5px;color:var(--t2);text-decoration:none}
+  .rep-toc a:hover{border-color:var(--brand);color:var(--t1)}
+
+  /* ---------- 章节 ---------- */
+  .rep-sec{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);padding:clamp(16px,3.5vw,30px) clamp(14px,4vw,34px);margin-bottom:14px;
+    scroll-margin-top:70px}
+  .rep-sec>h3{font-family:var(--serif);font-size:17px;letter-spacing:.06em;margin-bottom:4px;
+    padding-bottom:8px;border-bottom:1px solid var(--rule-strong);display:flex;align-items:baseline;gap:8px}
+  .rep-sec>h3 .no{font-size:11px;color:var(--gold);letter-spacing:.2em;font-family:var(--sans)}
+  .rep-sec>h4{font-size:14px;margin:18px 0 8px;color:var(--t1)}
+  .rep-sec p{color:var(--t2);margin:8px 0;font-size:13.5px;line-height:1.8}
+  .rep-sec p b,.rep-sec li b{color:var(--t1)}
+  .rep-sec ul,.rep-sec ol{margin:8px 0 8px 20px;color:var(--t2);font-size:13.5px;line-height:1.8}
+  .rep-sec li{margin:4px 0}
+  .rep-src{font-size:11px;color:var(--t3);margin-top:14px;padding-top:8px;
+    border-top:1px dashed var(--line);line-height:1.7}
+  .rep-src code{background:var(--paper-deep,var(--card2));border-radius:4px;padding:0 5px;
+    font-size:10.5px;font-family:ui-monospace,Menlo,monospace;color:var(--t2)}
+
+  /* ---------- 表格 ---------- */
+  .rep-tw{overflow-x:auto;margin:10px 0 16px;border:1px solid var(--line);border-radius:10px}
+  table.rep-tb{border-collapse:collapse;width:100%;font-size:12.5px;min-width:480px}
+  .rep-tb th{background:var(--paper-deep,var(--card2));color:var(--t2);font-weight:600;
+    text-align:left;padding:8px 11px;border-bottom:1px solid var(--rule);white-space:nowrap;
+    font-size:11.5px;letter-spacing:.04em}
+  .rep-tb td{padding:7px 11px;border-bottom:1px solid var(--line2);vertical-align:top;
+    color:var(--t2);font-variant-numeric:tabular-nums}
+  .rep-tb tbody tr:last-child td{border-bottom:0}
+  .rep-tb td b{color:var(--t1)}
+  .rep-tb tr.subtotal td{background:var(--yield-soft);color:var(--brand-ink);font-weight:600;
+    border-top:1px solid var(--rule)}
+  .up{color:var(--up)} .dn{color:var(--down)}
+  .pill{display:inline-block;border-radius:5px;padding:0 7px;font-size:11px;line-height:1.8;
+    border:1px solid var(--rule);color:var(--t2)}
+  .pill.hi{border-color:var(--seal);color:var(--seal);background:var(--seal-soft)}
+  .pill.md{border-color:var(--goldline);color:var(--gold);background:var(--gold-soft)}
+  .pill.lo{border-color:transparent;color:var(--yield);background:var(--yield-soft)}
+
+  /* ---------- 图表 ---------- */
+  .rep-chart{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:12px 0 18px}
+  .rep-chart .cap{font-size:12px;font-weight:600;color:var(--t1);padding:9px 14px;
+    border-bottom:1px solid var(--line);background:var(--paper-deep,var(--card2))}
+  .rep-chart .cv{width:100%}
+  .rep-chart .fn{font-size:10.5px;color:var(--t3);padding:7px 14px 10px;border-top:1px solid var(--line);
+    line-height:1.7}
+
+  /* ---------- 多空对照 ---------- */
+  .rep-duel{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  .rep-side{border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .rep-side h5{font-family:var(--serif);font-size:14.5px;letter-spacing:.1em;margin-bottom:2px}
+  .rep-side.long h5{color:var(--up)}
+  .rep-side.short h5{color:var(--down)}
+  .rep-side .cap2{font-size:10.5px;color:var(--t3);margin-bottom:10px}
+  .rep-side ol{margin-left:18px;font-size:12.5px;color:var(--t2);line-height:1.75}
+  .rep-side li{margin:7px 0}
+  .rep-side li b{color:var(--t1)}
+  .rep-duel-note{font-size:11.5px;color:var(--t3);margin-top:10px;line-height:1.7}
+
+  .foot{color:var(--t3);font-size:11px;text-align:center;margin-top:22px;line-height:1.9}
+  .foot .disc{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:14px 18px;text-align:left;margin-bottom:14px;color:var(--t2);font-size:11.5px;line-height:1.8}
+
+  /* ---------- 窄屏 ---------- */
+  @media (max-width:640px){
+    .topbar{gap:9px;padding:10px 0 10px;margin-bottom:14px}
+    .logo{width:32px;height:32px;border-radius:9px;font-size:16px}
+    h1{font-size:16px;letter-spacing:.2px}
+    .sub{font-size:10.5px}
+    button.act,a.act{padding:7px 11px;font-size:12px;border-radius:9px}
+    .aigc{padding:8px 11px;margin-bottom:12px;font-size:11px;line-height:1.6;gap:7px}
+    .rep-head h2{font-size:20px}
+    .rep-scores{grid-template-columns:repeat(2,1fr)}
+    .rep-duel{grid-template-columns:1fr}
+    .rep-sec p,.rep-sec ul,.rep-sec ol{font-size:12.5px}
+    table.rep-tb{font-size:12px}
+    .rep-chart .fn{font-size:11px}
+    .rep-src{font-size:11px}
+  }
+  @media print{
+    .topbar,.rep-toc{display:none}
+    body{background:#fff}
+    .rep-sec{break-inside:avoid;border:1px solid #ccc;box-shadow:none}
+  }
+</style>
+<link rel="stylesheet" href="../../ledger.css?v=20261111a">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="logo">息</div>
+    <div>
+      <h1>AI 多空数据报告</h1>
+      <div class="sub">月度焦点 · 多 Agent 辩论 · 全程数据溯源</div>
+    </div>
+    <div class="spacer"></div>
+    <a class="act" href="../../index.html">看板</a>
+    <a class="act" href="../../cards.html">研究卡片</a>
+    <a class="act" href="../../ai.html">AI 日报</a>
+  </div>
+
+  <div class="aigc">
+    <span class="tag">AI 生成</span>
+    <span>本报告由多个人工智能体基于公开数据接口生成，已按法规添加 AI 生成标识。所有数字由确定性程序计算并附数据来源，AI 仅作文字解读；内容为数据事实与研究证据的对照呈现，<b>不构成任何投资建议，不包含买卖时点、价格或仓位类内容</b>。</span>
+  </div>
+
+  <!-- ================= R0 报告头 ================= -->
+  <div class="rep-head" id="r0">
+    <div class="kicker">REPORT · 2026-11 期 · 焦点标的</div>
+    <h2>贵州茅台 <span class="code">SHSE.600519 · 白酒</span></h2>
+    <div class="meta">
+      数据基准日 <b>2026-11-09 收盘</b> · 现价 <b>¥1,444.99</b> · 总市值 <b>¥18,063.55 亿</b>
+      · PE<sub>TTM</sub> <b>21.99</b> · PB <b>6.66</b> · 股息率（滚动已实施） <b>3.597%</b>
+      <br>数据源：东方财富 / 腾讯行情公开接口 · 抓取窗口 2026-11-09 16:53–17:40 · 报告生成 2026-11-11
+    </div>
+    <div class="rep-scores">
+      <div class="rep-sc dim-a"><div class="k">技术形态</div><div class="v">8<i>/10</i></div></div>
+      <div class="rep-sc dim-b"><div class="k">财务质量</div><div class="v">9<i>/10</i></div></div>
+      <div class="rep-sc dim-c"><div class="k">估值水位</div><div class="v">7<i>/10</i></div></div>
+      <div class="rep-sc dim-d"><div class="k">资金筹码</div><div class="v">2<i>/10</i></div></div>
+    </div>
+    <div class="rep-note">
+      四维评分由确定性规则从下文数据计算（每条规则与输入值见 <a href="#r1" style="color:var(--gold)">§1 评分明细</a>，可复算），描述的是数据当前状态，<b>不是买卖信号，不存在综合评级</b>。本页由 AI 多空辩论架构产出：分析取数与解读由 AI 完成，全部数字经程序交叉校验。
+    </div>
+  </div>
+
+  <nav class="rep-toc">
+    <a href="#r1">1 评分明细</a>
+    <a href="#r2">2 技术形态</a>
+    <a href="#r3">3 财务质量</a>
+    <a href="#r4">4 估值水位</a>
+    <a href="#r5">5 资金筹码</a>
+    <a href="#r6">6 事件核验</a>
+    <a href="#r7">7 多空对照</a>
+    <a href="#r8">8 监控清单</a>
+    <a href="#r9">9 附录·溯源</a>
+  </nav>
+
+  <!-- ================= R1 评分明细 ================= -->
+  <div class="rep-sec" id="r1">
+    <h3><span class="no">§1</span>四维评分明细（规则化，可复算）</h3>
+    <p>评分不是模型观点：每一条都是「规则 × 输入值 = 得分」的确定性计算，输入值全部来自本报告对应章节。复算方法见 §9 附录。</p>
+
+    <div class="rep-chart">
+      <div class="cap">四维评分雷达</div>
+      <div id="chartRadar" class="cv" style="height:250px"></div>
+      <div class="fn">四个维度满分均为 10。维度间相互独立，不存在加权总分——因为加权方式本身即隐含立场。</div>
+    </div>
+
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>维度 / 子项规则</th><th>输入值</th><th>得分</th></tr></thead>
+      <tbody>
+        <tr><td colspan="3" style="color:var(--yield);font-weight:600">技术形态 = 8 / 10</td></tr>
+        <tr><td>收盘价站上 MA20 / MA60 / MA120 / MA250（各 +1）</td><td>1,366 / 1,315 / 1,285 / 1,341 均在价下</td><td>+4</td></tr>
+        <tr><td>MA5 &gt; MA10 &gt; MA20 多头排列</td><td>1,455 &gt; 1,415 &gt; 1,366 ✓</td><td>+1</td></tr>
+        <tr><td>MACD DIF &gt; DEA</td><td>44.18 &gt; 34.09 ✓</td><td>+1</td></tr>
+        <tr><td>RSI14 处 40–70 中性区</td><td>68.22 ✓</td><td>+1</td></tr>
+        <tr><td>MACD 柱状线未连续 5 日收缩</td><td>连续 5 日收缩（31.4→20.2）</td><td>0</td></tr>
+        <tr><td>量能分位处 20–80% 常态区</td><td>26.1% ✓</td><td>+1</td></tr>
+        <tr><td>20 日均量 &gt; 60 日均量</td><td>4.56 万手 &gt; 3.52 万手 ✓</td><td>+1</td></tr>
+        <tr><td>BOLL 带宽分位 ≤ 90%</td><td>96.0%（极端扩张，扣 1）</td><td>−1</td></tr>
+
+        <tr><td colspan="3" style="color:var(--yield);font-weight:600">财务质量 = 9 / 10</td></tr>
+        <tr><td>毛利率 &gt; 60% / 净利率 &gt; 30% / 年化 ROE(TTM) &gt; 25%（各 +1）</td><td>89.58% / 50.94% / 29.30%</td><td>+3</td></tr>
+        <tr><td>经营现金流 ÷ 净利润 &gt; 1.0 / &gt; 1.2（阶梯）</td><td>1.305 ✓✓</td><td>+2</td></tr>
+        <tr><td>资产负债率 &lt; 30% / 零有息负债</td><td>11.90% / 无有息负债 ✓</td><td>+2</td></tr>
+        <tr><td>累计营收同比 &gt; 0</td><td>+1.82% ✓</td><td>+1</td></tr>
+        <tr><td>累计归母净利同比 &gt; 0</td><td>−0.25% ✗</td><td>0</td></tr>
+        <tr><td>单季归母净利同比 &gt; 0</td><td>Q3 单季 +3.78% ✓</td><td>+1</td></tr>
+
+        <tr><td colspan="3" style="color:var(--gold);font-weight:600">估值水位 = 7 / 10（分位越低得分越高）</td></tr>
+        <tr><td>PE_TTM 历史分位：&lt;10%→4 / 10–25%→3 / 25–50%→2 / 50–75%→1</td><td>18.55%（全样本 2,146 交易日）</td><td>+3</td></tr>
+        <tr><td>PB 历史分位：&lt;10%→3 / 10–30%→2 / 30–60%→1</td><td>5.92%</td><td>+3</td></tr>
+        <tr><td>滚动股息率：≥3.5%→3 / 3–3.5%→2 / 2–3%→1</td><td>3.597%</td><td>+3</td></tr>
+        <tr><td>扣分：一致预期 EPS CAGR &lt; 8% 且 forward PE &gt; 18x</td><td>4.31% / 21.63x ✗</td><td>−2</td></tr>
+
+        <tr><td colspan="3" style="color:var(--seal);font-weight:600">资金筹码 = 2 / 10</td></tr>
+        <tr><td>超大单近 20 日净额：&gt;0→2 / −10~0 亿→1 / &lt;−10 亿→0</td><td>−27.20 亿</td><td>0</td></tr>
+        <tr><td>大单近 20 日净额 &gt; 0</td><td>+50.05 亿 ✓</td><td>+1</td></tr>
+        <tr><td>主力近 5 日净额 &gt; 0</td><td>−8.11 亿 ✗</td><td>0</td></tr>
+        <tr><td>涨日超大单日均净额 &gt; 0</td><td>−1.59 亿 ✗</td><td>0</td></tr>
+        <tr><td>涨日超大单净流出弱于跌日</td><td>涨日 −1.59 流出更重于跌日 −0.82 ✗</td><td>0</td></tr>
+        <tr><td>区间两融净流入</td><td>9-30 以来净偿还 23.13 亿 ✗</td><td>0</td></tr>
+        <tr><td>股东户数环比下降 / 同比下降（各 +1）</td><td>环比 −6.09% ✓ / 同比 +16.68% ✗</td><td>+1</td></tr>
+      </tbody>
+    </table></div>
+
+    <p>读法示例：技术形态 8 分说明趋势结构偏强（均线多头、量能常态），但资金筹码 2 分说明本轮上涨由中单层资金推动、超大单持续净流出——<b>两组事实同时成立，正是本篇报告的核心张力</b>，见 §5 与 §7。</p>
+    <div class="rep-src">评分输入数据来源：<code>02_daily_kline_qfq.json</code>（K线派生） · <code>04_valuation_history.json</code>（估值分位） · <code>06_main_financial_indicator.json</code>（财务） · <code>07_fund_flow_daily.json</code>（资金流，已过 4 条恒等式校验） · <code>08_margin_detail.json</code>（两融） · <code>14_holder_number.json</code>（股东户数）。截至 2026-11-09。</div>
+  </div>
+
+  <!-- ================= R2 技术形态 ================= -->
+  <div class="rep-sec" id="r2">
+    <h3><span class="no">§2</span>技术形态：短期多头、长期纠缠</h3>
+    <h4>均线体系</h4>
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>均线</th><th>数值（元）</th><th>股价相对位置</th><th>乖离率</th></tr></thead>
+      <tbody>
+        <tr><td>MA5</td><td>1,455.29</td><td><b>股价下方</b></td><td>−0.71%</td></tr>
+        <tr><td>MA10</td><td>1,414.82</td><td>股价上方</td><td>+2.13%</td></tr>
+        <tr><td>MA20</td><td>1,366.06</td><td>股价上方</td><td>+5.78%</td></tr>
+        <tr><td>MA30</td><td>1,328.69</td><td>股价上方</td><td>+8.75%</td></tr>
+        <tr><td>MA60</td><td>1,314.92</td><td>股价上方</td><td>+9.89%</td></tr>
+        <tr><td>MA120</td><td>1,285.08</td><td>股价上方</td><td>+12.44%</td></tr>
+        <tr><td>MA250</td><td>1,340.63</td><td>股价上方</td><td>+7.78%</td></tr>
+      </tbody>
+    </table></div>
+    <p>中短期均线多头排列成立，年内首次收于季线与半年线上方。两个反向细节：MA120 仍低于 MA250，长期均线未真正理顺；周线 MA250 = 1,484.95，现价仍在其下方，为 2026 全年首次出现的周线级别压制。基于近 454 根周 K 的统计，跌破周年线后的修复通常需要 4–8 周。</p>
+
+    <h4>近 6 日量价</h4>
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>日期</th><th>收盘</th><th>成交量（手）</th><th>成交额（亿）</th><th>量比 20 日</th></tr></thead>
+      <tbody>
+        <tr><td>11-02</td><td>1,439.10</td><td>82,691</td><td>118.49</td><td>1.81</td></tr>
+        <tr><td>11-03</td><td><b>1,480.00</b></td><td>74,121</td><td>108.26</td><td>1.62</td></tr>
+        <tr><td>11-04</td><td>1,446.44</td><td>65,434</td><td>95.36</td><td>1.43</td></tr>
+        <tr><td>11-05</td><td>1,452.00</td><td>46,712</td><td>67.53</td><td>1.02</td></tr>
+        <tr><td>11-06</td><td>1,453.00</td><td>42,848</td><td>62.00</td><td>0.94</td></tr>
+        <tr><td>11-09</td><td><b>1,444.99</b></td><td>24,801</td><td>35.78</td><td><b>0.54</b></td></tr>
+      </tbody>
+    </table></div>
+    <p>11-04 盘中触及 1,480.60 后回落，量能连续四日萎缩；11-09 的 24,801 手处于全样本 2,146 个交易日的 <b>26.10% 分位</b>。形态上属「冲高后无量整理」：既无放量流出的恐慌，也无承接资金进场的迹象。</p>
+
+    <h4>动量与波动</h4>
+    <ul>
+      <li>MACD：DIF 44.18 / DEA 34.09，金叉区间内，柱状线连续 5 日收缩（31.4 → 20.2）</li>
+      <li>RSI14 = 68.22，自 79.16 回落，超买缓解但未回中性区</li>
+      <li>KDJ 于 11-05 形成死叉（K 86.79 / D 88.29），当前仍在超买区</li>
+      <li>BOLL 带宽 18.12%，处近 250 日 <b>96.0% 分位</b>——价格区间不确定性处于极端扩张状态，任何方向的突破都会较剧烈</li>
+      <li>年化波动率：20 日 24.20% / 60 日 21.45% / 250 日 23.11%；近 1 年最大回撤 −23.47%、近 3 年 −30.21%</li>
+    </ul>
+
+    <h4>关键价位（客观标注，不附带操作含义）</h4>
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>类型</th><th>价位（元）</th><th>依据</th></tr></thead>
+      <tbody>
+        <tr><td>区间顶部</td><td>1,480.60</td><td>11-04 盘中最高</td></tr>
+        <tr><td>强阻力</td><td><b>1,484.95</b></td><td>周 MA250</td></tr>
+        <tr><td>布林上轨</td><td>1,489.79</td><td>BOLL(20,2)</td></tr>
+        <tr><td>近 250 日高点</td><td>1,526.98</td><td>前高</td></tr>
+        <tr><td>当前价</td><td><b>1,444.99</b></td><td>11-09 收盘</td></tr>
+        <tr><td>均线密集区</td><td>1,408.35</td><td>MA5/MA10 一带</td></tr>
+        <tr><td><b>未回补缺口</b></td><td><b>1,393.37–1,395.02</b></td><td>2026-10-30 跳空，全年唯一未回补</td></tr>
+        <tr><td>强支撑</td><td>1,366.06</td><td>BOLL 中轨 + MA20</td></tr>
+        <tr><td>强支撑</td><td>1,328.69</td><td>MA30 / 季线</td></tr>
+        <tr><td>极端支撑</td><td>1,285.08</td><td>MA120 / 半年线</td></tr>
+        <tr><td>年内低点</td><td>1,168.63</td><td>近 120 日最低</td></tr>
+      </tbody>
+    </table></div>
+    <p>技术观察条件（中性描述）：上方关注「收盘连续 3 日站上 1,490 且量能回到 20 日均量 45,634 手上方」是否出现；下方关注「收盘跌破 1,393.37 且放量」。观察窗口 11-11 至 11-13（三季报业绩说明会之后）。</p>
+
+    <div class="rep-chart">
+      <div class="cap">日 K · 均线 · 成交量 · MACD（近 120 交易日，可拖动缩放）</div>
+      <div id="chartKline" class="cv" style="height:470px"></div>
+      <div class="fn">前复权日 K。红涨绿跌；成交量单位万手，橙色虚线为 20 日均量 4.56 万手；横向虚线为 §2 关键价位。数据源：东财 push2his（02_daily_kline_qfq.json）。</div>
+    </div>
+    <div class="rep-src">本节数据源：<code>02_daily_kline_qfq.json</code>（2,146 根前复权日 K，由 derive.py 派生全部指标）· <code>03_daily_kline_raw.json</code>（缺口与除权校验）。截至 2026-11-09。</div>
+  </div>
+
+  <!-- ================= R3 财务质量 ================= -->
+  <div class="rep-sec" id="r3">
+    <h3><span class="no">§3</span>财务质量：报表稳、先行指标弱</h3>
+    <h4>增长：累计贴近零增长，单季刚转正</h4>
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>报告期</th><th>营业总收入（亿）</th><th>同比</th><th>归母净利（亿）</th><th>同比</th><th>ROE（累计）</th></tr></thead>
+      <tbody>
+        <tr><td>2026 三季报</td><td>1,332.84</td><td class="up"><b>+1.82%</b></td><td>644.67</td><td class="dn"><b>−0.25%</b></td><td>24.47%</td></tr>
+        <tr><td>2026 中报</td><td>922.78</td><td class="up">+1.30%</td><td>445.17</td><td class="dn">−1.95%</td><td>16.75%</td></tr>
+        <tr><td>2026 一季报</td><td>547.03</td><td class="up">+6.34%</td><td>272.43</td><td class="up">+1.47%</td><td>10.57%</td></tr>
+        <tr><td>2025 年报</td><td>1,720.54</td><td class="dn">−1.20%</td><td>823.20</td><td class="dn">−4.53%</td><td>32.53%</td></tr>
+      </tbody>
+    </table></div>
+    <p>单季由累计相减：2026Q3 单季营业总收入 <b>410.06 亿（+3.00%）</b>、归母净利 <b>199.51 亿（+3.78%）</b>，净利环比 +15.49%。口径说明：若按「营业收入」（而非「营业总收入」）计，Q3 单季为 402.67 亿（+3.08%），两者都正确。在 19 家白酒可比公司中，这是 Q3 单季营收与净利唯一双转正的一份报表。</p>
+
+    <h4>盈利质量与资产负债表</h4>
+    <ul>
+      <li>毛利率 89.58%（2025 年报 91.18%，−1.71pct）；净利率 50.94%（+0.35pct）——净利下滑主要来自毛利率，不是费用失控</li>
+      <li>经营现金流 ÷ 净利润 = <b>1.305</b>（每股经营现金流 67.24 元 vs EPS 51.53 元）；CFO 改善主要来自税费与营运资本变动，而非收入端</li>
+      <li>资产负债率 11.90%、流动比率 7.19、<b>零有息负债</b>；Q3 末货币资金 499.27 亿、总资产 3,183.05 亿</li>
+      <li>ROE 口径提示：Q3 的 24.47% 是未年化累计值，不能与年报 32.53% 直接比较；统一年化后 2023/2024/2025 = 35.34% / 35.13% / 34.94%，TTM 年化 29.30%，温和下行而非断崖</li>
+    </ul>
+
+    <h4>三个先行指标</h4>
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>报告期</th><th>2025Q1</th><th>2025H1</th><th>2025Q3</th><th>2025 年报</th><th>2026Q1</th><th>2026H1</th><th><b>2026Q3</b></th></tr></thead>
+      <tbody>
+        <tr><td>合同负债（亿）</td><td>87.88</td><td>55.07</td><td>77.49</td><td>80.07</td><td>30.27</td><td>31.78</td><td><b>20.84</b></td></tr>
+      </tbody>
+    </table></div>
+    <p>2026Q3 末合同负债 20.84 亿，<b>环比 −34.40%、同比 −73.10%</b>。可以有两种解读并存：一是公司主动控量稳价、打款节奏收缩；二是渠道真实需求走弱——AI 分析师拆解认为产品结构效应只能解释降幅的 31.6%，其余 68.4%（38.55 亿）无法用结构解释。该项是本篇多空分歧最大的单一指标，见 §7。</p>
+    <ul>
+      <li><b>经销商</b>：国内经销商 Q1 净减 46 家（增 220 / 减 266），Q2 末 2,307 家、环比回补 +209 家。无连续两季净减的证据，也谈不上扩张</li>
+      <li><b>存货</b>：Q3 末 613.91 亿、同比 +9.90%；存货增幅低于营业成本增幅（+17.05%），周转天数 1,399 → 1,215 天改善。白酒存货主体为需陈化 5 年以上的基酒，属长期资产而非渠道积压，「累库→减值」的推导不成立</li>
+    </ul>
+    <div class="rep-src">本节数据源：<code>06_main_financial_indicator.json</code>（东财 F10 主指标）· <code>22_balance_sheet_detail.json</code>（合同负债/存货/货币资金，主理人独立复算）· <code>05_financial_statements.json</code>（三表复核）。截至 2026-11-09。</div>
+  </div>
+
+  <!-- ================= R4 估值水位 ================= -->
+  <div class="rep-sec" id="r4">
+    <h3><span class="no">§4</span>估值水位：分位很低，但锚本身可疑</h3>
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>指标</th><th>当前值</th><th>全样本分位</th><th>近 5 年分位</th><th>区间</th><th>中位数</th></tr></thead>
+      <tbody>
+        <tr><td>PE_TTM</td><td><b>21.99</b></td><td><b>18.55%</b></td><td>32.04%</td><td>17.66 – 73.29</td><td>32.21</td></tr>
+        <tr><td>PB_MRQ</td><td><b>6.66</b></td><td><b>5.92%</b></td><td>10.32%</td><td>—</td><td>—</td></tr>
+        <tr><td>PS_TTM</td><td>10.36</td><td>17.19%</td><td>—</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+    <p>样本为 2018-01-02 至 2026-11-09 全部 2,146 个交易日（分页取全，避免截断偏误）。关于「低分位 ≠ 便宜」的三条数据事实：</p>
+    <ol>
+      <li><b>分母含泡沫期</b>：全样本 PE 中位数 32.21 倍来自 2019–2021 核心资产定价区间；当前 21.99 倍落在 15–25 倍桶内，该桶占样本 29.36%，并不靠桶底</li>
+      <li><b>前瞻口径与增速不匹配</b>：按一致预期 EPS，forward PE 为 2026E 21.63x / 2027E 20.42x / 2028E 19.33x，对应 EPS CAGR 仅 4.31%（25A→28E）与 5.77%（26E→28E）</li>
+      <li><b>卖方预期未下修</b>：43 家覆盖（34 家「买入」评级 / 9 家「增持」评级）2026E EPS 66.82，而 Q3 实际累计 EPS 51.53；一致预期价格区间 1,556–2,030 元（数据事实，非本站观点），隐含 forward PE 23.3–30.4x</li>
+    </ol>
+
+    <div class="rep-chart">
+      <div class="cap">PE_TTM 历史走势与分位带（2018-01-02 起 2,146 交易日）</div>
+      <div id="chartVal" class="cv" style="height:320px"></div>
+      <div class="fn">分位线按全样本计算；红点为 2026-11-09 的 21.99 倍（18.55% 分位）。数据源：东财 RPT_VALUEANALYSIS_DET。</div>
+    </div>
+    <div class="rep-chart">
+      <div class="cap">PE_TTM 分布直方图（全样本分位桶）</div>
+      <div id="chartBucket" class="cv" style="height:230px"></div>
+      <div class="fn">深色柱为当前 PE 所在的 15–25 倍区间（630 个交易日，29.36%）。</div>
+    </div>
+
+    <h4>DDM 逆推：现价隐含了什么假设</h4>
+    <p>戈登模型逆推：滚动 12 个月已实施分红 649.81 亿 ÷ 总市值 18,063.55 亿 = 股息率 y = 3.5973%；隐含权益成本 r = g + y。</p>
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>增长假设 g</th><th>口径</th><th>隐含 r</th></tr></thead>
+      <tbody>
+        <tr><td>+4.31%</td><td>一致预期 25A→28E CAGR</td><td><b>7.907%</b></td></tr>
+        <tr><td>+5.77%</td><td>一致预期 26E→28E CAGR</td><td>9.367%</td></tr>
+        <tr><td>+0.20%</td><td>仅通胀</td><td>3.797%</td></tr>
+        <tr><td>−0.32%</td><td>实际近 2 年 CAGR</td><td>3.277%</td></tr>
+      </tbody>
+    </table></div>
+    <p>解读：若真实增速接近近两年的 −0.32%，现价隐含的权益成本仅 3.28%，贴近「无风险利率 + 1.5pct」——即现价已把「增长不会更差」当作默认假设，估值对下修的缓冲很薄。</p>
+
+    <h4>同业位置</h4>
+    <ul>
+      <li>白酒板块 19 只成分股中 5 家 PE 为负、2 家 &gt; 500x，需剔除后比较；12 家盈利可比公司中茅台 PE 21.99 由低到高排第 5，低于中位数 26.95 约 18.4%</li>
+      <li>PE 相对分位两套口径：含自身 41.67% / 剔除自身 33.33%（引用时必须注明口径）</li>
+      <li>PB 6.66 vs 同业普遍 1.05–2.65，溢价约 5.6 倍——市场仍在为确定性付费</li>
+    </ul>
+    <div class="rep-src">本节数据源：<code>04_valuation_history.json</code>（分页取全 2,146 行）· <code>12_dividend.json</code>（分红记录）· <code>13_research_ratings.json</code>（一致预期）· <code>17_baijiu_peers_valuation.json</code>（板块 19 只成分股快照）。截至 2026-11-09。</div>
+  </div>
+
+  <!-- ================= R5 资金筹码 ================= -->
+  <div class="rep-sec" id="r5">
+    <h3><span class="no">§5</span>资金筹码：三层背离，筹码在下移</h3>
+    <p>口径先行：东财资金流接口的字段顺序存在已知错位风险，本报告数据已按 4 条恒等式重建校验（净额÷成交额=净占比、主力=超大+大单、三层净额之和=0、还原收盘价与 K 线一致），121/121 交易日通过，并与证券时报 11-04 报道交叉验证同向。</p>
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>窗口</th><th>主力净额（亿）</th><th>流入天数</th><th>超大单</th><th>大单</th><th>中单</th></tr></thead>
+      <tbody>
+        <tr><td>近 5 日</td><td class="dn"><b>−8.11</b></td><td>2/5</td><td>−12.98</td><td>+4.88</td><td>+8.13</td></tr>
+        <tr><td>近 10 日</td><td class="up">+2.15</td><td>7/10</td><td>−19.86</td><td>+22.01</td><td>−2.09</td></tr>
+        <tr><td>近 20 日</td><td class="up"><b>+22.85</b></td><td>16/20</td><td>−27.20</td><td>+50.05</td><td>−22.75</td></tr>
+        <tr><td>近 40 日</td><td class="up">+8.39</td><td>20/40</td><td>−32.59</td><td>+40.98</td><td>−8.24</td></tr>
+        <tr><td>近 60 日</td><td class="up">+1.91</td><td>29/60</td><td>−41.22</td><td>+43.13</td><td>−1.67</td></tr>
+        <tr><td><b>全样本 121 日</b></td><td class="dn"><b>−118.56</b></td><td>—</td><td class="dn"><b>−110.99</b></td><td>−7.56</td><td class="up"><b>+119.21</b></td></tr>
+      </tbody>
+    </table></div>
+    <p>三层结构：<b>大单净流入、超大单净流出、中单被动承接</b>。近 20 日主力 +22.85 亿主要由大单 +50.05 亿贡献；11-04 起大单转为净流出，主力连续四日为负。全样本 121 日超大单净流出 110.99 亿、中单净流入 119.21 亿——一次完整的筹码下移。</p>
+
+    <div class="rep-chart">
+      <div class="cap">近 20 交易日资金分层（亿元）</div>
+      <div id="chartFund" class="cv" style="height:300px"></div>
+      <div class="fn">主力 = 超大单 + 大单；分层口径：超大单 ≥100 万 / 大单 20–100 万 / 中单 4–20 万。数据已过恒等式校验。</div>
+    </div>
+
+    <h4>阶段拆分与方向性检验</h4>
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>阶段</th><th>天数</th><th>大单（亿）</th><th>超大单（亿）</th><th>中单（亿）</th><th>大单流入日</th></tr></thead>
+      <tbody>
+        <tr><td>A 段 9/23–11/03（涨幅 +26.67%）</td><td>18</td><td class="up"><b>+58.41</b></td><td class="dn">−19.48</td><td class="dn">−38.83</td><td><b>17/18</b></td></tr>
+        <tr><td>B 段 11/04–11/09（−2.37%）</td><td>4</td><td class="dn"><b>−3.82</b></td><td class="dn">−8.58</td><td class="up">+12.41</td><td><b>0/4</b></td></tr>
+      </tbody>
+    </table></div>
+    <p>方向性检验（超大单净额日均）：近 20 日涨日 14 天均值 <b>−1.59 亿</b>、跌日 6 天均值 <b>−0.82 亿</b>——上涨日的净流出力度反而更强；全样本 121 日涨日 +0.06 / 跌日 −1.84。A 段 26.67% 的涨幅由大单推动、超大单同期减持；冲高后大单断流、中单接手。</p>
+
+    <h4>杠杆、筹码与外资</h4>
+    <ul>
+      <li><b>两融</b>：融资余额 150.07 亿（11-06）；9-30 以来累计净偿还 23.13 亿（17 负 / 6 正）——反弹全程杠杆资金在撤退</li>
+      <li><b>股东户数</b>：2026-09-30 为 278,364 户，环比 −6.09%，但仍高于去年同期 +16.68%——筹码未真正出清</li>
+      <li><b>龙虎榜</b>：近 1 年 0 次上榜；换手率 0.2%，无游资炒作痕迹</li>
+      <li><b>大宗交易</b>：近 4 月 25 笔</li>
+      <li><b>陆股通</b>：持股占总股本 4.4208%（2026-09-30，序列仅 1 条，趋势不可由内部数据推导）；官方媒体口径 10 月确认北向增持（中证报 11-04：近 3 日 +11.02 亿）。正确表述是「增持获官方口径确认，但持股绝对位置未证实」</li>
+      <li><b>机构</b>：43 家覆盖中 34 家「买入」/ 9 家「增持」/ 0 中性（看多占比 100%），但年内仅 2 家上调评级、15 家维持——共识已满，边际增量有限</li>
+    </ul>
+    <div class="rep-src">本节数据源：<code>07_fund_flow_daily.json</code>（修复版）· <code>08_margin_detail.json</code> · <code>14_holder_number.json</code> · <code>11_lhb.json</code> · <code>10_block_trade.json</code> · <code>09_northbound_holding.json</code> · <code>13_research_ratings.json</code>。截至 2026-11-09。</div>
+  </div>
+
+  <!-- ================= R6 事件核验 ================= -->
+  <div class="rep-sec" id="r6">
+    <h3><span class="no">§6</span>事件与叙事核验：过去的说法 vs 现在的实际</h3>
+    <h4>叙事核验表（对照 2025-04 的一份公开研究报告）</h4>
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>2025-04 的说法</th><th>2026-11 实际</th><th>核验</th></tr></thead>
+      <tbody>
+        <tr><td>分红率 ≥75% 三年规划</td><td>2025 财年 <b>78.94%</b>、2024 财年 74.74%</td><td><span class="pill lo">已兑现</span></td></tr>
+        <tr><td>股息率约 3.8%</td><td>财年合并口径 <b>3.597%</b></td><td><span class="pill lo">基本成立</span></td></tr>
+        <tr><td>批价 2,050 元</td><td>散瓶约 1,685 / 原箱约 1,700（较 2025-04 −17~18%，但较 2025-12 低点 +13%）</td><td><span class="pill md">部分失效</span></td></tr>
+        <tr><td>i 茅台直销占比 22%</td><td>直销占主营 <b>56.36%</b></td><td><span class="pill lo">大幅超越</span></td></tr>
+        <tr><td>海外占比 5% → 15% 十年空间</td><td>占比仅 <b>1.25%</b>、同比 −57.8%</td><td><span class="pill hi">失效且反向</span></td></tr>
+        <tr><td>消费税靴子未落地</td><td>2026-06-01 总局公告第 9 号已施行；征收环节后移推进中，新规主要影响中小酒企</td><td><span class="pill md">部分落地</span></td></tr>
+        <tr><td>PE 处 5% 极低分位</td><td>PE 21.99 全样本 18.55% 分位、近 5 年 32.04%；PB 5.92% 分位</td><td><span class="pill md">部分失效</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <h4>事件日历</h4>
+    <ul>
+      <li><b>2026-11-10 15:00–16:00 三季报业绩说明会</b>（确定）：投资者提问已于 11-09 截止；渠道库存、批价、收入指引等敏感问题未获公开回应</li>
+      <li>2026 中期分红方案公告（<b>推断</b>，11–12 月；程序已简化，上限 ≤ H1 净利 445.17 亿）</li>
+      <li>2027 春节备货（<b>推断</b>，春节 2027-02-06）；正式总经理任命（<b>推断</b>）；2026 年报及分红预案（<b>推断</b>，2027 年 3–4 月）</li>
+    </ul>
+    <p>行业背景：19 家白酒公司 2026 Q1–Q3 合计营收 2,655.08 亿（−7.63%）、归母净利 973.68 亿（−9.55%）；Q3 单季营收降幅由 Q2 的 −17.11% 收窄至 −10.05%。四档酒企（泸州老窖 / 汾酒 / 洋河）Q3 单季跌幅 27%–54%，茅台是唯一双转正。治理面：2026-06-11 董事会换届，陈华任董事长、王莉代行总经理职责。</p>
+    <div class="rep-src">本节数据源：<code>20/21_news_*.json</code>（东财全文检索 140 条）· <code>18/19_baijiu_*.json</code>（板块行情与成分）。截至 2026-11-09。</div>
+  </div>
+
+  <!-- ================= R7 多空对照 ================= -->
+  <div class="rep-sec" id="r7">
+    <h3><span class="no">§7</span>多空证据对照</h3>
+    <p>以下由两个独立 AI 立场基于同一份校准数据包完成辩论实录的浓缩。双方只能引用上文已校准的数字。本站不裁决、不附综合结论——证据摆在这里，判断留给读者。</p>
+    <div class="rep-duel">
+      <div class="rep-side long">
+        <h5>多方证据</h5>
+        <div class="cap2">偏多解读依赖的三组数据</div>
+        <ol>
+          <li><b>现金回报构成硬约束的下方支撑。</b>2025 财年分红 649.81 亿 ÷ 归母净利 823.20 亿 = 分红率 78.94%（2019–2023 稳定在 51.65%，实打实上台阶）；滚动股息率 3.597%；零有息负债、现金流/净利 1.305；控股股东 30–33 亿增持获农行再贷款支持、30 亿回购已注销。在利率下行环境里，这是 A 股稀缺的现金回报组合。</li>
+          <li><b>Q3 单季是行业最好的报表。</b>营收 +3.00% / 净利 +3.78% / 环比 +15.49%，19 家白酒唯一双转正（同期行业 −7.63% / −9.55%）。直销占主营 56.36%（+13.1pct，首次超过批发）、i 茅台前三季 585.62 亿、年内两次提价——渠道结构变革已兑现为报表数据。</li>
+          <li><b>技术形态未破位，抛压在衰竭。</b>现价站上 MA20/60/120/250，年内首次收于季线半年线上方；11-09 量能仅 20 日均量 0.54 倍（26.1% 分位），继续杀跌的动能不足；板块出清对龙头是相对利好，消费税新规主要影响中小酒企。</li>
+        </ol>
+      </div>
+      <div class="rep-side short">
+        <h5>空方证据</h5>
+        <div class="cap2">偏空解读依赖的三组数据</div>
+        <ol>
+          <li><b>低分位不等于安全边际。</b>18.55% 分位的分母含 2019–2021 泡沫期；forward PE 21.63x 对应一致预期 EPS CAGR 仅 4.31%；DDM 逆推若按实际增速 −0.32%，现价隐含权益成本仅 3.28%——现价已把「增长不会更差」定价为默认假设。</li>
+          <li><b>先行指标与报表背离。</b>合同负债 20.84 亿、同比 −73.10%，结构效应只解释 31.6%；平台补贴实付 1,615 元击穿经销商成本线约 1,700 元，价盘倒挂压制打款意愿；海外收入 −57.8%、占比仅 1.25%。Q3 双转正可能是发货节奏与低基数，尚不能确认终端需求。</li>
+          <li><b>资金结构在恶化。</b>超大单 121 日净流出 110.99 亿；近 20 日涨日净流出力度（−1.59 亿/日）强于跌日（−0.82 亿）；A 段大单推动、B 段大单 0/4 断流、中单 3/4 接盘；两融累计净偿还 23.13 亿、股东户数仍高于去年同期 16.68%、43 家仅 2 家上调评级——未见增量资金证据。</li>
+        </ol>
+      </div>
+    </div>
+    <div class="rep-duel-note">双方对事实本身无分歧（数据均经交叉校准），分歧在权重与时间尺度：多方证据多为「存量的、慢变量」（分红、渠道结构、资产负债表），空方证据多为「增量的、快变量」（资金流、合同负债、预期差）。多空并陈不等于观点各半，也不构成任何方向性暗示。</div>
+    <div class="rep-src">辩论实录约束：双方仅可引用 Phase 1 交叉校准共识（PHASE1_DIGEST.md）内数字；装配层做数字一致性校验（正文数字 ⊆ DERIVED 快照）。</div>
+  </div>
+
+  <!-- ================= R8 监控清单 ================= -->
+  <div class="rep-sec" id="r8">
+    <h3><span class="no">§8</span>监控清单：接下来盯什么（纯观察，无操作含义）</h3>
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>观察点</th><th>可观测指标</th><th>当前读数</th><th>重点关注阈值</th><th>关注等级</th></tr></thead>
+      <tbody>
+        <tr><td>需求侧</td><td>合同负债同比</td><td>−73.10%</td><td>连续两季 &lt; −50%</td><td><span class="pill hi">高</span></td></tr>
+        <tr><td>价盘</td><td>散瓶批价 vs 经销商成本线</td><td>1,685 / ~1,700</td><td>批价 &lt; 1,500 持续一月</td><td><span class="pill hi">高</span></td></tr>
+        <tr><td>大资金</td><td>超大单近 20 日净额</td><td>−27.20 亿</td><td>单月 &lt; −50 亿</td><td><span class="pill md">中</span></td></tr>
+        <tr><td>卖方预期</td><td>2026E EPS 一致预期</td><td>66.82（实际累计 51.53）</td><td>下调 &gt; 5%</td><td><span class="pill md">中</span></td></tr>
+        <tr><td>股东回报</td><td>财年分红率</td><td>78.94%</td><td>&lt; 70%</td><td><span class="pill md">中</span></td></tr>
+        <tr><td>杠杆资金</td><td>融资余额</td><td>150.07 亿</td><td>单月净偿还 &gt; 20 亿</td><td><span class="pill lo">低</span></td></tr>
+        <tr><td>技术位</td><td>MA20 / MA30</td><td>1,366.06 / 1,328.69</td><td>放量跌破</td><td><span class="pill md">中</span></td></tr>
+        <tr><td>事件</td><td>三季报业绩说明会口径</td><td>敏感提问未获回应</td><td>渠道/批价/指引三项口径</td><td><span class="pill hi">高</span></td></tr>
+      </tbody>
+    </table></div>
+    <p>报告复核节奏：11-10 业绩说明会口径 → 11-11~13 技术观察窗口 → 缺口 1,393.37 与 1,490 上沿的方向选择 → 中期分红方案 → 2026 年报 / Q4 数据。任一监控项达到阈值，本报告将出复核更新。</p>
+    <div class="rep-src">阈值为研究观察口径，仅标记「数据值得重新审视」的边界，不对应任何交易动作。</div>
+  </div>
+
+  <!-- ================= R9 附录 ================= -->
+  <div class="rep-sec" id="r9">
+    <h3><span class="no">§9</span>附录：数据溯源 · 勘误 · 方法</h3>
+    <h4>数据溯源表（选摘，完整 23 项见生成管道）</h4>
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>数据文件</th><th>接口 / 来源</th><th>行数</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td>02_daily_kline_qfq.json</td><td>东财 push2his 前复权日 K</td><td>2,146</td><td>全部技术指标、量能分位、K 线图</td></tr>
+        <tr><td>04_valuation_history.json</td><td>东财 RPT_VALUEANALYSIS_DET（分页 15 页）</td><td>2,146</td><td>估值分位、分位带图、直方图</td></tr>
+        <tr><td>06_main_financial_indicator.json</td><td>东财 F10 主指标</td><td>40</td><td>增长、单季拆分、盈利质量</td></tr>
+        <tr><td>07_fund_flow_daily.json</td><td>东财 fflow/daykline/get（已修复字段错位）</td><td>121</td><td>资金分层、图 4</td></tr>
+        <tr><td>22_balance_sheet_detail.json</td><td>东财 RPT_F10_FINANCE_GBALANCE</td><td>补抓</td><td>合同负债 / 存货复核</td></tr>
+        <tr><td>12_dividend.json</td><td>东财 RPT_SHAREBONUS_DET</td><td>28</td><td>财年合并分红率、股息率</td></tr>
+        <tr><td>13_research_ratings.json</td><td>东财 RPT_WEB_RESPREDICT</td><td>1</td><td>一致预期、评级分布</td></tr>
+        <tr><td>17_baijiu_peers_valuation.json</td><td>东财板块估值（BOARD_CODE=016165）</td><td>19</td><td>同业对比</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:11.5px;color:var(--t3)">抓取时间 2026-11-09 16:53–17:40（北京时间）。数据接口经由上游同源接口直连，口径与官方一致。</p>
+
+    <h4>勘误日志（选摘 6 条——错误如何被发现与修正，全部过程留档）</h4>
+    <div class="rep-tw"><table class="rep-tb">
+      <thead><tr><th>问题</th><th>修正</th><th>校验方式</th></tr></thead>
+      <tbody>
+        <tr><td>资金流 13 个字段标签错位，「主力」实为符号翻转的中单</td><td>按 4 条恒等式重建</td><td>121/121 通过 + 证券时报报道交叉验证</td></tr>
+        <tr><td>估值历史只取 1,000 行，PE 分位误为 38.8%</td><td>分页取全 2,146 行</td><td>分位修正为 18.55%</td></tr>
+        <tr><td>分红字段误映射（10 派当每股）</td><td>重映射每 10 股派息口径</td><td>财年合并 78.94% 可复算</td></tr>
+        <tr><td>合同负债误为 24.43 亿、环比 +25.82%</td><td>实为 20.84 亿、环比 −34.40%</td><td>资产负债表科目独立复算</td></tr>
+        <tr><td>KDJ 死叉日误为 11-04</td><td>正确为 11-05</td><td>高低价 RSV 重算逐位一致</td></tr>
+        <tr><td>经销商「Q1 净减 255 家」混淆毛减/净减</td><td>净减 46 家（增 220 / 减 266）</td><td>官方 H1 披露表核对</td></tr>
+      </tbody>
+    </table></div>
+
+    <h4>方法与口径</h4>
+    <ul>
+      <li>技术指标：MA 简单平均；MACD(12,26,9) 柱 = 2×(DIF−DEA)；RSI(14) Wilder 平滑；KDJ(9,3,3) 高低价 RSV；BOLL(20,2)；年化波动率按 252 交易日；分位 = ≤自身的样本占比</li>
+      <li>资金分层：超大单 ≥100 万 / 大单 20–100 万 / 中单 4–20 万 / 小单 &lt;4 万，主力 = 超大单 + 大单</li>
+      <li>分红口径：财年合并（中期 + 末期）；只看末期单次会误得 42.56% 分红率与 1.94% 股息率，均为错值</li>
+      <li>评分：§1 全部子项规则与输入值公开，任何人可按本页数字复算；评分为状态描述，不构成信号</li>
+      <li>合规边界：本报告呈现数据事实与双方证据，不给出评级、方向结论、价格预测或任何买卖时点 / 仓位类内容；AI 生成内容已依《人工智能生成合成内容标识办法》标注</li>
+    </ul>
+  </div>
+
+  <div class="foot">
+    <div class="disc"><b>免责声明</b>：本报告由 AI 基于公开数据生成，所有数字可溯源但可能存在接口口径差异或时滞，以交易所与公司官方披露为准。本报告仅为数据整理与研究笔记，不构成任何投资建议或买卖参考；市场有风险，决策需独立判断。过往数据不预示未来表现。</div>
+    息·账 · AI 多空数据报告 · 月度焦点 2026-11 期 · <a href="../../ai.html" style="color:var(--t3)">AI 日报</a> · <a href="../../index.html" style="color:var(--t3)">高股息看板</a><br>
+    本站为个人研究笔记，不构成投资建议
+  </div>
+</div>
+
+<script src="../../vendor/echarts-5.5.0.min.js"></script>
+<script src="data.js"></script>
+<script>
+'use strict';
+(function(){
+  if (typeof echarts === 'undefined' || !window.MT) return;
+  var cs = getComputedStyle(document.documentElement);
+  function v(name, fb){ var x = cs.getPropertyValue(name).trim(); return x || fb; }
+  var C = {
+    up: v('--up', '#C7362B'), down: v('--down', '#0e9f6e'),
+    ink: v('--ink', '#1C2B24'), ink2: v('--ink-2', '#55604F'), ink3: v('--ink-3', '#8B937F'),
+    rule: v('--rule', 'rgba(28,43,36,.16)'), gold: v('--gold', '#8A6D1F'),
+    paper: v('--paper-hi', '#F7F8F2')
+  };
+  var charts = [];
+  function mk(id, opt){
+    var el = document.getElementById(id);
+    if (!el) return;
+    var c = echarts.init(el, null, {renderer: 'canvas'});
+    c.setOption(opt); charts.push(c); return c;
+  }
+  window.addEventListener('resize', function(){ charts.forEach(function(c){ c.resize(); }); });
+
+  var ax = {axisLine:{lineStyle:{color:C.rule}}, axisLabel:{color:C.ink2, fontSize:10},
+            splitLine:{lineStyle:{color:C.rule, opacity:.45}}};
+
+  /* ---- 雷达 ---- */
+  mk('chartRadar', {
+    radar: {
+      indicator: [
+        {name: '技术形态', max: 10}, {name: '财务质量', max: 10},
+        {name: '估值水位', max: 10}, {name: '资金筹码', max: 10}
+      ],
+      radius: '62%', splitNumber: 5,
+      axisName: {color: C.ink2, fontSize: 12},
+      splitLine: {lineStyle: {color: C.rule}},
+      splitArea: {areaStyle: {color: ['transparent']}},
+      axisLine: {lineStyle: {color: C.rule}}
+    },
+    series: [{
+      type: 'radar',
+      data: [{
+        value: [8, 9, 7, 2],
+        name: '四维评分',
+        areaStyle: {color: 'rgba(138,109,31,.22)'},
+        lineStyle: {color: C.gold, width: 2},
+        itemStyle: {color: C.gold},
+        label: {show: true, color: C.ink, fontWeight: 600}
+      }]
+    }]
+  });
+
+  /* ---- K 线 + 量 + MACD ---- */
+  var K = MT.kline;
+  var lvl = K.levels.map(function(l){
+    return {yAxis: l.v, label: {formatter: l.name, position: 'insideEndTop'},
+            lineStyle: {type: 'dashed', color: C.gold, opacity: .8, width: 1}};
+  });
+  mk('chartKline', {
+    animation: false,
+    tooltip: {trigger: 'axis', axisPointer: {type: 'cross'},
+      backgroundColor: C.paper, borderColor: C.rule,
+      textStyle: {color: C.ink, fontSize: 11},
+      position: function(pos){ return [pos[0] + 10, '8%']; }},
+    axisPointer: {link: [{xAxisIndex: 'all'}]},
+    grid: [
+      {left: 56, right: 14, top: 14, height: '52%'},
+      {left: 56, right: 14, top: '64%', height: '13%'},
+      {left: 56, right: 14, top: '81%', height: '14%'}
+    ],
+    xAxis: [
+      {type: 'category', data: K.dates, gridIndex: 0, axisLabel: {show: false}, ...ax},
+      {type: 'category', data: K.dates, gridIndex: 1, axisLabel: {show: false}, ...ax},
+      {type: 'category', data: K.dates, gridIndex: 2, ...ax}
+    ],
+    yAxis: [
+      {scale: true, gridIndex: 0, ...ax},
+      {scale: true, gridIndex: 1, axisLabel: {show: false}, splitLine: {show: false}, axisLine: {show: false}},
+      {scale: true, gridIndex: 2, ...ax}
+    ],
+    series: [
+      {name: 'K线', type: 'candlestick', data: K.ohlc, xAxisIndex: 0, yAxisIndex: 0,
+       itemStyle: {color: C.up, color0: C.down, borderColor: C.up, borderColor0: C.down},
+       markLine: {symbol: 'none', silent: true, data: lvl}},
+      {name: 'MA5', type: 'line', data: K.ma5, xAxisIndex: 0, yAxisIndex: 0,
+       showSymbol: false, lineStyle: {width: 1, color: '#C9A75A'}},
+      {name: 'MA10', type: 'line', data: K.ma10, xAxisIndex: 0, yAxisIndex: 0,
+       showSymbol: false, lineStyle: {width: 1, color: '#55604F'}},
+      {name: 'MA20', type: 'line', data: K.ma20, xAxisIndex: 0, yAxisIndex: 0,
+       showSymbol: false, lineStyle: {width: 1, color: '#8A6D1F'}},
+      {name: 'MA60', type: 'line', data: K.ma60, xAxisIndex: 0, yAxisIndex: 0,
+       showSymbol: false, lineStyle: {width: 1, color: '#7D8776'}},
+      {name: '成交量', type: 'bar', data: K.vol.map(function(x, i){
+          return {value: x, itemStyle: {color: K.updown[i] > 0 ? C.up : C.down, opacity: .75}};
+        }), xAxisIndex: 1, yAxisIndex: 1},
+      {name: '20日均量', type: 'line', data: K.ma20vol, xAxisIndex: 1, yAxisIndex: 1,
+       showSymbol: false, lineStyle: {width: 1, type: 'dashed', color: C.gold}},
+      {name: 'DIF', type: 'line', data: K.dif, xAxisIndex: 2, yAxisIndex: 2,
+       showSymbol: false, lineStyle: {width: 1, color: '#C9A75A'}},
+      {name: 'DEA', type: 'line', data: K.dea, xAxisIndex: 2, yAxisIndex: 2,
+       showSymbol: false, lineStyle: {width: 1, color: '#55604F'}},
+      {name: 'MACD', type: 'bar', data: K.hist.map(function(x){
+          return {value: x, itemStyle: {color: x >= 0 ? C.up : C.down, opacity: .7}};
+        }), xAxisIndex: 2, yAxisIndex: 2}
+    ],
+    dataZoom: [
+      {type: 'inside', xAxisIndex: [0, 1, 2], start: 55, end: 100},
+      {type: 'slider', xAxisIndex: [0, 1, 2], bottom: 0, height: 16,
+       borderColor: C.rule, fillerColor: 'rgba(138,109,31,.15)', start: 55, end: 100}
+    ]
+  });
+
+  /* ---- PE 分位带 ---- */
+  var V = MT.valuation;
+  var qLines = Object.keys(V.quantiles).map(function(k){
+    return {yAxis: V.quantiles[k], label: {formatter: 'P' + k.replace('%', ''), position: 'insideEndTop'},
+            lineStyle: {type: 'dashed', color: C.ink3, width: 1}};
+  });
+  mk('chartVal', {
+    animation: false,
+    tooltip: {trigger: 'axis', backgroundColor: C.paper, borderColor: C.rule,
+              textStyle: {color: C.ink, fontSize: 11}},
+    grid: {left: 46, right: 60, top: 14, bottom: 34},
+    xAxis: {type: 'category', data: V.dates, ...ax,
+            axisLabel: {...ax.axisLabel, interval: Math.floor(V.dates.length / 8)}},
+    yAxis: {scale: true, ...ax},
+    series: [{
+      name: 'PE_TTM', type: 'line', data: V.pe, showSymbol: false,
+      lineStyle: {width: 1.4, color: C.ink2},
+      markLine: {symbol: 'none', silent: true, data: qLines.concat([{
+        yAxis: V.current,
+        label: {formatter: '当前 ' + V.current, position: 'end'},
+        lineStyle: {color: C.up, width: 2}
+      }])}
+    }]
+  });
+
+  /* ---- PE 分布直方图 ---- */
+  var curIdx = -1;
+  V.buckets.forEach(function(b, i){ if (V.current >= parseFloat(b['区间']) ) curIdx = i; });
+  mk('chartBucket', {
+    animation: false,
+    tooltip: {trigger: 'axis', backgroundColor: C.paper, borderColor: C.rule,
+              textStyle: {color: C.ink, fontSize: 11}},
+    grid: {left: 46, right: 20, top: 16, bottom: 30},
+    xAxis: {type: 'category', data: V.buckets.map(function(b){ return b['区间'] + 'x'; }), ...ax},
+    yAxis: {...ax, axisLabel: {...ax.axisLabel, formatter: '{value}%'}},
+    series: [{
+      type: 'bar', barWidth: '58%',
+      data: V.buckets.map(function(b, i){
+        return {value: b['占比%'],
+          itemStyle: {color: i === curIdx ? C.gold : 'rgba(28,43,36,.30)'}};
+      }),
+      label: {show: true, position: 'top', color: C.ink2, fontSize: 10,
+              formatter: function(p){ return p.value > 0 ? p.value + '%' : ''; }}
+    }]
+  });
+
+  /* ---- 资金分层 ---- */
+  var F = MT.fund;
+  function seg(idx){ return idx >= F.b_idx ? 1 : 0; }
+  mk('chartFund', {
+    animation: false,
+    tooltip: {trigger: 'axis', backgroundColor: C.paper, borderColor: C.rule,
+              textStyle: {color: C.ink, fontSize: 11}},
+    legend: {top: 0, textStyle: {color: C.ink2, fontSize: 11}, itemWidth: 12},
+    grid: {left: 46, right: 16, top: 30, bottom: 44},
+    xAxis: {type: 'category', data: F.dates, ...ax},
+    yAxis: {...ax, axisLabel: {...ax.axisLabel, formatter: '{value}亿'}},
+    series: [
+      {name: '超大单', type: 'bar', data: F.super, itemStyle: {color: C.up}},
+      {name: '大单', type: 'bar', data: F.big, itemStyle: {color: C.gold}},
+      {name: '中单', type: 'bar', data: F.mid, itemStyle: {color: '#7D8776'}},
+      {name: '主力（超大+大）', type: 'line', data: F.main, showSymbol: true, symbolSize: 5,
+       lineStyle: {width: 1.6, color: C.ink}, itemStyle: {color: C.ink},
+       markLine: {symbol: 'none', silent: true, data: [{
+         xAxis: F.b_idx - 0.5,
+         label: {formatter: 'B段起点 ' + F.b_start, position: 'insideEndTop'},
+         lineStyle: {type: 'dashed', color: C.ink3}
+       }]}}
+    ]
+  });
+})();
+</script>
+  <script src="../../ad.js?v=1" defer></script>
+  <script src="../../follow.js?v=1" defer></script>
+  <script src="../../track.js?v=1" defer></script>
+</body>
+</html>
