@@ -24,6 +24,7 @@ from .alerts import fetch_quotes
 from .db import get_db
 from .features import require_feature
 from .models import AiReport, Kline, StockDividend, User
+from .score import compute_scores, scores_compact
 from .tech import _bands, _position, _resample, _month_ends
 from .lab import trailing_dps
 
@@ -50,7 +51,9 @@ SYSTEM_PROMPT = """你是高股息投资研究频道的研究员。你会收到�
 3. 语气像研究笔记：给事实、给口径、给风险提示；不确定的地方直说数据不足。
 4. 数据包里标注"数据不足"的部分，明确写"数据积累中"，不要推测。
 
-输出 Markdown，结构固定四节，全文 400-600 字：
+输出 Markdown，结构固定五节，全文 450-700 字：
+## 四维评分速读
+（数据包里"四维评分"的分数与逐条规则明细。铁律：分数是程序按规则算的，你只解释"哪个子项导致了这个分数"，禁止说"建议关注/值得""评分高所以…"之类的方向性话术；score 为 null 的维度写"数据积累中"）
 ## 分红档案速读
 （这只票是谁：板块/市值/现价/股息率处在什么档位；每股分红与近12个月派息节奏；历年已实施的分红记录）
 ## 当前位置
@@ -168,6 +171,18 @@ def build_stock_pack(db: Session, code: str) -> tuple[dict, str]:
             }
     pack["技术位置"] = _tech_pack(db, code)
     pack["历史股息率分位"] = _yield_pack(db, code)
+
+    # 四维规则评分（score.py：确定性计算，AI 不打分）；K 线复用库内数据
+    krows = db.scalars(select(Kline).where(Kline.code == code).order_by(Kline.date)).all()
+    closes = [r.raw for r in krows if r.raw and r.raw > 0]
+    vols = [r.volume or 0 for r in krows if r.raw and r.raw > 0]
+    try:
+        sc = compute_scores(code, price, dps, closes=closes, vols=vols)
+        pack["四维评分"] = {"说明": "确定性规则计算（口径见方法说明），AI 不参与打分",
+                          **scores_compact(sc)}
+    except Exception as e:
+        print(f"[ai_report] 评分计算失败: {e}")
+        pack["四维评分"] = {"说明": "评分数据积累中"}
     return pack, gen
 
 
@@ -216,7 +231,18 @@ def fallback_md(pack: dict) -> str:
              if y.get("当前月度股息率%") is not None else "历史数据积累中")
     t = pack.get("技术位置", {}).get("布林", {})
     tline = "；".join(f"{k} {x['位置']}" for k, x in t.items()) or "数据积累中"
-    return f"""## 分红档案速读
+    sc = pack.get("四维评分", {})
+    def _scline(k):
+        d = sc.get(k) or {}
+        if d.get("score") is None:
+            return f"- {k}：数据积累中（{d.get('status')}）"
+        return f"- {k}：{d['score']}/{d.get('max', 10)}，子项：{(d.get('rule') or '')[:180]}"
+    sclines = "\n".join(_scline(k) for k in ("技术形态", "财务质量", "估值水位", "资金筹码")) if sc else "- 评分数据积累中"
+    return f"""## 四维评分速读
+{sclines}
+（评分由确定性规则计算，非 AI 观点，不构成任何方向性判断）
+
+## 分红档案速读
 {b['名称']}（{b['代码']}，{b['板块']}，市值 {b.get('总市值亿') or '—'} 亿）现价 {b.get('现价') or '—'} 元，股息率 {d['股息率%（现价口径）'] or '—'}%。每股分红 {d['每股分红DPS']} 元（FY{d['财年']}），近 12 个月派息 {d['近12个月派息次数'] or 0} 次。已实施分红：{divs}。
 
 ## 当前位置
@@ -305,6 +331,22 @@ def latest_report(code: str, user: User = Depends(require_feature("ai.report")),
     if not row:
         raise HTTPException(404, "该股暂无报告")
     return _row_json(row, cached=True)
+
+
+@router.get("/score/{code}")
+def score_detail(code: str, user: User = Depends(require_feature("ai.report")),
+                 db: Session = Depends(get_db)):
+    """四维评分完整明细（含每条规则的输入值与得分），供核对与复算。"""
+    if not (code.isdigit() and len(code) == 6):
+        raise HTTPException(400, "股票代码格式不正确")
+    uni, _ = _load_universe()
+    r = uni.get(code)
+    if not r:
+        raise HTTPException(404, "标的不存在")
+    q = fetch_quotes([code]).get(code, {})
+    price = q.get("price") or r.get("price")
+    res = compute_scores(code, price, r.get("dps"))
+    return {"ok": True, **res}
 
 
 # ---------------------------------------------------------------- 流式生成（SSE）
