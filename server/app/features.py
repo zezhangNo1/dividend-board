@@ -29,6 +29,7 @@ SEED_FEATURES = [
     ("board.stock", "个股档案页", "public", "个股股息率与分红明细"),
     ("board.calendar", "除息日历", "public", "未来除权除息日历与领息提醒"),
     ("ai.daily", "AI 每日观察", "public", "每日盘后 AI 生成的红利数据观察"),
+    ("board.score", "四维评分", "public", "个股四维规则评分（技术/财务/估值/资金，纯计算零 token）"),
     ("ai.report", "AI 个股报告", "self", "按需个股 AI 研究简报（数据先行+禁用词过滤+当日缓存）"),
     ("portfolio.checkup", "持仓体检", "self", "持仓股息质量/集中度/除息日聚合体检（纯规则，零 token）"),
     ("share.card", "分享图", "self", "个股档案一键生成分享图（本地渲染）"),

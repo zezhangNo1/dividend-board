@@ -785,3 +785,39 @@ html body .dossier .dfoot{
   html body .dossier .dcol-b{border-left:none;border-top:1px solid var(--dz-line);padding-top:16px}
   html body .dossier .tiers{grid-template-columns:repeat(2,1fr)}
 }
+
+/* ---------------- 四维评分卡（.scgrid，stock_card 档案内嵌） ---------------- */
+html body .dossier .scgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:2px}
+html body .dossier .scd{background:var(--dz-panel);border:1px solid var(--dz-line);border-radius:10px;
+  padding:8px 9px 7px;text-align:center}
+html body .dossier .scd .k{font-size:11px;color:var(--dz-cream3);letter-spacing:.05em}
+html body .dossier .scd .v{font-size:21px;font-weight:800;line-height:1.1;margin-top:2px;font-variant-numeric:tabular-nums}
+html body .dossier .scd .v i{font-size:11px;font-weight:400;color:var(--dz-cream3);font-style:normal;margin-left:1px}
+html body .dossier .scd .bar{height:5px;border-radius:3px;background:rgba(0,0,0,.30);margin-top:6px;overflow:hidden}
+html body .dossier .scd .bar em{display:block;height:100%;border-radius:3px}
+html body .dossier .scd.s-hi .v{color:#7fd8a5}
+html body .dossier .scd.s-hi .bar em{background:#7fd8a5}
+html body .dossier .scd.s-md .v{color:#e8b04b}
+html body .dossier .scd.s-md .bar em{background:#e8b04b}
+html body .dossier .scd.s-lo .v{color:#e89a8f}
+html body .dossier .scd.s-lo .bar em{background:#e89a8f}
+html body .dossier .scd.s-na .v{color:var(--dz-cream3)}
+html body .dossier .scd .sub{font-size:10px;color:var(--dz-cream3);margin-top:4px}
+html body .dossier .scfoot{font-size:10.5px;color:var(--dz-cream3);margin-top:8px}
+html body .dossier .scfoot a{color:var(--dz-gold,#C9A75A);text-decoration:underline;cursor:pointer}
+html body .dossier .scdim{margin-top:8px}
+html body .dossier .scdim .t{font-size:11.5px;color:var(--dz-cream2);margin-bottom:3px}
+html body .dossier .scdim .t b{font-size:13px}
+html body .dossier .scdim .r{display:flex;gap:7px;align-items:baseline;font-size:10.5px;
+  padding:2.5px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+html body .dossier .scdim .r:last-child{border-bottom:none}
+html body .dossier .scdim .r .p{flex:none;min-width:16px;text-align:center;border-radius:7px;
+  background:rgba(255,255,255,.10);color:var(--dz-cream3)}
+html body .dossier .scdim .r.hit .p{background:var(--dz-gold-soft,rgba(201,167,90,.18));color:#e8b04b;font-weight:700}
+html body .dossier .scdim .r .rule{color:var(--dz-cream2);flex:1}
+html body .dossier .scdim .r .inp{flex:none;color:var(--dz-cream3);max-width:46%;text-align:right;
+  font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:560px){
+  html body .dossier .scgrid{grid-template-columns:repeat(2,1fr)}
+  html body .dossier .scdim .r .inp{max-width:40%}
+}

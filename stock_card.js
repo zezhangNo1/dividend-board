@@ -89,6 +89,8 @@ window.renderStockCard = function(el, r, q, generated){
     '<div class="calc note" style="margin-top:6px;font-size:10.5px">口径：近12个月已实施派息 ÷ 月末收盘（不复权），按月采样。分位为客观统计描述，不构成任何操作提示。</div></div>' +
     '<div class="dsec"><h5>技术位置（布林带 20,2）</h5><div class="calc" id="techBox_' + r.code + '">计算中…</div>' +
     '<div class="calc note" style="margin-top:6px;font-size:10.5px">周/月线由日线重采样；位置为客观状态描述，不构成任何操作提示。</div></div>' +
+    '<div class="dsec"><h5>四维评分（规则计算）</h5><div class="calc" id="scoreBox_' + r.code + '">计算中…（首次约需数秒，来源为公开财务/估值/资金接口）</div>' +
+    '<div class="calc note" style="margin-top:6px;font-size:10.5px">分数由 20 条固定规则 × 当日数据算出（技术形态/财务质量/估值水位/资金筹码），纯数学换算、无 AI 参与、每个子项可展开复算。评分为数据状态描述，不是买卖信号。</div></div>' +
     '<div class="dsec"><h5>10 万元收息测算</h5><div class="calc">' +
     '按现价 ' + fmt(price) + ' 元可买入约 <b>' + (sh ? sh.toLocaleString() : '—') + '</b> 股，' +
     '以 FY' + (r.fy || '—') + ' 每股分红 ' + fmt(dps, 3) + ' 元计，一年预期到账 <b>' + (inc ? '¥ ' + inc.toFixed(0) : '—') + '</b>' +
@@ -100,7 +102,70 @@ window.renderStockCard = function(el, r, q, generated){
     '。所有价格档位仅为股息率换算的数学参考，<b>不构成任何投资建议</b>；历史分红不代表未来，投资决策需独立判断。<div style="margin-top:6px">board.zekes.top · 高股息研究账本</div></div><div style="text-align:center;margin-top:8px"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" style="color:inherit">皖ICP备2026036657号</a></div></div>';
   fillTech(r.code);
   fillYield(r.code);
+  fillScore(r.code);
 };
+
+function fillScore(code){
+  try {
+    fetch('/api/score/' + encodeURIComponent(code))
+      .then(function(res){ return res.ok ? res.json() : null; })
+      .then(function(d){
+        var box = document.getElementById('scoreBox_' + code);
+        if (!box) return;
+        if (!d || !d.ok){ box.textContent = (d && d.message) || '评分数据积累中'; return; }
+        var DIMS = [['技术形态', '趋势/动量/量价/波动'], ['财务质量', '盈利/现金流/负债/增长'],
+                    ['估值水位', 'PE/PB/股息率分位'], ['资金筹码', '主力/杠杆/户数']];
+        var html = '<div class="scgrid">';
+        DIMS.forEach(function(p){
+          var dim = d[p[0]] || {};
+          var sc = dim.score, st = dim.status;
+          var v = (sc === null || sc === undefined) ? '—' : String(sc);
+          var cls = sc >= 7 ? 's-hi' : (sc >= 4 ? 's-md' : 's-lo');
+          if (sc === null || sc === undefined) cls = 's-na';
+          html += '<div class="scd ' + cls + '" data-code="' + code + '" data-dim="' + p[0] + '">' +
+            '<div class="k">' + p[0] + '</div><div class="v">' + v + '<i>/10</i></div>' +
+            '<div class="bar"><em style="width:' + ((sc === null || sc === undefined) ? 0 : sc * 10) + '%"></em></div>' +
+            '<div class="sub">' + (st === 'missing' ? '数据积累中' : p[1]) + '</div></div>';
+        });
+        html += '</div>';
+        html += '<div class="scfoot">评分口径 v2 · 数据截至 ' + (d.asof || '—') +
+          ' · <a href="javascript:void(0)" class="scdet-toggle" data-code="' + code + '">展开子项明细</a></div>' +
+          '<div class="scdet" id="scdet_' + code + '" style="display:none"></div>';
+        box.innerHTML = html;
+        var det = box.querySelector('.scdet-toggle');
+        if (det) det.onclick = function(){
+          var el = document.getElementById('scdet_' + code);
+          if (!el) return;
+          if (el.style.display === 'none'){
+            el.style.display = '';
+            el.innerHTML = renderScoreDetails(d);
+            det.textContent = '收起明细';
+          } else { el.style.display = 'none'; det.textContent = '展开子项明细'; }
+        };
+      })
+      .catch(function(){ var box = document.getElementById('scoreBox_' + code); if (box) box.textContent = '评分数据积累中'; });
+  } catch (e) {}
+}
+
+function renderScoreDetails(d){
+  var out = '';
+  ['技术形态', '财务质量', '估值水位', '资金筹码'].forEach(function(k){
+    var dim = d[k] || {};
+    out += '<div class="scdim"><div class="t">' + k + '　<b>' +
+      (dim.score === null || dim.score === undefined ? '—' : dim.score) + '</b>/' + (dim.max || 10) +
+      (dim.status === 'partial' ? '（部分子项缺数据，按 0 分计）' : '') +
+      (dim.status === 'missing' ? '（' + (dim.note || '数据积累中') + '）' : '') + '</div>';
+    (dim.details || []).forEach(function(x){
+      var p = x.points;
+      var mark = p === null || p === undefined ? '·' : (p > 0 ? '+' : (p < 0 ? '−' : '0'));
+      out += '<div class="r' + (p > 0 ? ' hit' : '') + '"><span class="p">' + mark +
+        (p === null || p === undefined ? '' : Math.abs(p)) + '</span><span class="rule">' + x.rule +
+        '</span><span class="inp">' + x.input + '</span></div>';
+    });
+    out += '</div>';
+  });
+  return out;
+}
 
 function fillTech(code){
   try {

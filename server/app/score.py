@@ -16,6 +16,16 @@ import time
 from datetime import date
 
 import httpx
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
+
+from sqlalchemy.orm import Session
+
+from .db import get_db
+from .features import require_feature
+from .models import Kline, User
+
+score_router = APIRouter(prefix="/api/score", tags=["score"])
 
 # ---------------------------------------------------------------- 派生计算（纯函数）
 
@@ -655,3 +665,44 @@ def scores_compact(res: dict) -> dict:
                 "rule": "；".join(
                     f"{x['rule']}[{x['input']}]={x['points']}" for x in (d.get("details") or [])[:12])}
     return {k: one(k) for k in ("技术形态", "财务质量", "估值水位", "资金筹码")}
+
+
+# ---------------------------------------------------------------- 公开接口（纯计算零 token）
+
+def _load_universe_row(code: str) -> dict | None:
+    """site_data.json → 标的行（dps/price 兜底）。"""
+    import os
+    path = os.environ.get("SITE_DATA_PATH", "/srv/site_data.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            raw = json.load(f)
+        for r in raw.get("rows", []):
+            if r.get("code") == code:
+                return r
+    except Exception:
+        pass
+    return None
+
+
+@score_router.get("/{code}")
+def get_score(code: str, user: User | None = Depends(require_feature("board.score")),
+              db: Session = Depends(get_db)):
+    """四维规则评分（公开层）：纯确定性计算，不调用任何模型，接口失败只降级对应维度。"""
+    if not (code.isdigit() and len(code) == 6):
+        raise HTTPException(400, "股票代码格式不正确")
+    r = _load_universe_row(code)
+    price, dps = None, None
+    if r:
+        price, dps = r.get("price"), r.get("dps")
+    # 现价尽量取实时（腾讯行情走 alerts.fetch_quotes，失败用快照价）
+    try:
+        from .alerts import fetch_quotes
+        q = fetch_quotes([code]).get(code, {})
+        price = q.get("price") or price
+    except Exception:
+        pass
+    rows = db.scalars(select(Kline).where(Kline.code == code).order_by(Kline.date)).all()
+    closes = [x.raw for x in rows if x.raw and x.raw > 0]
+    vols = [x.volume or 0 for x in rows if x.raw and x.raw > 0]
+    res = compute_scores(code, price, dps, closes=closes or None, vols=vols or None)
+    return {"ok": True, **res}

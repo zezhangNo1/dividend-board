@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .ads import router as ads_router
 from .ai_daily import router as ai_daily_router
 from .ai_report import router as ai_report_router
+from .score import score_router
 from .portfolio import router as portfolio_router
 from .calendar_mod import router as calendar_router
 from .auth import router as auth_router
@@ -39,6 +40,7 @@ app.include_router(alerts_router)
 app.include_router(features_router)
 app.include_router(ai_daily_router)
 app.include_router(ai_report_router)
+app.include_router(score_router)
 app.include_router(portfolio_router)
 app.include_router(lab_router)
 app.include_router(tracking_router)
