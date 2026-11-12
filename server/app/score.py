@@ -704,5 +704,12 @@ def get_score(code: str, user: User | None = Depends(require_feature("board.scor
     rows = db.scalars(select(Kline).where(Kline.code == code).order_by(Kline.date)).all()
     closes = [x.raw for x in rows if x.raw and x.raw > 0]
     vols = [x.volume or 0 for x in rows if x.raw and x.raw > 0]
+    # K 线库由定时任务刷新，可能滞后；超过 4 天（跨周末）就回退公开接口（带 1h TTL 缓存）
+    from datetime import timedelta
+    stale = (not closes) or (rows[-1].date < str(date.today() - timedelta(days=4)))
+    if stale:
+        kv = fetch_kline_pub(code)
+        if kv:
+            closes, vols = kv
     res = compute_scores(code, price, dps, closes=closes or None, vols=vols or None)
     return {"ok": True, **res}
