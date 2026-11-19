@@ -303,6 +303,13 @@
     width:38px;height:38px;border-radius:10px;background:#fff;display:grid;place-items:center;flex:none;
   }
   .pb-fb-btn .wxlogo svg{width:26px;height:26px;display:block}
+  .pb-fb-btns{display:flex;gap:12px;flex-wrap:wrap}
+  .pb-fb-xhs{
+    background:linear-gradient(135deg,#FF2442 0%,#FF5C7A 100%);
+    box-shadow:0 12px 28px -10px rgba(255,36,66,.5), inset 0 1px 0 rgba(255,255,255,.25);
+  }
+  .pb-fb-xhs:hover{box-shadow:0 16px 34px -10px rgba(255,36,66,.6), inset 0 1px 0 rgba(255,255,255,.25)}
+  .pb-xhs-mark{color:#FF2442;font-weight:800;font-size:10.5px;letter-spacing:.5px}
   .pb-fb-btn span{display:flex;flex-direction:column;line-height:1.35;text-align:left}
   .pb-fb-btn span em{font-style:normal;font-size:11px;opacity:.85;font-weight:400}
 
@@ -649,12 +656,18 @@
       <h2>新工具上线，第一时间在这里说</h2>
       <p class="pb-fb-p">公众号「<b>泽克的数据笔记</b>」：每个工具的造法复盘、口径更新、数据观察。工具永久免费，不看付费墙。</p>
     </div>
-    <a class="pb-fb-btn" href="#" data-follow="gzh" style="display:none">
-      <span class="wxlogo">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#07C160" d="M9.5 4C5.9 4 3 6.5 3 9.6c0 1.8 1 3.4 2.5 4.4L5 16.5l2.4-1.2c.7.2 1.4.3 2.1.3.1 0 .2 0 .3-.1-.1-.4-.1-.8-.1-1.2 0-2.9 2.7-5.2 6-5.2.2 0 .5.0.7.1C15.8 6.4 12.9 4 9.5 4zM7.3 8.1c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zm4.4 0c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zm4 3.1c-3.1 0-5.6 2.1-5.6 4.6s2.5 4.6 5.6 4.6c.6 0 1.2-.1 1.8-.3l2.1 1.1-.6-1.9c1.4-.9 2.2-2.1 2.2-3.5 0-2.5-2.5-4.6-5.5-4.6zm-1.8 3.3c.4 0 .7.3.7.7s-.3.7-.7.7-.7-.3-.7-.7.3-.7.7-.7zm3.5 0c.4 0 .7.3.7.7s-.3.7-.7.7-.7-.3-.7-.7.3-.7.7-.7z"/></svg>
-      </span>
-      <span>关注公众号<em>泽克的数据笔记</em></span>
-    </a>
+    <div class="pb-fb-btns">
+      <a class="pb-fb-btn" href="#" data-follow="gzh" style="display:none">
+        <span class="wxlogo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#07C160" d="M9.5 4C5.9 4 3 6.5 3 9.6c0 1.8 1 3.4 2.5 4.4L5 16.5l2.4-1.2c.7.2 1.4.3 2.1.3.1 0 .2 0 .3-.1-.1-.4-.1-.8-.1-1.2 0-2.9 2.7-5.2 6-5.2.2 0 .5.0.7.1C15.8 6.4 12.9 4 9.5 4zM7.3 8.1c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zm4.4 0c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zm4 3.1c-3.1 0-5.6 2.1-5.6 4.6s2.5 4.6 5.6 4.6c.6 0 1.2-.1 1.8-.3l2.1 1.1-.6-1.9c1.4-.9 2.2-2.1 2.2-3.5 0-2.5-2.5-4.6-5.5-4.6zm-1.8 3.3c.4 0 .7.3.7.7s-.3.7-.7.7-.7-.3-.7-.7.3-.7.7-.7zm3.5 0c.4 0 .7.3.7.7s-.3.7-.7.7-.7-.3-.7-.7.3-.7.7-.7z"/></svg>
+        </span>
+        <span>关注公众号<em>泽克的数据笔记</em></span>
+      </a>
+      <a class="pb-fb-btn pb-fb-xhs" href="#" data-follow="xhs" style="display:none">
+        <span class="wxlogo"><span class="pb-xhs-mark">小红书</span></span>
+        <span>关注小红书<em>数据与工具日常</em></span>
+      </a>
+    </div>
   </section>
 
   <p class="pb-motto">「先自用，再公开——<b>好用才挂上来</b>。」</p>
