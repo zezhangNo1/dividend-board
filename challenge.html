@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F5F7FB">
+<title>泽克的 52 周工具挑战 · 每周上线一个真实可用的工具</title>
+<meta name="description" content="一个人 + AI，连续 52 周每周上线一个真实可用的小工具，全过程公开拆解。第 1 周：个人主页 v2。">
+<style>
+  :root{
+    --bg:#F5F7FB; --card:rgba(255,255,255,.78);
+    --ink:#0F172A; --ink2:#5B6B82; --ink3:#93A1B5;
+    --line:rgba(15,23,42,.09); --line-hi:rgba(37,99,235,.35);
+    --blue:#2563EB; --violet:#7C3AED; --cyan-hi:#06B6D4; --wx:#07C160;
+    --ease:cubic-bezier(.25,.8,.25,1); --r:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{color-scheme:light;scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;
+    min-height:100vh;overflow-x:hidden;
+  }
+  .ch-wrap{max-width:860px;margin:0 auto;padding:0 clamp(16px,4vw,32px) 56px}
+
+  /* ============ 页头 ============ */
+  .ch-head{
+    position:relative;margin:0 calc(clamp(16px,4vw,32px) * -1);
+    padding:52px clamp(16px,4vw,32px) 40px;overflow:hidden;
+    background:
+      radial-gradient(420px 300px at 88% 10%, rgba(124,58,237,.10), transparent 70%),
+      radial-gradient(520px 340px at 8% -10%, rgba(37,99,235,.12), transparent 72%),
+      linear-gradient(180deg,#F7F9FD 0%, rgba(245,247,251,0) 100%);
+  }
+  .ch-head::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:
+      repeating-linear-gradient(0deg, rgba(37,99,235,.045) 0 1px, transparent 1px 44px),
+      repeating-linear-gradient(90deg, rgba(37,99,235,.045) 0 1px, transparent 1px 44px);
+    -webkit-mask-image:radial-gradient(70% 90% at 60% 0%, #000 30%, transparent 100%);
+    mask-image:radial-gradient(70% 90% at 60% 0%, #000 30%, transparent 100%);
+  }
+  .ch-head-in{position:relative}
+  .ch-back{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    font-size:12.5px;color:var(--ink2);margin-bottom:20px;
+    border:1px solid var(--line);border-radius:999px;padding:4px 14px;background:#fff;
+    transition:color .2s,border-color .2s;
+  }
+  .ch-back:hover{color:var(--blue);border-color:var(--blue)}
+  .ch-head h1{
+    font-size:clamp(26px,4.6vw,36px);font-weight:800;letter-spacing:.5px;line-height:1.25;
+    background:linear-gradient(100deg,#0F172A 20%,#2563EB 65%,#7C3AED 105%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  }
+  .ch-head .ch-sub{color:var(--ink2);font-size:14px;margin-top:10px;max-width:64ch}
+  .ch-head .ch-sub b{color:var(--ink)}
+
+  /* 进度条 */
+  .ch-prog{
+    margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:18px 22px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  }
+  .ch-prog-num{
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;font-weight:800;color:var(--blue);
+    font-size:30px;letter-spacing:.5px;font-variant-numeric:tabular-nums;flex:none;
+  }
+  .ch-prog-num small{font-size:14px;color:var(--ink3);font-weight:400}
+  .ch-prog-bar{
+    flex:1;min-width:200px;height:10px;border-radius:999px;background:#E6EBF4;overflow:hidden;
+  }
+  .ch-prog-bar i{
+    display:block;height:100%;width:1.92%;border-radius:999px;
+    background:linear-gradient(90deg,#2563EB,#7C3AED);
+    box-shadow:0 0 12px rgba(37,99,235,.5);
+  }
+  .ch-prog-k{font-size:11.5px;color:var(--ink3);flex:none}
+
+  /* ============ 章节 ============ */
+  .ch-sec{margin-top:44px}
+  .ch-sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .ch-sec-h em{
+    font-style:normal;font-family:ui-monospace,"SF Mono",Menlo,monospace;
+    font-size:13px;font-weight:700;color:var(--blue);letter-spacing:1px;
+  }
+  .ch-sec-h h2{font-size:clamp(18px,3vw,22px);font-weight:800;letter-spacing:.4px}
+  .ch-sec-h::after{content:'';flex:1;border-top:1px dashed rgba(15,23,42,.14);transform:translateY(-4px)}
+  .ch-sec-p{color:var(--ink2);font-size:13px;margin-bottom:16px;max-width:70ch}
+
+  /* 规则卡 */
+  .ch-rules{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .ch-rule{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:20px 22px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    box-shadow:0 1px 2px rgba(15,23,42,.04), 0 16px 34px -24px rgba(15,23,42,.28);
+  }
+  .ch-rule em{
+    font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:700;
+    color:var(--blue);display:block;margin-bottom:8px;letter-spacing:1px;
+  }
+  .ch-rule b{font-size:15px;font-weight:800;display:block;margin-bottom:6px}
+  .ch-rule p{color:var(--ink2);font-size:12.5px}
+
+  /* 周卡片 */
+  .ch-week{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:20px 24px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    box-shadow:0 1px 2px rgba(15,23,42,.04), 0 16px 34px -24px rgba(15,23,42,.28);
+    margin-bottom:14px;display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;
+    transition:border-color .3s,transform .3s var(--ease);
+  }
+  .ch-week:hover{border-color:var(--line-hi);transform:translateY(-2px)}
+  .ch-week .wk{
+    flex:none;width:76px;text-align:center;border-right:1px dashed rgba(15,23,42,.15);padding-right:16px;
+  }
+  .ch-week .wk b{
+    display:block;font-family:ui-monospace,Menlo,monospace;font-size:24px;font-weight:800;
+    color:var(--blue);letter-spacing:.5px;
+  }
+  .ch-week .wk i{font-style:normal;font-size:10.5px;color:var(--ink3);display:block;line-height:1.5}
+  .ch-week .wk .done{
+    display:inline-block;margin-top:6px;font-size:10.5px;font-weight:700;color:#059669;
+    background:rgba(5,150,105,.08);border:1px solid rgba(5,150,105,.25);border-radius:999px;padding:1px 9px;
+  }
+  .ch-week .bd{flex:1;min-width:240px}
+  .ch-week .bd h3{font-size:15.5px;font-weight:800}
+  .ch-week .bd h3 a{color:inherit;text-decoration:none;border-bottom:1px dashed rgba(37,99,235,.4)}
+  .ch-week .bd h3 a:hover{color:var(--blue);border-bottom-style:solid}
+  .ch-week .bd p{color:var(--ink2);font-size:12.5px;margin-top:6px}
+  .ch-week .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .ch-week .tags span{font-size:10.5px;color:var(--ink2);background:rgba(37,99,235,.06);
+    border:1px solid rgba(37,99,235,.12);border-radius:6px;padding:1px 8px}
+
+  /* 未解锁周：紧凑格 */
+  .ch-locked{
+    display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-top:4px;
+  }
+  .ch-locked div{
+    text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--ink3);
+    border:1px dashed rgba(15,23,42,.14);border-radius:10px;padding:10px 0;background:rgba(255,255,255,.45);
+  }
+  .ch-locked div b{display:block;font-size:12.5px;color:var(--ink2);font-weight:600}
+
+  /* 征集 + 关注 */
+  .ch-ask{
+    margin-top:44px;border-radius:22px;padding:28px clamp(20px,4vw,32px);
+    background:
+      radial-gradient(420px 260px at 92% 0%, rgba(124,58,237,.14), transparent 70%),
+      radial-gradient(480px 300px at 0% 100%, rgba(37,99,235,.14), transparent 72%),
+      linear-gradient(135deg,#FFFFFF 0%,#F3F7FE 100%);
+    border:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;gap:22px;flex-wrap:wrap;
+    box-shadow:0 1px 2px rgba(15,23,42,.04), 0 20px 44px -26px rgba(15,23,42,.3);
+  }
+  .ch-ask h2{font-size:clamp(17px,2.6vw,21px);font-weight:800}
+  .ch-ask p{color:var(--ink2);font-size:13px;margin-top:8px;max-width:52ch}
+  .ch-ask p b{color:var(--ink)}
+  .ch-ask-btn{
+    display:inline-flex;align-items:center;gap:12px;text-decoration:none;cursor:pointer;
+    background:linear-gradient(135deg,#07C160 0%,#2BC77C 100%);color:#fff;
+    border-radius:16px;padding:14px 24px;font-size:15px;font-weight:700;
+    box-shadow:0 12px 28px -10px rgba(7,193,96,.55), inset 0 1px 0 rgba(255,255,255,.3);
+    transition:transform .28s var(--ease);
+  }
+  .ch-ask-btn:hover{transform:translateY(-2px)}
+  .ch-ask-btn .wxlogo{width:38px;height:38px;border-radius:10px;background:#fff;display:grid;place-items:center;flex:none}
+  .ch-ask-btn .wxlogo svg{width:26px;height:26px;display:block}
+  .ch-ask-btn span{display:flex;flex-direction:column;line-height:1.35;text-align:left}
+  .ch-ask-btn span em{font-style:normal;font-size:11px;opacity:.85;font-weight:400}
+
+  .ch-foot{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
+    font-size:11px;color:var(--ink3);text-align:center;line-height:2.1}
+  .ch-foot a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--ink3);padding-bottom:1px}
+  .ch-foot a:hover{color:var(--ink2)}
+
+  @media (prefers-reduced-motion: no-preference){
+    .ch-rule,.ch-week,.ch-prog{animation:ch-in .45s var(--ease) both;animation-delay:var(--d,0s)}
+    @keyframes ch-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  @media (max-width:880px){
+    .ch-rules{grid-template-columns:1fr}
+    .ch-locked{grid-template-columns:repeat(4,1fr)}
+    .ch-week .wk{border-right:none;border-bottom:1px dashed rgba(15,23,42,.15);padding-right:0;
+      padding-bottom:10px;width:100%;display:flex;align-items:baseline;gap:10px}
+    .ch-ask{flex-direction:column;align-items:flex-start}
+  }
+</style>
+</head>
+<body>
+<div class="ch-wrap">
+
+  <header class="ch-head">
+    <div class="ch-head-in">
+      <a class="ch-back" href="https://zekes.top/portal.html">⌂ 泽克主页</a>
+      <h1>泽克的 52 周工具挑战</h1>
+      <p class="ch-sub">一个人 + AI，<b>每周上线一个真实可用的小工具</b>——不是 PPT，不是演示 Demo，是能打开、能用的产品。全过程公开拆解。</p>
+      <div class="ch-prog" style="--d:.05s">
+        <div class="ch-prog-num">1<small> / 52 周</small></div>
+        <div class="ch-prog-bar"><i></i></div>
+        <div class="ch-prog-k">起跑于 2026-11-19 · 每周五交付</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="ch-sec">
+    <div class="ch-sec-h"><em>00</em><h2>三条规则</h2></div>
+    <div class="ch-rules">
+      <div class="ch-rule" style="--d:.02s">
+        <em>RULE 01</em>
+        <b>真实可用</b>
+        <p>每周五交付一个能打开、能用的工具或功能升级，附 URL。跑不通的不算数。</p>
+      </div>
+      <div class="ch-rule" style="--d:.08s">
+        <em>RULE 02</em>
+        <b>过程全公开</b>
+        <p>需求怎么定、AI 怎么结对、坑在哪里，每周一篇复盘发在公众号「泽克的数据笔记」。</p>
+      </div>
+      <div class="ch-rule" style="--d:.14s">
+        <em>RULE 03</em>
+        <b>工具永久免费</b>
+        <p>挑战期间产出的工具全部免费开放，数据来源和计算口径公开，可自行验证。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="ch-sec">
+    <div class="ch-sec-h"><em>01</em><h2>交付记录</h2></div>
+    <p class="ch-sec-p">第 1 周已交付，后续每周五更新。点击标题直达工具。</p>
+
+    <article class="ch-week" style="--d:.02s">
+      <div class="wk">
+        <b>W01</b>
+        <i>2026-11-19</i>
+        <span class="done">已交付 ✓</span>
+      </div>
+      <div class="bd">
+        <h3><a href="https://zekes.top/portal.html" target="_blank" rel="noopener">个人主页 v2：从工具导航到转化型主页</a></h3>
+        <p>把只放链接的「启动器」改成了有承诺、有证据、有转化路径的个人主页：数字信任带、工程日志时间线（38 天 6 个工具）、三条访客路径、公众号单一转化出口。本页也是挑战第 1 周的交付物。</p>
+        <div class="tags"><span>门户改版</span><span>转化设计</span><span>移动优先</span></div>
+      </div>
+    </article>
+
+    <div class="ch-locked" aria-label="未解锁的周">
+      <div><b>W02</b>周五</div><div><b>W03</b>周五</div><div><b>W04</b>周五</div><div><b>W05</b>周五</div>
+      <div><b>W06</b>周五</div><div><b>W07</b>周五</div><div><b>W08</b>周五</div><div>…直至 W52</div>
+    </div>
+  </section>
+
+  <section class="ch-ask" style="--d:.05s">
+    <div>
+      <h2>下一周做什么？你说了算</h2>
+      <p>想做的小工具、想拆的数据、想让泽克造的东西——<b>公众号后台留言「52周+你的想法」</b>，呼声最高的排进下周。</p>
+    </div>
+    <a class="ch-ask-btn" href="#" data-follow="gzh" style="display:none">
+      <span class="wxlogo">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#07C160" d="M9.5 4C5.9 4 3 6.5 3 9.6c0 1.8 1 3.4 2.5 4.4L5 16.5l2.4-1.2c.7.2 1.4.3 2.1.3.1 0 .2 0 .3-.1-.1-.4-.1-.8-.1-1.2 0-2.9 2.7-5.2 6-5.2.2 0 .5.0.7.1C15.8 6.4 12.9 4 9.5 4zM7.3 8.1c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zm4.4 0c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9zm4 3.1c-3.1 0-5.6 2.1-5.6 4.6s2.5 4.6 5.6 4.6c.6 0 1.2-.1 1.8-.3l2.1 1.1-.6-1.9c1.4-.9 2.2-2.1 2.2-3.5 0-2.5-2.5-4.6-5.5-4.6zm-1.8 3.3c.4 0 .7.3.7.7s-.3.7-.7.7-.7-.3-.7-.7.3-.7.7-.7zm3.5 0c.4 0 .7.3.7.7s-.3.7-.7.7-.7-.3-.7-.7.3-.7.7-.7z"/></svg>
+      </span>
+      <span>关注公众号<em>泽克的数据笔记</em></span>
+    </a>
+  </section>
+
+  <footer class="ch-foot">
+    挑战由「泽克的数据笔记」发起 · 工具数据均来自公开接口，不构成任何投资建议 ·
+    <a href="https://zekes.top/portal.html">泽克主页</a><br>
+    © 2026 泽克的数据笔记 · 皖ICP备<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">2026036657号</a>
+  </footer>
+</div>
+
+<script src="follow.js?v=2" defer></script>
+<script src="track.js?v=1" defer></script>
+</body>
+</html>
