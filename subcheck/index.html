@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F5F7FB">
+<title>订阅刺客计算器 · 泽克的数据笔记</title>
+<meta name="description" content="勾选你订阅的服务，算出一年被「订阅刺客」拿走多少钱。价格可修改，结果可复制。">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+  :root{
+    --bg:#F5F7FB; --card:rgba(255,255,255,.78);
+    --ink:#0F172A; --ink2:#5B6B82; --ink3:#93A1B5;
+    --line:rgba(15,23,42,.09); --line-hi:rgba(37,99,235,.35);
+    --blue:#2563EB; --violet:#7C3AED; --red:#E11D48; --cyan-hi:#06B6D4;
+    --ease:cubic-bezier(.25,.8,.25,1); --r:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{color-scheme:light}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;
+    padding-bottom:96px;
+  }
+  .sc-wrap{max-width:760px;margin:0 auto;padding:0 clamp(14px,4vw,28px)}
+
+  .sc-head{
+    position:relative;padding:40px 0 26px;overflow:hidden;
+    background:radial-gradient(520px 300px at 85% -20%, rgba(225,29,72,.08), transparent 70%),
+               radial-gradient(420px 260px at 0% -10%, rgba(37,99,235,.10), transparent 72%);
+  }
+  .sc-back{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    font-size:12px;color:var(--ink2);margin-bottom:16px;
+    border:1px solid var(--line);border-radius:999px;padding:3px 12px;background:#fff;
+  }
+  .sc-back:hover{color:var(--blue);border-color:var(--blue)}
+  .sc-head h1{
+    font-size:clamp(24px,4.4vw,32px);font-weight:800;letter-spacing:.5px;line-height:1.25;
+    background:linear-gradient(100deg,#0F172A 20%,#2563EB 65%,#E11D48 110%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  }
+  .sc-head p{color:var(--ink2);font-size:13px;margin-top:8px;max-width:62ch}
+  .sc-head p b{color:var(--red)}
+
+  .sc-cat{margin-top:22px}
+  .sc-cat-h{
+    display:flex;align-items:baseline;gap:10px;margin-bottom:10px;
+  }
+  .sc-cat-h em{
+    font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:11px;font-weight:700;
+    color:var(--blue);letter-spacing:1px;flex:none;
+  }
+  .sc-cat-h h2{font-size:15.5px;font-weight:800}
+  .sc-cat-h i{font-style:normal;font-size:11px;color:var(--ink3)}
+  .sc-items{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .sc-item{
+    display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:13px;
+    background:var(--card);padding:10px 12px;cursor:pointer;
+    transition:border-color .25s,background .25s,transform .25s var(--ease);
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  }
+  .sc-item:hover{border-color:var(--line-hi)}
+  .sc-item.on{border-color:var(--blue);background:rgba(37,99,235,.07)}
+  .sc-item input[type=checkbox]{accent-color:var(--blue);width:16px;height:16px;flex:none;cursor:pointer}
+  .sc-item .nm{flex:1;min-width:0;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sc-item .pr{
+    flex:none;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--ink2);
+    width:52px;text-align:right;border:none;background:transparent;border-bottom:1px dashed rgba(15,23,42,.25);
+    font-variant-numeric:tabular-nums;padding:1px 0;
+  }
+  .sc-item .pr:focus{outline:none;border-bottom-color:var(--blue);color:var(--ink)}
+  .sc-item .unit{flex:none;font-size:10px;color:var(--ink3)}
+
+  /* 自定义条目 */
+  .sc-add{
+    margin-top:10px;display:flex;gap:8px;
+  }
+  .sc-add input{
+    border:1px solid var(--line);border-radius:11px;background:#fff;padding:9px 13px;
+    font-family:inherit;font-size:13px;color:var(--ink);
+  }
+  .sc-add input:focus{outline:none;border-color:var(--blue)}
+  .sc-add input.nm{flex:1;min-width:0}
+  .sc-add input.pr{width:90px;font-family:ui-monospace,Menlo,monospace}
+  .sc-add button{
+    flex:none;border:none;border-radius:11px;background:var(--blue);color:#fff;
+    font-family:inherit;font-size:13px;font-weight:600;padding:9px 16px;cursor:pointer;
+  }
+  .sc-add button:hover{filter:brightness(1.08)}
+  .sc-custom{margin-top:8px}
+  .sc-custom .sc-item .nm + .del{
+    flex:none;border:none;background:none;color:var(--ink3);font-size:15px;cursor:pointer;padding:0 2px;
+  }
+  .sc-custom .sc-item .del:hover{color:var(--red)}
+
+  /* 结果卡 */
+  .sc-result{margin-top:34px}
+  .sc-bill{
+    border:1px solid var(--line);border-radius:22px;padding:26px clamp(18px,4vw,30px);
+    background:
+      radial-gradient(420px 260px at 92% 0%, rgba(225,29,72,.10), transparent 70%),
+      radial-gradient(420px 260px at 0% 100%, rgba(37,99,235,.10), transparent 72%),
+      linear-gradient(135deg,#FFFFFF,#F5F8FE);
+    box-shadow:0 1px 2px rgba(15,23,42,.04),0 20px 44px -26px rgba(15,23,42,.3);
+  }
+  .sc-bill .tag{
+    display:inline-block;font-size:10.5px;font-weight:700;color:var(--red);
+    border:1px solid rgba(225,29,72,.3);background:rgba(225,29,72,.06);
+    border-radius:999px;padding:2px 10px;margin-bottom:12px;letter-spacing:1px;
+  }
+  .sc-bill h2{font-size:15px;font-weight:800;color:var(--ink)}
+  .sc-bill .big{
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;font-weight:800;color:var(--red);
+    font-size:clamp(38px,7vw,52px);letter-spacing:-.5px;line-height:1.15;margin-top:4px;
+    font-variant-numeric:tabular-nums;
+  }
+  .sc-bill .big small{font-size:16px;color:var(--ink2);font-weight:400;letter-spacing:0}
+  .sc-bill .sub{font-size:12.5px;color:var(--ink2);margin-top:2px}
+  .sc-bill .sub b{color:var(--ink)}
+  .sc-equiv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+  .sc-equiv div{
+    background:rgba(255,255,255,.75);border:1px solid var(--line);border-radius:13px;
+    padding:10px 8px;text-align:center;
+  }
+  .sc-equiv b{
+    display:block;font-family:ui-monospace,Menlo,monospace;font-size:19px;font-weight:800;
+    color:var(--blue);font-variant-numeric:tabular-nums;
+  }
+  .sc-equiv i{font-style:normal;font-size:10.5px;color:var(--ink3)}
+  .sc-top{margin-top:16px;font-size:12.5px;color:var(--ink2)}
+  .sc-top b{color:var(--ink)}
+  .sc-top .no1{color:var(--red);font-weight:800}
+  .sc-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .sc-actions button{
+    border:none;border-radius:12px;font-family:inherit;font-size:13.5px;font-weight:700;
+    padding:11px 20px;cursor:pointer;transition:transform .25s var(--ease),filter .2s;
+  }
+  .sc-actions button:hover{transform:translateY(-2px)}
+  .sc-copy{background:linear-gradient(135deg,#2563EB,#4F46E5);color:#fff;
+    box-shadow:0 10px 24px -10px rgba(37,99,235,.55)}
+  .sc-reset{background:#fff;color:var(--ink2);border:1px solid var(--line) !important}
+  .sc-tip{margin-top:12px;font-size:11px;color:var(--ink3);text-align:center}
+
+  /* 底部粘条 */
+  .sc-bar{
+    position:fixed;left:0;right:0;bottom:0;z-index:50;
+    background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    border-top:1px solid var(--line);padding:12px clamp(14px,4vw,28px);
+    display:none;justify-content:space-between;align-items:center;gap:14px;
+  }
+  .sc-bar.show{display:flex}
+  .sc-bar .t{font-size:12px;color:var(--ink2)}
+  .sc-bar .t b{
+    font-family:ui-monospace,Menlo,monospace;font-size:18px;color:var(--red);
+    font-variant-numeric:tabular-nums;
+  }
+  .sc-bar .t b small{font-size:11px;color:var(--ink3);font-weight:400}
+  .sc-bar a{
+    flex:none;text-decoration:none;background:var(--ink);color:#fff;border-radius:11px;
+    font-size:13px;font-weight:700;padding:10px 18px;
+  }
+
+  .sc-foot{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);
+    font-size:11px;color:var(--ink3);text-align:center;line-height:2.1}
+  .sc-foot a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--ink3)}
+
+  @media (max-width:560px){
+    .sc-items{grid-template-columns:1fr}
+    .sc-equiv{grid-template-columns:1fr 1fr}
+    .sc-equiv div:last-child{grid-column:span 2}
+    .sc-add{flex-wrap:wrap}
+    .sc-add input.nm{flex:1 1 100%}
+    .sc-add input.pr{flex:1}
+    .sc-add button{flex:1}
+  }
+</style>
+</head>
+<body>
+<div class="sc-wrap">
+
+  <header class="sc-head">
+    <a class="sc-back" href="https://zekes.top/portal.html">⌂ 泽克主页</a>
+    <h1>订阅刺客计算器</h1>
+    <p>勾选你正在订阅的服务，看看<b>「刺客」们一年从你兜里拿走多少</b>。默认价格为常见档位参考值——点击金额可直接改成你的实际扣费，刷新不丢。</p>
+  </header>
+
+  <main id="catalog"></main>
+
+  <div class="sc-add">
+    <input class="nm" id="addName" placeholder="自定义订阅（如：山姆会员）" maxlength="12">
+    <input class="pr" id="addPrice" placeholder="¥/月" inputmode="decimal">
+    <button id="addBtn" type="button">添加</button>
+  </div>
+  <div class="sc-cat sc-custom">
+    <div class="sc-items" id="customList"></div>
+  </div>
+
+  <section class="sc-result" id="result"></section>
+
+  <footer class="sc-foot">
+    价格为公开常见档位参考，以实际扣费为准 · 数据只存在你的浏览器本地，不上传 ·
+    <a href="https://zekes.top/challenge.html">52 周工具挑战 · W02</a><br>
+    © 2026 泽克的数据笔记 · 皖ICP备<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">2026036657号</a>
+  </footer>
+</div>
+
+<div class="sc-bar" id="bar">
+  <div class="t">已选 <b id="barN">0</b><small> 项</small> · 每年 <b>¥<span id="barY">0</span></b></div>
+  <a href="#result" id="barGo">看账单 ↓</a>
+</div>
+
+<script>
+/* ============ 数据：默认参考价（元/月，年付已折算月均） ============ */
+var CATALOG = [
+  {cat:'视频', items:[
+    {n:'爱奇艺',p:25},{n:'腾讯视频',p:30},{n:'优酷',p:25},{n:'芒果TV',p:22},{n:'B站大会员',p:25},{n:'Netflix',p:65}
+  ]},
+  {cat:'音乐', items:[
+    {n:'网易云黑胶',p:18},{n:'QQ音乐',p:18},{n:'Apple Music',p:11},{n:' Spotify',p:65}
+  ]},
+  {cat:'网盘', items:[
+    {n:'百度网盘SVIP',p:30},{n:'夸克SVIP',p:25},{n:'阿里云盘SVIP',p:30},{n:'iCloud 200G',p:21}
+  ]},
+  {cat:'AI 会员', items:[
+    {n:'ChatGPT Plus',p:145},{n:'Claude Pro',p:145},{n:'Codex 订阅',p:145},{n:'Copilot',p:73},{n:'Cursor',p:145},{n:'AI 中转/API',p:50}
+  ]},
+  {cat:'生产力', items:[
+    {n:'Office 365',p:33},{n:'Adobe 摄影',p:74},{n:'WPS 超级会员',p:15},{n:'Notion',p:70},{n:'域名/服务器',p:30}
+  ]},
+  {cat:'电商生活', items:[
+    {n:'京东PLUS',p:8},{n:'88VIP',p:7},{n:'美团外卖会员',p:15},{n:'Costco',p:22},{n:'山姆',p:21}
+  ]},
+  {cat:'游戏阅读', items:[
+    {n:'PS Plus',p:40},{n:'XGP',p:29},{n:'任天堂会员',p:10},{n:'微信读书',p:19},{n:'KU unlimited',p:12}
+  ]}
+];
+var MILK = 15, SBUX = 35, PHONE = 7999;
+
+/* ============ 状态（localStorage） ============ */
+var KEY = 'subcheck-v1';
+var state = {on:{}, price:{}, custom:[]};
+try { var s = JSON.parse(localStorage.getItem(KEY)); if (s && s.on) state = s; } catch(e){}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){} }
+function priceOf(it){
+  var k = 'c:' + it.n;
+  if (state.price[k] != null) return +state.price[k] || 0;
+  return it.p;
+}
+function fmt(n){ return n.toLocaleString('zh-CN', {maximumFractionDigits:0}); }
+
+/* ============ 渲染目录 ============ */
+var catalogEl = document.getElementById('catalog');
+CATALOG.forEach(function(c, ci){
+  var sec = document.createElement('div'); sec.className = 'sc-cat';
+  sec.innerHTML = '<div class="sc-cat-h"><em>0' + (ci+1) + '</em><h2>' + c.cat + '</h2><i>点金额可改价</i></div>';
+  var box = document.createElement('div'); box.className = 'sc-items';
+  c.items.forEach(function(it){
+    var el = document.createElement('label'); el.className = 'sc-item';
+    var k = 'c:' + it.n;
+    el.innerHTML = '<input type="checkbox" ' + (state.on[k]?'checked':'') + '><span class="nm">' + it.n +
+      '</span><input class="pr" inputmode="decimal" value="' + priceOf(it) + '"><span class="unit">元/月</span>';
+    var cb = el.querySelector('input[type=checkbox]');
+    cb.addEventListener('change', function(){ state.on[k] = cb.checked; save(); recalc(); });
+    var pr = el.querySelector('.pr');
+    pr.addEventListener('change', function(){
+      var v = parseFloat(pr.value);
+      if (!isFinite(v) || v < 0) { pr.value = priceOf(it); return; }
+      state.price[k] = v; save(); recalc();
+    });
+    box.appendChild(el);
+  });
+  sec.appendChild(box); catalogEl.appendChild(sec);
+});
+
+/* 自定义条目 */
+function renderCustom(){
+  var list = document.getElementById('customList'); list.innerHTML = '';
+  state.custom.forEach(function(it, i){
+    var k = 'u:' + i + ':' + it.n;
+    var el = document.createElement('label'); el.className = 'sc-item';
+    el.innerHTML = '<input type="checkbox" ' + (state.on[k]?'checked':'') + '><span class="nm">' + it.n +
+      '</span><input class="pr" inputmode="decimal" value="' + it.p + '"><span class="unit">元/月</span><button class="del" type="button" title="删除">✕</button>';
+    var cb = el.querySelector('input[type=checkbox]');
+    cb.addEventListener('change', function(){ state.on[k] = cb.checked; save(); recalc(); });
+    el.querySelector('.pr').addEventListener('change', function(e){
+      var v = parseFloat(e.target.value);
+      if (isFinite(v) && v >= 0) { it.p = v; save(); recalc(); }
+    });
+    el.querySelector('.del').addEventListener('click', function(e){
+      e.preventDefault(); delete state.on[k];
+      state.custom.splice(i,1); save(); renderCustom(); recalc();
+    });
+    list.appendChild(el);
+  });
+}
+document.getElementById('addBtn').addEventListener('click', function(){
+  var n = document.getElementById('addName').value.trim();
+  var p = parseFloat(document.getElementById('addPrice').value);
+  if (!n || !isFinite(p) || p < 0) return;
+  state.custom.push({n:n, p:p});
+  document.getElementById('addName').value = ''; document.getElementById('addPrice').value = '';
+  save(); renderCustom(); recalc();
+});
+renderCustom();
+
+/* ============ 计算 ============ */
+function selected(){
+  var arr = [];
+  CATALOG.forEach(function(c){ c.items.forEach(function(it){
+    var k = 'c:' + it.n;
+    if (state.on[k]) arr.push({n:it.n, m:priceOf(it)});
+  });});
+  state.custom.forEach(function(it, i){
+    var k = 'u:' + i + ':' + it.n;
+    if (state.on[k]) arr.push({n:it.n, m:it.p});
+  });
+  return arr;
+}
+function recalc(){
+  var sel = selected(), mo = 0;
+  sel.forEach(function(x){ mo += x.m; });
+  var yr = Math.round(mo * 12);
+  document.getElementById('barN').textContent = sel.length;
+  document.getElementById('barY').textContent = fmt(yr);
+  document.getElementById('bar').classList.toggle('show', sel.length > 0);
+
+  var top = sel.slice().sort(function(a,b){ return b.m - a.m; }).slice(0,3);
+  var r = document.getElementById('result');
+  if (!sel.length) {
+    r.innerHTML = '<div class="sc-bill"><span class="tag">账单</span><h2>还没勾选任何订阅</h2>' +
+      '<p class="sub">往上翻，把你在扣费的服务勾上——真实价格可能比你印象里多一位数。</p></div>';
+    return;
+  }
+  r.innerHTML =
+    '<div class="sc-bill">' +
+      '<span class="tag">SUBSCRIPTION BILL · 年度账单</span>' +
+      '<h2>你每年向订阅刺客进贡</h2>' +
+      '<div class="big">¥' + fmt(yr) + '<small> /年</small></div>' +
+      '<div class="sub">共 <b>' + sel.length + '</b> 项 · 月均 <b>¥' + fmt(mo) + '</b> · 相当于每月工资到账前先被划走一刀</div>' +
+      '<div class="sc-equiv">' +
+        '<div><b>' + Math.max(0, Math.floor(yr / MILK)) + '</b><i>杯奶茶（¥15）</i></div>' +
+        '<div><b>' + (yr / PHONE * 100).toFixed(1) + '%</b><i>部顶配 iPhone</i></div>' +
+        '<div><b>' + Math.max(0, Math.floor(yr / 3000)) + '</b><i>次周边游（¥3000）</i></div>' +
+      '</div>' +
+      (top.length ? '<div class="sc-top">头号刺客：<span class="no1">' + top[0].n + '</span>（¥' + fmt(top[0].m) + '/月）' +
+        (top[1] ? ' · 其后：' + top.slice(1).map(function(t){return t.n;}).join('、') : '') + '</div>' : '') +
+      '<div class="sc-actions">' +
+        '<button class="sc-copy" id="copyBtn">复制账单文案</button>' +
+        '<button class="sc-reset" id="resetBtn">清空重选</button>' +
+      '</div>' +
+      '<div class="sc-tip">截图分享这张账单，看看朋友里谁是「刺客之王」</div>' +
+    '</div>';
+  document.getElementById('copyBtn').addEventListener('click', function(){
+    var txt = '【订阅刺客年度账单】\n我每年在订阅上花 ¥' + fmt(yr) +
+      '（' + sel.length + ' 项，月均 ¥' + fmt(mo) + '）\n头号刺客：' + top[0].n +
+      ' ¥' + fmt(top[0].m) + '/月\n≈ ' + Math.max(0,Math.floor(yr/MILK)) + ' 杯奶茶 / ' + (yr/PHONE*100).toFixed(1) + '% 部顶配 iPhone\n——来自「泽克的数据笔记」订阅刺客计算器';
+    if (navigator.clipboard) navigator.clipboard.writeText(txt);
+    this.textContent = '已复制 ✓'; var b = this; setTimeout(function(){ b.textContent = '复制账单文案'; }, 1800);
+  });
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    state.on = {}; save();
+    document.querySelectorAll('.sc-item input[type=checkbox]').forEach(function(cb){ cb.checked = false; });
+    recalc();
+  });
+}
+recalc();
+document.getElementById('barGo').addEventListener('click', function(e){
+  e.preventDefault();
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+});
+</script>
+<script src="/track.js?v=1" defer></script>
+</body>
+</html>

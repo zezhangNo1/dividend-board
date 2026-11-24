@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F5F7FB">
+<title>摸鱼收益计算器 · 泽克的数据笔记</title>
+<meta name="description" content="输入月薪，算算你摸鱼 10 分钟值多少钱、一年能摸出几部 iPhone。纯属娱乐。">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+  :root{
+    --bg:#F5F7FB; --card:rgba(255,255,255,.78);
+    --ink:#0F172A; --ink2:#5B6B82; --ink3:#93A1B5;
+    --line:rgba(15,23,42,.09); --line-hi:rgba(37,99,235,.35);
+    --blue:#2563EB; --violet:#7C3AED; --amber:#D97706;
+    --ease:cubic-bezier(.25,.8,.25,1); --r:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{color-scheme:light}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;
+  }
+  .my-wrap{max-width:680px;margin:0 auto;padding:0 clamp(14px,4vw,28px) 56px}
+
+  .my-head{
+    position:relative;padding:40px 0 26px;overflow:hidden;
+    background:radial-gradient(520px 300px at 85% -20%, rgba(217,119,6,.10), transparent 70%),
+               radial-gradient(420px 260px at 0% -10%, rgba(37,99,235,.10), transparent 72%);
+  }
+  .my-back{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    font-size:12px;color:var(--ink2);margin-bottom:16px;
+    border:1px solid var(--line);border-radius:999px;padding:3px 12px;background:#fff;
+  }
+  .my-back:hover{color:var(--blue);border-color:var(--blue)}
+  .my-head h1{
+    font-size:clamp(24px,4.4vw,32px);font-weight:800;letter-spacing:.5px;line-height:1.25;
+    background:linear-gradient(100deg,#0F172A 20%,#D97706 60%,#2563EB 105%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  }
+  .my-head p{color:var(--ink2);font-size:13px;margin-top:8px;max-width:62ch}
+  .my-head p b{color:var(--amber)}
+
+  .my-form{margin-top:24px;display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
+  .my-field{
+    background:var(--card);border:1px solid var(--line);border-radius:15px;
+    padding:14px 18px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    min-width:0;
+  }
+  .my-field label{display:block;font-size:12.5px;color:var(--ink2);margin-bottom:6px}
+  .my-field label b{color:var(--ink)}
+  .my-field .row{display:flex;align-items:baseline;gap:8px}
+  .my-field input[type=number]{
+    flex:1;min-width:0;border:none;background:transparent;font-family:ui-monospace,"SF Mono",Menlo,monospace;
+    font-size:26px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;
+  }
+  .my-field input[type=number]:focus{outline:none}
+  .my-field .unit{font-size:13px;color:var(--ink3);flex:none}
+  .my-slider{display:flex;align-items:center;gap:14px}
+  .my-slider input[type=range]{flex:1;min-width:0;accent-color:var(--amber);height:24px;cursor:pointer}
+  .my-slider b{
+    flex:none;font-family:ui-monospace,Menlo,monospace;font-size:18px;font-weight:800;
+    color:var(--amber);min-width:88px;text-align:right;font-variant-numeric:tabular-nums;
+  }
+
+  .my-out{margin-top:26px}
+  .my-card{
+    border:1px solid var(--line);border-radius:22px;padding:26px clamp(18px,4vw,30px);
+    background:
+      radial-gradient(420px 260px at 92% 0%, rgba(217,119,6,.12), transparent 70%),
+      radial-gradient(420px 260px at 0% 100%, rgba(37,99,235,.10), transparent 72%),
+      linear-gradient(135deg,#FFFFFF,#FDF9F3);
+    box-shadow:0 1px 2px rgba(15,23,42,.04),0 20px 44px -26px rgba(15,23,42,.3);
+  }
+  .my-card .tag{
+    display:inline-block;font-size:10.5px;font-weight:700;color:var(--amber);
+    border:1px solid rgba(217,119,6,.3);background:rgba(217,119,6,.06);
+    border-radius:999px;padding:2px 10px;margin-bottom:12px;letter-spacing:1px;
+  }
+  .my-card h2{font-size:15px;font-weight:800}
+  .my-big{
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;font-weight:800;
+    font-size:clamp(36px,7.5vw,54px);letter-spacing:-.5px;line-height:1.15;margin-top:6px;
+    background:linear-gradient(100deg,#D97706,#2563EB);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    font-variant-numeric:tabular-nums;
+  }
+  .my-big small{font-size:17px;color:var(--ink2);-webkit-text-fill-color:var(--ink2);letter-spacing:0;font-weight:400}
+  .my-sub{font-size:12.5px;color:var(--ink2);margin-top:2px}
+  .my-sub b{color:var(--ink)}
+  .my-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:18px}
+  .my-grid div{
+    background:rgba(255,255,255,.75);border:1px solid var(--line);border-radius:13px;
+    padding:12px 8px;text-align:center;
+  }
+  .my-grid b{
+    display:block;font-family:ui-monospace,Menlo,monospace;font-size:20px;font-weight:800;
+    color:var(--amber);font-variant-numeric:tabular-nums;
+  }
+  .my-grid i{font-style:normal;font-size:10.5px;color:var(--ink3)}
+  .my-quote{
+    margin-top:16px;border-left:3px solid rgba(217,119,6,.5);background:rgba(217,119,6,.05);
+    border-radius:0 13px 13px 0;padding:12px 16px;font-size:13px;color:var(--ink2);line-height:1.8;
+  }
+  .my-quote b{color:var(--ink)}
+  .my-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .my-actions button{
+    border:none;border-radius:12px;font-family:inherit;font-size:13.5px;font-weight:700;
+    padding:11px 20px;cursor:pointer;transition:transform .25s var(--ease);
+  }
+  .my-actions button:hover{transform:translateY(-2px)}
+  .my-copy{background:linear-gradient(135deg,#D97706,#2563EB);color:#fff;
+    box-shadow:0 10px 24px -10px rgba(217,119,6,.5)}
+  .my-note{margin-top:14px;font-size:11px;color:var(--ink3)}
+  .my-foot{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);
+    font-size:11px;color:var(--ink3);text-align:center;line-height:2.1}
+  .my-foot a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--ink3)}
+
+  @media (max-width:560px){
+    .my-grid{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+<div class="my-wrap">
+
+  <header class="my-head">
+    <a class="my-back" href="https://zekes.top/portal.html">⌂ 泽克主页</a>
+    <h1>摸鱼收益计算器</h1>
+    <p>老板按小时付钱，你按小时干活——那么<b>摸鱼的每一分钟，都是带薪的</b>。算算你的摸鱼时值多少。（纯属娱乐，摸鱼有度）</p>
+  </header>
+
+  <section class="my-form">
+    <div class="my-field">
+      <label><b>到手月薪</b></label>
+      <div class="row"><input type="number" id="sal" min="0" step="500" placeholder="如 12000"><span class="unit">元</span></div>
+    </div>
+    <div class="my-field">
+      <label><b>每月工作日</b>（法定约 21.75 天）</label>
+      <div class="row"><input type="number" id="days" min="1" max="31" step="0.5" value="21.75"><span class="unit">天</span></div>
+    </div>
+    <div class="my-field">
+      <label><b>每天工时</b>（含午休外的在岗时间）</label>
+      <div class="row"><input type="number" id="hrs" min="1" max="16" step="0.5" value="8"><span class="unit">小时</span></div>
+    </div>
+    <div class="my-field">
+      <label><b>每天摸鱼时长</b>（诚实一点）</label>
+      <div class="my-slider">
+        <input type="range" id="fish" min="5" max="180" step="5" value="30">
+        <b id="fishV">30 分钟</b>
+      </div>
+    </div>
+  </section>
+
+  <section class="my-out" id="out"></section>
+
+  <footer class="my-foot">
+    纯属娱乐 · 摸鱼虽好，绩效要紧 · <a href="https://zekes.top/challenge.html">52 周工具挑战 · W02</a><br>
+    © 2026 泽克的数据笔记 · 皖ICP备<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">2026036657号</a>
+  </footer>
+</div>
+
+<script>
+var F = {
+  sal: document.getElementById('sal'), days: document.getElementById('days'),
+  hrs: document.getElementById('hrs'), fish: document.getElementById('fish'),
+  fishV: document.getElementById('fishV'), out: document.getElementById('out')
+};
+var KEY = 'moyu-v1';
+try {
+  var s = JSON.parse(localStorage.getItem(KEY));
+  if (s) { F.sal.value = s.sal || ''; F.days.value = s.days || 21.75; F.hrs.value = s.hrs || 8; F.fish.value = s.fish || 30; }
+} catch(e){}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify({
+  sal:F.sal.value, days:F.days.value, hrs:F.hrs.value, fish:F.fish.value
+})); } catch(e){} }
+function fmt(n){ return Math.round(n).toLocaleString('zh-CN'); }
+function fmoney(n){ return n.toFixed(1).replace(/\.0$/,''); }
+
+function calc(){
+  F.fishV.textContent = F.fish.value + ' 分钟';
+  save();
+  var sal = Math.max(0, +F.sal.value || 0);
+  var days = Math.max(1, +F.days.value || 21.75);
+  var hrs = Math.max(1, +F.hrs.value || 8);
+  var fish = Math.max(0, +F.fish.value || 0);
+
+  if (!sal) {
+    F.out.innerHTML = '<div class="my-card"><span class="tag">SLACK METER</span><h2>先填月薪</h2>' +
+      '<p class="my-sub">放心，数字只存在你自己浏览器里。</p></div>';
+    return;
+  }
+  var hourly = sal / (days * hrs);          // 时薪
+  var perMin = hourly / 60;                 // 分钟价
+  var fishPerDay = perMin * fish;           // 每天摸鱼价值
+  var fishPerYear = fishPerDay * days * 12; // 年摸鱼总价值
+  var milk = Math.floor(fishPerYear / 15);
+  var iphone = fishPerYear / 7999 * 100;
+
+  F.out.innerHTML =
+    '<div class="my-card">' +
+      '<span class="tag">SLACK INCOME · 带薪摸鱼</span>' +
+      '<h2>你摸鱼的每一分钟值</h2>' +
+      '<div class="my-big">¥' + fmoney(perMin) + '<small> /分钟</small></div>' +
+      '<div class="my-sub">时薪 <b>¥' + fmoney(hourly) + '</b> · 每天摸 <b>' + fish + '</b> 分钟 = 带薪入账 <b>¥' + fmoney(fishPerDay) + '</b></div>' +
+      '<div class="my-grid">' +
+        '<div><b>¥' + fmt(fishPerYear) + '</b><i>年度摸鱼总产值</i></div>' +
+        '<div><b>' + milk + '</b><i>杯奶茶被你摸出来了</i></div>' +
+        '<div><b>' + iphone.toFixed(0) + '%</b><i>部顶配 iPhone</i></div>' +
+        '<div><b>' + Math.floor(fish / 2) + '</b><i>分钟午休等价物（半价摸）</i></div>' +
+      '</div>' +
+      '<div class="my-quote">按这个节奏，你每年为公司茶水间贡献 <b>¥' + fmt(fishPerYear) + '</b> 的「宁静」。' +
+        '换句话说：只要摸鱼时心里不慌，这钱就是纯赚。<b>慌，才是真正的成本。</b></div>' +
+      '<div class="my-actions"><button class="my-copy" id="copyBtn">复制摸鱼战报</button></div>' +
+      '<p class="my-note">以上均为税后口径的数学游戏，不代表任何工作态度建议。</p>' +
+    '</div>';
+  document.getElementById('copyBtn').addEventListener('click', function(){
+    var txt = '【带薪摸鱼战报】\n我的时薪 ¥' + fmoney(hourly) + '，摸鱼每分钟价值 ¥' + fmoney(perMin) +
+      '\n每天摸 ' + fish + ' 分钟 = 白捡 ¥' + fmoney(fishPerDay) +
+      '\n一年能摸出 ¥' + fmt(fishPerYear) + ' ≈ ' + milk + ' 杯奶茶 / ' + iphone.toFixed(0) + '% 部顶配 iPhone' +
+      '\n——来自「泽克的数据笔记」摸鱼计算器';
+    if (navigator.clipboard) navigator.clipboard.writeText(txt);
+    this.textContent = '已复制 ✓'; var b = this; setTimeout(function(){ b.textContent = '复制摸鱼战报'; }, 1800);
+  });
+}
+['sal','days','hrs'].forEach(function(id){ F[id].addEventListener('input', calc); });
+F.fish.addEventListener('input', calc);
+calc();
+</script>
+<script src="/track.js?v=1" defer></script>
+</body>
+</html>
